@@ -1,0 +1,4 @@
+include ':media_player'
+include ':core'
+include ':app'
+rootProject.name = "QPlayer"
