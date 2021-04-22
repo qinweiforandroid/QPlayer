@@ -66,7 +66,7 @@ public interface IPodPlayer {
 
         void onPlayStopped();
 
-        void onPlayBufferingUpdate(int percent);
+        void onPlayBufferingUpdated(int percent);
 
         void onPlayProgressUpdated(int cur, int total);
 

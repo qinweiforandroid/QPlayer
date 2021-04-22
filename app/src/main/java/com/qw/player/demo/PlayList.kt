@@ -5,6 +5,7 @@ import com.qw.player.core.IAudioFocus
 import com.qw.player.core.IPlayMode
 import com.qw.player.core.IPodPlayer
 import com.qw.player.core.PlayModeFactory
+import com.qw.player.core.mode.IPod
 import com.qw.player.core.mode.ListLoopPlayMode
 
 object PlayList {
@@ -14,6 +15,7 @@ object PlayList {
      * 当前音频id
      */
     private var mCurrPodId: String = ""
+    private var mCurrPosition = -1
 
     /**
      * 播放组件
@@ -26,39 +28,64 @@ object PlayList {
     private lateinit var mAudioFocus: IAudioFocus
 
     private var mPlayMode: IPlayMode = ListLoopPlayMode()
+
+    private var listeners = ArrayList<OnPlayListListener>()
     fun initPlayer(player: IPodPlayer) {
         this.mPlayer = player
         this.mPlayer.registerListener(object : IPodPlayer.OnPlayListener {
             override fun onPlayStart() {
+                for (listener in listeners) {
+                    listener.onPlayStart(mCurrPodId)
+                }
             }
 
             override fun onPlayResumed() {
+                for (listener in listeners) {
+                    listener.onPlayResumed(mCurrPodId)
+                }
             }
 
-            override fun onPlayBufferingUpdate(percent: Int) {
-
+            override fun onPlayBufferingUpdated(percent: Int) {
+                for (listener in listeners) {
+                    listener.onPlayBufferingUpdated(mCurrPodId, percent)
+                }
             }
 
             override fun onPlayError(code: Int, message: String?) {
-
+                for (listener in listeners) {
+                    listener.onPlayError(mCurrPodId, code, message ?: "")
+                }
             }
 
             override fun onPlayStopped() {
+                for (listener in listeners) {
+                    listener.onPlayStopped(mCurrPodId)
+                }
             }
 
             override fun onPlayPaused() {
+                for (listener in listeners) {
+                    listener.onPlayPaused(mCurrPodId)
+                }
             }
 
             override fun onPlayCompleted() {
+                for (listener in listeners) {
+                    listener.onPlayCompleted(mCurrPodId)
+                }
             }
 
             override fun onPlayProgressUpdated(cur: Int, total: Int) {
+                for (listener in listeners) {
+                    listener.onPlayProgressUpdated(mCurrPodId, cur, total)
+                }
             }
 
             override fun onPlayConnect() {
-
+                for (listener in listeners) {
+                    listener.onPlayConnecting(mCurrPodId)
+                }
             }
-
         })
     }
 
@@ -78,7 +105,23 @@ object PlayList {
         if (position < 0 || position > mPods.size - 1) {
             return
         }
-        play(mPods[position])
+        if (mCurrPosition == position) {
+            if (mPlayer.isPlaying) {
+                mPlayer.pause()
+            } else if (mPlayer.isPaused) {
+                mPlayer.resume()
+            }
+            return
+        }
+        if (mPlayer.isPlaying) {
+            mPlayer.stop()
+        }
+        val pod = mPods[position]
+        for (listener in listeners) {
+            listener.onPlaySwitched(pod.getId(), mCurrPodId)
+        }
+        mCurrPosition = position
+        play(pod)
     }
 
     private fun play(iPod: IPod) {
@@ -104,13 +147,17 @@ object PlayList {
         }
     }
 
-    private fun getPos(): Int {
+    fun getPosById(id: String): Int {
         for (i in 0 until mPods.size) {
-            if (mCurrPodId == mPods[i].getId()) {
+            if (id == mPods[i].getId()) {
                 return i
             }
         }
-        return 0
+        return -1
+    }
+
+    fun getPos(): Int {
+        return mCurrPosition
     }
 
     fun hasToNext(auto: Boolean): Boolean {
@@ -138,8 +185,64 @@ object PlayList {
         this.mPods.addAll(pods)
     }
 
+    fun addPlayListHeader(pod: IPod) {
+        this.mPods.add(0, pod)
+    }
+
+    fun addPlayListFooter(pod: IPod) {
+        this.mPods.add(pod)
+    }
+
+    fun isPaused(): Boolean {
+        return mPlayer.isPaused
+    }
+
+    fun isPlaying(): Boolean {
+        return mPlayer.isPlaying
+    }
+
     fun onDestroy() {
         mPlayer.unregisterListener()
         mPlayer.release()
+    }
+
+    fun addOnPlayListListener(playListListener: OnPlayListListener) {
+        listeners.add(playListListener)
+    }
+
+    fun removeOnPlayListListener(playListListener: OnPlayListListener) {
+        listeners.remove(playListListener)
+    }
+
+    interface OnPlayListListener {
+        fun onPlaySwitched(newId: String, oldId: String) {
+        }
+
+        fun onPlayConnecting(mCurrPodId: String) {
+        }
+
+        fun onPlayProgressUpdated(mCurrPodId: String, cur: Int, total: Int) {
+        }
+
+        fun onPlayCompleted(mCurrPodId: String) {
+        }
+
+        fun onPlayPaused(mCurrPodId: String) {
+        }
+
+        fun onPlayStopped(mCurrPodId: String) {
+        }
+
+        fun onPlayError(mCurrPodId: String, code: Int, msg: String) {
+        }
+
+        fun onPlayBufferingUpdated(mCurrPodId: String, percent: Int) {
+        }
+
+        fun onPlayResumed(mCurrPodId: String) {
+        }
+
+        fun onPlayStart(mCurrPodId: String) {
+        }
     }
 }

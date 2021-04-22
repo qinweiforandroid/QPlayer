@@ -2,43 +2,47 @@ package com.qw.player.demo
 
 import android.content.Context
 import android.content.Intent
-import android.support.v4.media.session.PlaybackStateCompat
+import android.os.Bundle
 import androidx.core.content.ContextCompat
+import com.qw.player.core.mode.IPod
 
-/**
- * when(it.getLongExtra("",0)){
-PlaybackStateCompat.ACTION_PLAY->{
-play()
-}
-PlaybackStateCompat.ACTION_PAUSE->{
-pause()
-}
-PlaybackStateCompat.ACTION_STOP->{
-stop()
-}
-PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS->{
-skipToPrevious()
-}
-
-PlaybackStateCompat.ACTION_SKIP_TO_NEXT->{
-skipToNext()
-}
-}
- */
 object PlayManager {
-    fun play(context: Context){
-        val intent=Intent(context,AudioPlayService::class.java)
-        intent.putExtra(AudioPlayService.KEY_ACTION, PlaybackStateCompat.ACTION_PLAY)
-        ContextCompat.startForegroundService(context,intent)
+    private lateinit var context: Context
+
+    fun init(context: Context) {
+        this.context = context.applicationContext
     }
-    fun pause(context: Context){
-        val intent=Intent(context,AudioPlayService::class.java)
-        intent.putExtra(AudioPlayService.KEY_ACTION, PlaybackStateCompat.ACTION_PLAY)
-        ContextCompat.startForegroundService(context,intent)
+
+    fun play(position: Int = 0) {
+        execute(AudioPlayService.ACTION_PLAY, Bundle().apply {
+            this.putInt(AudioPlayService.KEY_POSITION, position)
+        })
     }
-    fun reusme(context: Context){
-        val intent=Intent(context,AudioPlayService::class.java)
-        intent.putExtra(AudioPlayService.KEY_ACTION, PlaybackStateCompat.ACTION_PLAY)
-        ContextCompat.startForegroundService(context,intent)
+
+    fun resume() {
+        execute(AudioPlayService.ACTION_RESUME)
+    }
+
+    fun pause() {
+        execute(AudioPlayService.ACTION_PAUSE)
+    }
+
+    fun next() {
+        execute(AudioPlayService.ACTION_NEXT)
+    }
+
+    fun previous() {
+        execute(AudioPlayService.ACTION_PREVIOUS)
+    }
+
+    private fun execute(action: String, bundle: Bundle = Bundle()) {
+        val intent = Intent(context, AudioPlayService::class.java)
+        intent.putExtra(AudioPlayService.KEY_ACTION, action)
+        intent.putExtras(bundle)
+        ContextCompat.startForegroundService(context, intent)
+    }
+
+    fun setPlayList(pods: ArrayList<IPod>) {
+        PlayList.setPlayList(pods)
     }
 }

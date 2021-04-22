@@ -16,6 +16,12 @@ import com.qw.player.media.PodMediaPlayer
 class AudioPlayService : Service() {
     companion object {
         const val KEY_ACTION = "key_action"
+        const val ACTION_PLAY = "action_play"
+        const val ACTION_PAUSE = "action_pause"
+        const val ACTION_RESUME: String = "action_resume"
+        const val ACTION_NEXT = "action_next"
+        const val ACTION_PREVIOUS = "action_previous"
+        const val KEY_POSITION = "key_position"
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -24,12 +30,40 @@ class AudioPlayService : Service() {
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var stateBuilder: PlaybackStateCompat.Builder
+    private val playListListener = object : PlayList.OnPlayListListener {
+        override fun onPlayPaused(mCurrPodId: String) {
+            super.onPlayPaused(mCurrPodId)
+            notifyNotificationUpdated()
+        }
+
+        override fun onPlayStart(mCurrPodId: String) {
+            super.onPlayStart(mCurrPodId)
+            notifyNotificationUpdated()
+        }
+
+        override fun onPlaySwitched(newId: String, oldId: String) {
+            super.onPlaySwitched(newId, oldId)
+            notifyNotificationUpdated()
+        }
+
+        override fun onPlayResumed(mCurrPodId: String) {
+            super.onPlayResumed(mCurrPodId)
+            notifyNotificationUpdated()
+        }
+    }
+
+
     override fun onCreate() {
         super.onCreate()
         initMediaSession()
         initPlayer()
+
         //通知数据变更
 //        mediaSession.setMetadata()
+    }
+
+    private fun notifyNotificationUpdated() {
+
     }
 
     private fun initPlayer() {
@@ -43,7 +77,9 @@ class AudioPlayService : Service() {
                 this@AudioPlayService.abandonAudioFocus()
             }
         })
+        PlayList.addOnPlayListListener(playListListener)
     }
+
 
     private fun initMediaSession() {
         mediaSession = MediaSessionCompat(baseContext, "AudioPlayService").apply {
@@ -78,7 +114,7 @@ class AudioPlayService : Service() {
 
                 override fun onPlay() {
                     super.onPlay()
-                    play()
+                    resume()
                 }
 
                 override fun onPause() {
@@ -100,6 +136,26 @@ class AudioPlayService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        intent?.let {
+            when (it.getStringExtra(KEY_ACTION)) {
+                ACTION_PREVIOUS -> {
+                    skipToPrevious()
+                }
+                ACTION_NEXT -> {
+                    skipToNext()
+                }
+                ACTION_PLAY -> {
+                    val position = intent.getIntExtra(KEY_POSITION, 0)
+                    play(position)
+                }
+                ACTION_PAUSE -> {
+                    pause(false)
+                }
+                ACTION_RESUME -> {
+                    resume()
+                }
+            }
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -120,11 +176,15 @@ class AudioPlayService : Service() {
         PlayList.pause()
     }
 
+    private fun resume() {
+        play(PlayList.getPos())
+    }
 
-    private fun play() {
+
+    private fun play(position: Int) {
         val requestAudioFocus = requestAudioFocus()
         if (requestAudioFocus == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            PlayList.play()
+            PlayList.play(position)
         }
     }
 
@@ -139,7 +199,7 @@ class AudioPlayService : Service() {
             when (focusChange) {
                 AudioManager.AUDIOFOCUS_GAIN -> {
                     if (resumeOnFocusGain) {
-                        play()
+                        play(PlayList.getPos())
                     }
                 }
                 AudioManager.AUDIOFOCUS_LOSS -> {

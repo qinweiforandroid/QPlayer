@@ -4,8 +4,10 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
+
 import com.qw.player.core.IPodPlayer;
 import com.qw.player.core.PodPlayerTimer;
+
 import java.io.IOException;
 
 public class PodMediaPlayer implements IPodPlayer {
@@ -47,7 +49,7 @@ public class PodMediaPlayer implements IPodPlayer {
         mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                listener.onPlayBufferingUpdate(percent);
+                listener.onPlayBufferingUpdated(percent);
             }
         });
 
@@ -84,9 +86,9 @@ public class PodMediaPlayer implements IPodPlayer {
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mMediaPlayer.setDataSource(content);
-            mMediaPlayer.prepareAsync();
             state = State.CONNECT;
             listener.onPlayConnect();
+            mMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
             state = State.ERROR;
