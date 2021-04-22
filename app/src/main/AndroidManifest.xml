@@ -19,6 +19,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".AudioPlayService" android:exported="false">
+        </service>
     </application>
 
 </manifest>
