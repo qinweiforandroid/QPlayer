@@ -57,7 +57,7 @@ class AudioPlayService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        initMediaSession()
+//        initMediaSession()
         initPlayer()
         initNotification()
         //通知数据变更
@@ -74,7 +74,6 @@ class AudioPlayService : Service() {
     }
 
     private fun initPlayer() {
-        PlayList.initPlayer(PodMediaPlayer(this))
         PlayList.setAudioFocus(object : IAudioFocus {
             override fun requestAudioFocus(): Int {
                 return this@AudioPlayService.requestAudioFocus()
@@ -190,6 +189,7 @@ class AudioPlayService : Service() {
 
     private fun play(position: Int) {
         val requestAudioFocus = requestAudioFocus()
+        notifyNotificationUpdated()
         if (requestAudioFocus == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             PlayList.play(position)
         }
@@ -241,6 +241,7 @@ class AudioPlayService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        playNotification.unRegisterListener()
         playNotification.cancel()
         PlayList.onDestroy()
     }

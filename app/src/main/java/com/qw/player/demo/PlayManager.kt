@@ -5,12 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import com.qw.player.core.mode.IPod
+import com.qw.player.media.PodMediaPlayer
 
 object PlayManager {
     private lateinit var context: Context
 
     fun init(context: Context) {
         this.context = context.applicationContext
+        PlayList.initPlayer(PodMediaPlayer(this.context))
     }
 
     fun play(position: Int = 0) {

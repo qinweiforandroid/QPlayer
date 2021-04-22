@@ -16,15 +16,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        App.init(App.Builder(this))
-        AppStateTracker.init(application)
         handler.postDelayed({ goNext() }, 500)
     }
 
     private fun goNext() {
         val list = ArrayList<Clazz>()
-        list.add(Clazz("media_player", PodPlayerFragment::class.java))
-//        list.add(Clazz("播放详情", AudioPlayFragment::class.java))
+        list.add(Clazz("MediaPlayer", PodPlayerFragment::class.java))
+        list.add(Clazz("PlayList", PlayListFragment::class.java))
         SupportFragmentListActivity.startActivity(this, list, false)
         finish()
     }

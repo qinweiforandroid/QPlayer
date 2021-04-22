@@ -160,7 +160,10 @@ object PlayList {
         return mCurrPosition
     }
 
-    fun getPod(): IPod {
+    fun getPod(): IPod? {
+        if(mCurrPodId==""){
+            return null
+        }
         return mPods[mCurrPosition]
     }
 
