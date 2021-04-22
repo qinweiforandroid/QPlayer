@@ -11,6 +11,7 @@ import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.qw.player.core.IAudioFocus
+import com.qw.player.core.IPlayNotification
 import com.qw.player.media.PodMediaPlayer
 
 class AudioPlayService : Service() {
@@ -30,6 +31,7 @@ class AudioPlayService : Service() {
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var stateBuilder: PlaybackStateCompat.Builder
+    private lateinit var playNotification: IPlayNotification
     private val playListListener = object : PlayList.OnPlayListListener {
         override fun onPlayPaused(mCurrPodId: String) {
             super.onPlayPaused(mCurrPodId)
@@ -57,13 +59,18 @@ class AudioPlayService : Service() {
         super.onCreate()
         initMediaSession()
         initPlayer()
-
+        initNotification()
         //通知数据变更
 //        mediaSession.setMetadata()
     }
 
-    private fun notifyNotificationUpdated() {
+    private fun initNotification() {
+        playNotification = PlayNotification(this)
+        playNotification.registerListener()
+    }
 
+    private fun notifyNotificationUpdated() {
+        playNotification.notifyNotification(this)
     }
 
     private fun initPlayer() {
@@ -234,6 +241,7 @@ class AudioPlayService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        playNotification.cancel()
         PlayList.onDestroy()
     }
 }

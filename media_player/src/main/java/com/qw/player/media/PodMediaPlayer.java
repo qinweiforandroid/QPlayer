@@ -80,6 +80,7 @@ public class PodMediaPlayer implements IPodPlayer {
         }
     }
 
+
     @Override
     public void play(String content) {
         reset();
@@ -139,6 +140,11 @@ public class PodMediaPlayer implements IPodPlayer {
     @Override
     public boolean isPaused() {
         return state == State.PAUSED;
+    }
+
+    @Override
+    public boolean isConnecting() {
+        return state == State.CONNECT;
     }
 
     @Override

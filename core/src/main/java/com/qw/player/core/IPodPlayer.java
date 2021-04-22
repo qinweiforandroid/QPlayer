@@ -2,6 +2,8 @@ package com.qw.player.core;
 
 public interface IPodPlayer {
 
+    boolean isConnecting();
+
     class State {
         /**
          * 空闲

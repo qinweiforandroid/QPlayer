@@ -160,6 +160,10 @@ object PlayList {
         return mCurrPosition
     }
 
+    fun getPod(): IPod {
+        return mPods[mCurrPosition]
+    }
+
     fun hasToNext(auto: Boolean): Boolean {
         return mPlayMode.hasNext(auto, getPos(), mPods.size)
     }
@@ -199,6 +203,14 @@ object PlayList {
 
     fun isPlaying(): Boolean {
         return mPlayer.isPlaying
+    }
+
+    fun isConnecting(): Boolean {
+        return mPlayer.isConnecting
+    }
+
+    fun getState(): Int {
+        return mPlayer.state
     }
 
     fun onDestroy() {
