@@ -27,15 +27,15 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         mPullRecyclerView.setEnablePullToEnd(false)
         mMusicView = findViewById<MusicView>(R.id.mMusicView)
         mMusicView.setOnMusicPlayStateClickListener(View.OnClickListener {
-            if (PlayList.isConnecting()) {
+            if (PlayManager.isConnecting()) {
                 Toast.makeText(requireContext(), "加载中...", Toast.LENGTH_SHORT).show()
                 return@OnClickListener
             }
-            PlayList.play()
+            PlayManager.play()
         })
         mMusicView.setOnSeekChangedListener(object : MusicView.OnSeekChangedListener {
             override fun onSeekChanged(seekBar: SeekBar) {
-                PlayList.seekTo(seekBar.progress.toLong())
+                PlayManager.seekTo(seekBar.progress.toLong())
             }
         })
         findViewById<RadioGroup>(R.id.mMusicPlayModeRG).let {
@@ -43,7 +43,7 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
                 setPlayMode(checkedId)
             }
             //显示当前的播放模式
-            when (PlayList.getPlayMode()) {
+            when (PlayManager.getPlayMode()) {
                 IPlayMode.PLAY_MODEL_SINGLE_LOOP -> {
                     it.check(R.id.mMusicPlayModeSingLoopRB)
                 }
@@ -64,13 +64,13 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
     private fun setPlayMode(checkedId: Int) {
         when (checkedId) {
             R.id.mMusicPlayModeSingLoopRB -> {
-                PlayList.setPlayMode(IPlayMode.PLAY_MODEL_SINGLE_LOOP)
+                PlayManager.setPlayMode(IPlayMode.PLAY_MODEL_SINGLE_LOOP)
             }
             R.id.mMusicPlayModeListLoopRB -> {
-                PlayList.setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
+                PlayManager.setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
             }
             R.id.mMusicPlayModeRandomRB -> {
-                PlayList.setPlayMode(IPlayMode.PLAY_MODEL_RANDOM)
+                PlayManager.setPlayMode(IPlayMode.PLAY_MODEL_RANDOM)
             }
         }
     }
@@ -97,7 +97,7 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
                 Glide.with(itemView).load(it.getCover()).into(bind.mMusicCoverImg)
                 bind.mMusicTitleLabel.text = it.getTitle()
                 bind.mMusicAuthorLabel.text = it.getAuthor()
-                if (PlayList.isPlaying() && PlayList.getPos() == position) {
+                if (PlayManager.isPlaying() && PlayManager.getPos() == position) {
                     bind.mMusicStateImg.setImageResource(R.drawable.ic_baseline_pause_24)
                 } else {
                     bind.mMusicStateImg.setImageResource(R.drawable.ic_baseline_play_arrow_24)
@@ -114,10 +114,10 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.previous -> {
-                PlayList.skipToPrevious()
+                PlayManager.skipToPrevious()
             }
             R.id.next -> {
-                PlayList.skipToNext()
+                PlayManager.skipToNext()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -205,7 +205,7 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
 
         override fun onPlayBufferingUpdated(mCurrPodId: String, percent: Int) {
             super.onPlayBufferingUpdated(mCurrPodId, percent)
-            mMusicView.setSecondaryProgress((percent / 100.0 * PlayList.getDuring()).toInt())
+            mMusicView.setSecondaryProgress((percent / 100.0 * PlayManager.getDuring()).toInt())
         }
 
         override fun onPlayProgressUpdated(mCurrPodId: String, cur: Int, total: Int) {
@@ -222,13 +222,13 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
 
     private fun notifyPlayUpdated() {
         adapter.notifyDataSetChanged()
-        if (PlayList.isPlaying()) {
+        if (PlayManager.isPlaying()) {
             mMusicView.playing()
         } else {
             mMusicView.paused()
         }
-        mMusicView.loading(PlayList.isConnecting())
-        PlayList.getPod()?.let {
+        mMusicView.loading(PlayManager.isConnecting())
+        PlayManager.getPod()?.let {
             mMusicView.setCover(it.getCover())
                     .setName(it.getTitle())
                     .setSinger(it.getAuthor())
@@ -240,12 +240,12 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
 
     override fun onResume() {
         super.onResume()
-        PlayList.addOnPlayListListener(playListListener)
+        PlayManager.addOnPlayListListener(playListListener)
         notifyPlayUpdated()
     }
 
     override fun onPause() {
         super.onPause()
-        PlayList.removeOnPlayListListener(playListListener)
+        PlayManager.removeOnPlayListListener(playListListener)
     }
 }

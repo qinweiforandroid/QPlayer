@@ -32,11 +32,11 @@ object PlayManager {
         execute(AudioPlayService.ACTION_PAUSE)
     }
 
-    fun next() {
+    fun skipToNext() {
         execute(AudioPlayService.ACTION_NEXT)
     }
 
-    fun previous() {
+    fun skipToPrevious() {
         execute(AudioPlayService.ACTION_PREVIOUS)
     }
 
@@ -49,5 +49,46 @@ object PlayManager {
 
     fun setPlayList(pods: ArrayList<IPod>) {
         PlayList.setPlayList(pods)
+    }
+
+    fun isPlaying(): Boolean {
+        return PlayList.isPlaying()
+    }
+
+    fun getPos(): Int {
+        return PlayList.getPos()
+    }
+
+    fun isConnecting(): Boolean {
+        return PlayList.isConnecting()
+    }
+
+    fun seekTo(toLong: Long) {
+        PlayList.seekTo(toLong)
+    }
+
+    fun getPlayMode(): Int {
+        return PlayList.getPlayMode()
+    }
+
+    fun getPod(): IPod? {
+        return PlayList.getPod()
+    }
+
+    fun addOnPlayListListener(playListListener: PlayList.OnPlayListListener) {
+        PlayList.addOnPlayListListener(playListListener)
+    }
+
+    fun removeOnPlayListListener(playListListener: PlayList.OnPlayListListener) {
+        PlayList.removeOnPlayListListener(playListListener)
+    }
+
+    fun getDuring(): Int {
+        return PlayList.getDuring()
+
+    }
+
+    fun setPlayMode(playMode: Int) {
+        PlayList.setPlayMode(playMode)
     }
 }

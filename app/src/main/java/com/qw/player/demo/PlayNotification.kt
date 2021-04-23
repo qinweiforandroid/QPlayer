@@ -18,7 +18,7 @@ import com.qw.player.demo.PlayList.isConnecting
 import com.qw.player.demo.PlayList.isPlaying
 import com.qw.player.demo.PlayManager.next
 import com.qw.player.demo.PlayManager.pause
-import com.qw.player.demo.PlayManager.previous
+import com.qw.player.demo.PlayManager.skipToPrevious
 import com.qw.player.demo.PlayManager.resume
 
 class PlayNotification constructor(private val context: Context) : IPlayNotification {
@@ -152,7 +152,7 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
                     IPodPlayer.State.IDLE, IPodPlayer.State.PAUSED -> resume()
                     IPodPlayer.State.PLAYING -> pause()
                 }
-                ACTION_PRE -> previous()
+                ACTION_PRE -> skipToPrevious()
                 ACTION_NEXT -> next()
                 ACTION_CLOSE -> {
                     cancel()
