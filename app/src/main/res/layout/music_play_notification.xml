@@ -53,11 +53,12 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/widget_artist"
+                android:id="@+id/mNMusicPlaySubTitleLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:singleLine="true"
+                android:text="作者"
                 android:textColor="#A0A0A0"
                 android:textSize="10sp" />
         </LinearLayout>
@@ -75,26 +76,26 @@
                 android:layout_height="36dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:tint="@color/white"
-                android:src="@drawable/ic_baseline_skip_previous_24" />
+                android:src="@drawable/ic_baseline_skip_previous_24"
+                android:tint="@color/white" />
 
             <ImageView
                 android:id="@+id/mNMusicPlayPlayImg"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                android:tint="@color/white"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:src="@drawable/ic_baseline_pause_24" />
+                android:src="@drawable/ic_baseline_pause_24"
+                android:tint="@color/white" />
 
             <ImageView
                 android:id="@+id/mNMusicPlayNextImg"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                android:tint="@color/white"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:src="@drawable/ic_baseline_skip_next_24" />
+                android:src="@drawable/ic_baseline_skip_next_24"
+                android:tint="@color/white" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

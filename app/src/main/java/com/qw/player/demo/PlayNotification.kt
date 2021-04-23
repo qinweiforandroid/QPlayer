@@ -44,11 +44,17 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
     override fun createRemoteViews(): RemoteViews {
         val remoteViews = RemoteViews(context.packageName, R.layout.music_play_notification)
         remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, "")
-        if (isPlaying() && isConnecting()) {
+        if (isPlaying() || isConnecting()) {
             remoteViews.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_pause_24)
         } else {
             remoteViews.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_play_arrow_24)
         }
+
+        PlayList.getPod()?.let {
+            remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getTitle())
+            remoteViews.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getAuthor())
+        }
+
         val intent = Intent(context, MainActivity::class.java)
         // 点击跳转到主界面
         val intentGo = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -67,11 +73,17 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
     override fun createSmallRemoteViews(): RemoteViews {
         val remoteViewsSmall = RemoteViews(context.packageName, R.layout.music_play_small_notification)
         remoteViewsSmall.setTextViewText(R.id.mNMusicPlayTitleLabel, "")
-        if (isPlaying() && isConnecting()) {
+        if (isPlaying() || isConnecting()) {
             remoteViewsSmall.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_pause_24)
         } else {
             remoteViewsSmall.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_play_arrow_24)
         }
+
+        PlayList.getPod()?.let {
+            remoteViewsSmall.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getTitle())
+            remoteViewsSmall.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getAuthor())
+        }
+
         val intent = Intent(context, MainActivity::class.java)
         // 点击跳转到主界面
         val intentGo = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -92,9 +104,10 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
      */
     override fun createNotificationBuilder(): NotificationCompat.Builder {
         val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
+//        notificationBuilder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
         notificationBuilder.setContent(createRemoteViews())
         notificationBuilder.setCustomBigContentView(createSmallRemoteViews())
-        notificationBuilder.priority = NotificationCompat.PRIORITY_LOW
+        notificationBuilder.priority = NotificationCompat.PRIORITY_HIGH
         notificationBuilder.setSound(null)
         notificationBuilder.setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
         notificationBuilder.setVibrate(longArrayOf(0))
