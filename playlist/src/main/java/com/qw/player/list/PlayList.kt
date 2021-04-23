@@ -154,7 +154,7 @@ object PlayList {
         mCurrPodId = pod.getPodId()
         if (mAudioFocus.requestAudioFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             //check url is exist
-            if (pod.getPodUrl().isNotEmpty()) {
+            if (pod.getPodUrl().isEmpty()) {
                 tryLoadUrlAndPlay(pod)
             } else {
                 //fixme check url is expire

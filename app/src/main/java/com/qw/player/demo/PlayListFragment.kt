@@ -12,6 +12,7 @@ import com.qw.player.demo.widget.MusicView
 import com.qw.player.list.IPlayMode
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.mode.IPod
+import com.qw.player.list.mode.Pod
 import com.qw.widget.list.BaseViewHolder
 
 class PlayListFragment : BaseListV2Fragment<IPod>() {
@@ -126,57 +127,31 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
 
     override fun initData() {
         setHasOptionsMenu(true)
+        //https://music.liuzhijin.cn/  在线资源
         modules.add(Pod().apply {
-            _id = "123"
-            _title = "还是很想你"
-            _author = "周杰伦"
-            _url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            _cover = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=558639239,778636013&fm=26&gp=0.jpg"
+            id = "123"
+            title = "还是很想你"
+            author = "周杰伦"
+            url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
+            cover = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=558639239,778636013&fm=26&gp=0.jpg"
         })
         modules.add(Pod().apply {
-            _id = "124"
-            _title = "再看孤独的风景"
-            _author = "本兮"
-            _url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            _cover = "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1034080536,554682047&fm=26&gp=0.jpg"
+            id = "124"
+            title = "再看孤独的风景"
+            author = "本兮"
+            url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
+            cover = "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1034080536,554682047&fm=26&gp=0.jpg"
         })
         modules.add(Pod().apply {
-            _id = "125"
-            _title = "客官不可以"
-            _author = "徐良"
-            _url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            _cover = "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4205434820,3446918311&fm=26&gp=0.jpg"
+            id = "125"
+            title = "客官不可以"
+            author = "徐良"
+//            url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
+            cover = "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4205434820,3446918311&fm=26&gp=0.jpg"
         })
         adapter.notifyDataSetChanged()
     }
 
-    class Pod : IPod {
-        var _id = ""
-        var _title = ""
-        var _cover = ""
-        var _author = ""
-        var _url = ""
-
-        override fun getPodId(): String {
-            return _id
-        }
-
-        override fun getPodTitle(): String {
-            return _title
-        }
-
-        override fun getPodCover(): String {
-            return _cover
-        }
-
-        override fun getPodAuthor(): String {
-            return _author
-        }
-
-        override fun getPodUrl(): String {
-            return _url
-        }
-    }
 
     private val playListListener = object : OnPlayListListener {
         override fun onPlayConnecting(mCurrPodId: String) {

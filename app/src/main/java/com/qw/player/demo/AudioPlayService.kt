@@ -4,7 +4,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.media.AudioAttributesCompat
@@ -95,7 +97,11 @@ class AudioPlayService : Service() {
         PlayList.injectUrlLoad(object:IUrlLoad{
             override fun load(id: String, callback: UrlLoadCallback) {
                 //fixme load url by ID
-                callback.onLoadSuccess("")
+                val url="http://m10.music.126.net/20210423195257/1dea994446019b032b0da563474e3568/ymusic/0409/0558/005d/3c30ad207f221448759e7716e61df79d.mp3"
+                Handler(Looper.myLooper()!!).postDelayed({
+                    callback.onLoadSuccess(url)
+                },2000)
+
             }
         })
     }

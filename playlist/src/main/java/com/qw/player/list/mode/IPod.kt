@@ -19,7 +19,5 @@ interface IPod {
     fun getPodUrl(): String {
         return ""
     }
-    fun setPodUrl(url:String){
-        
-    }
+    fun setPodUrl(url:String)
 }
