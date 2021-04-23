@@ -95,9 +95,9 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         override fun bindData(position: Int) {
             modules[position].let {
                 pod = it
-                Glide.with(itemView).load(it.getCover()).into(bind.mMusicCoverImg)
-                bind.mMusicTitleLabel.text = it.getTitle()
-                bind.mMusicAuthorLabel.text = it.getAuthor()
+                Glide.with(itemView).load(it.getPodCover()).into(bind.mMusicCoverImg)
+                bind.mMusicTitleLabel.text = it.getPodTitle()
+                bind.mMusicAuthorLabel.text = it.getPodAuthor()
                 if (PlayManager.isPlaying() && PlayManager.getPos() == position) {
                     bind.mMusicStateImg.setImageResource(R.drawable.ic_baseline_pause_24)
                 } else {
@@ -157,23 +157,23 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         var _author = ""
         var _url = ""
 
-        override fun getId(): String {
+        override fun getPodId(): String {
             return _id
         }
 
-        override fun getTitle(): String {
+        override fun getPodTitle(): String {
             return _title
         }
 
-        override fun getCover(): String {
+        override fun getPodCover(): String {
             return _cover
         }
 
-        override fun getAuthor(): String {
+        override fun getPodAuthor(): String {
             return _author
         }
 
-        override fun getURL(): String {
+        override fun getPodUrl(): String {
             return _url
         }
     }
@@ -230,10 +230,10 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         }
         mMusicView.loading(PlayManager.isConnecting())
         PlayManager.getPod()?.let {
-            mMusicView.setCover(it.getCover())
-                    .setName(it.getTitle())
-                    .setSinger(it.getAuthor())
-                    .setUrl(it.getURL())
+            mMusicView.setCover(it.getPodCover())
+                    .setName(it.getPodTitle())
+                    .setSinger(it.getPodAuthor())
+                    .setUrl(it.getPodUrl())
                     .notifyDataChanged()
         }
     }

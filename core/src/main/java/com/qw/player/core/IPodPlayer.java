@@ -2,7 +2,7 @@ package com.qw.player.core;
 
 public interface IPodPlayer {
 
-    boolean isConnecting();
+
 
     class State {
         /**
@@ -30,9 +30,8 @@ public interface IPodPlayer {
          */
         public static final int ERROR = 6;
     }
-
     void play(String content);
-
+    boolean isConnecting();
     boolean isPrepared();
 
     int getDuring();
@@ -56,6 +55,10 @@ public interface IPodPlayer {
     void registerListener(OnPlayListener listener);
 
     void unregisterListener();
+
+    void notifyPlayConnecting();
+
+    void notifyPlayError(int code,String msg);
 
     interface OnPlayListener {
         void onPlayConnect();

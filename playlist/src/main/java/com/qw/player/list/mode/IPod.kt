@@ -1,23 +1,25 @@
 package com.qw.player.list.mode
 
 interface IPod {
-    fun getId(): String {
+    fun getPodId(): String {
         return ""
     }
 
-    fun getTitle(): String {
+    fun getPodTitle(): String {
         return ""
     }
 
-    fun getCover(): String {
+    fun getPodAuthor(): String {
+        return ""
+    }
+    fun getPodCover(): String {
         return ""
     }
 
-    fun getAuthor(): String {
+    fun getPodUrl(): String {
         return ""
     }
-
-    fun getURL(): String {
-        return ""
+    fun setPodUrl(url:String){
+        
     }
 }

@@ -52,8 +52,8 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
         }
 
         PlayList.getPod()?.let {
-            remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getTitle())
-            remoteViews.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getAuthor())
+            remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getPodTitle())
+            remoteViews.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getPodAuthor())
         }
 
         val intent = Intent(context, MainActivity::class.java)
@@ -81,8 +81,8 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
         }
 
         PlayList.getPod()?.let {
-            remoteViewsSmall.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getTitle())
-            remoteViewsSmall.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getAuthor())
+            remoteViewsSmall.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getPodTitle())
+            remoteViewsSmall.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getPodAuthor())
         }
 
         val intent = Intent(context, MainActivity::class.java)

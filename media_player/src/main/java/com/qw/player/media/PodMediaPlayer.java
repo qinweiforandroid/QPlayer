@@ -67,8 +67,7 @@ public class PodMediaPlayer implements IPodPlayer {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 reset();
-                state = State.ERROR;
-                listener.onPlayError(extra, "");
+                notifyPlayError(extra, "");
                 return true;
             }
         });
@@ -88,13 +87,11 @@ public class PodMediaPlayer implements IPodPlayer {
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mMediaPlayer.setDataSource(content);
-            state = State.CONNECT;
-            listener.onPlayConnect();
+            notifyPlayConnecting();
             mMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
-            state = State.ERROR;
-            listener.onPlayError(-1, e.getMessage());
+            notifyPlayError(-1, e.getMessage());
         }
     }
 
@@ -184,5 +181,20 @@ public class PodMediaPlayer implements IPodPlayer {
     @Override
     public void unregisterListener() {
         this.listener = null;
+    }
+
+    @Override
+    public void notifyPlayConnecting() {
+        if(isConnecting()){
+            return;
+        }
+        state=State.CONNECT;
+        listener.onPlayConnect();
+    }
+
+    @Override
+    public void notifyPlayError(int code, String msg) {
+        state=State.ERROR;
+        listener.onPlayError(code,msg);
     }
 }

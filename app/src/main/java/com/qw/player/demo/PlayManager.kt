@@ -17,7 +17,7 @@ object PlayManager {
             return
         }
         this.context = context.applicationContext
-        PlayList.initPlayer(PodMediaPlayer(this.context))
+        PlayList.injectPlayer(PodMediaPlayer(this.context))
     }
 
     fun play(position: Int = 0) {
@@ -87,7 +87,6 @@ object PlayManager {
 
     fun getDuring(): Int {
         return PlayList.getDuring()
-
     }
 
     fun setPlayMode(playMode: Int) {

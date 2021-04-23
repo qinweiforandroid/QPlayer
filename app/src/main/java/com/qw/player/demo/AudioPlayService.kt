@@ -12,8 +12,10 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.qw.player.core.IAudioFocus
 import com.qw.player.core.IPlayNotification
+import com.qw.player.list.IUrlLoad
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.PlayList
+import com.qw.player.list.UrlLoadCallback
 
 class AudioPlayService : Service() {
     companion object {
@@ -80,7 +82,7 @@ class AudioPlayService : Service() {
     }
 
     private fun initPlayer() {
-        PlayList.setAudioFocus(object : IAudioFocus {
+        PlayList.injectAudioFocus(object : IAudioFocus {
             override fun requestAudioFocus(): Int {
                 return this@AudioPlayService.requestAudioFocus()
             }
@@ -90,6 +92,12 @@ class AudioPlayService : Service() {
             }
         })
         PlayList.addOnPlayListListener(playListListener)
+        PlayList.injectUrlLoad(object:IUrlLoad{
+            override fun load(id: String, callback: UrlLoadCallback) {
+                //fixme load url by ID
+                callback.onLoadSuccess("")
+            }
+        })
     }
 
 

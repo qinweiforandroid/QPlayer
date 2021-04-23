@@ -15,6 +15,11 @@ object PlayList {
     private var mCurrPosition = -1
 
     /**
+     * url load接口
+     */
+    private lateinit var mUrlLoad: IUrlLoad
+
+    /**
      * 播放组件
      */
     private lateinit var mPlayer: IPodPlayer
@@ -27,7 +32,12 @@ object PlayList {
     private lateinit var mPlayModeImpl: IPlayMode
     private var mPlayMode: Int = 0
     private var listeners = ArrayList<OnPlayListListener>()
-    fun initPlayer(player: IPodPlayer) {
+
+    fun injectUrlLoad(iUrlLoad: IUrlLoad) {
+        this.mUrlLoad = iUrlLoad
+    }
+
+    fun injectPlayer(player: IPodPlayer) {
         mPlayer = player
         setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
         mPlayer.registerListener(object : IPodPlayer.OnPlayListener {
@@ -87,7 +97,7 @@ object PlayList {
         })
     }
 
-    fun setAudioFocus(audioFocus: IAudioFocus) {
+    fun injectAudioFocus(audioFocus: IAudioFocus) {
         mAudioFocus = audioFocus
     }
 
@@ -134,16 +144,39 @@ object PlayList {
         }
         val pod = mPods[position]
         for (listener in listeners) {
-            listener.onPlaySwitched(pod.getId(), mCurrPodId)
+            listener.onPlaySwitched(pod.getPodId(), mCurrPodId)
         }
         mCurrPosition = position
         play(pod)
     }
 
-    private fun play(iPod: IPod) {
-        mCurrPodId = iPod.getId()
+    private fun play(pod: IPod) {
+        mCurrPodId = pod.getPodId()
         if (mAudioFocus.requestAudioFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            mPlayer.play(iPod.getURL())
+            //check url is exist
+            if (pod.getPodUrl().isNotEmpty()) {
+                tryLoadUrlAndPlay(pod)
+            } else {
+                //fixme check url is expire
+                mPlayer.play(pod.getPodUrl())
+            }
+        }
+    }
+
+    private fun tryLoadUrlAndPlay(pod: IPod) {
+        // try load url by pod id
+        if (this::mUrlLoad.isInitialized) {
+            mPlayer.notifyPlayConnecting()
+            mUrlLoad.load(pod.getPodId(), object : UrlLoadCallback {
+                override fun onLoadSuccess(url: String) {
+                    pod.setPodUrl(url)
+                    play(pod)
+                }
+
+                override fun onLoadFailure(code: Int, msg: String) {
+                    mPlayer.notifyPlayError(code,msg)
+                }
+            })
         }
     }
 
@@ -165,7 +198,7 @@ object PlayList {
 
     fun getPosById(id: String): Int {
         for (i in 0 until mPods.size) {
-            if (id == mPods[i].getId()) {
+            if (id == mPods[i].getPodId()) {
                 return i
             }
         }
