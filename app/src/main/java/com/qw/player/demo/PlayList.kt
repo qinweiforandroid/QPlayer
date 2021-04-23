@@ -98,15 +98,15 @@ object PlayList {
     }
 
     fun play() {
-        if(mCurrPosition>=0){
+        if (mCurrPosition >= 0) {
             play(mCurrPosition)
-        }else{
+        } else {
             play(0)
         }
     }
 
     fun play(position: Int) {
-        if(mPods.size==0){
+        if (mPods.size == 0) {
             return
         }
         if (position < 0 || position > mPods.size - 1) {
@@ -146,7 +146,7 @@ object PlayList {
 
     fun skipToNext(auto: Boolean = false) {
         if (hasToNext(auto)) {
-            val next = mPlayMode.next(auto, getPos(), mPods.size)
+            val next = mPlayMode.next(auto, getPos(), mPods.size - 1)
             stop()
             play(next)
         }
@@ -154,7 +154,7 @@ object PlayList {
 
     fun skipToPrevious(auto: Boolean = false) {
         if (hasToPrevious(auto)) {
-            val previous = mPlayMode.previous(auto, getPos(), mPods.size)
+            val previous = mPlayMode.previous(auto, getPos(), mPods.size - 1)
             stop()
             play(previous)
         }
@@ -174,7 +174,7 @@ object PlayList {
     }
 
     fun getPod(): IPod? {
-        if(mCurrPodId==""){
+        if (mCurrPodId == "") {
             return null
         }
         return mPods[mCurrPosition]

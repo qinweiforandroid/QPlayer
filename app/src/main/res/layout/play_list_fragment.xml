@@ -6,10 +6,47 @@
 
     <com.qw.player.demo.widget.MusicView
         android:id="@+id/mMusicView"
-        android:padding="8dp"
-        android:background="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:padding="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:text="播放模式"
+        android:textAppearance="@style/TextAppearance.Caption" />
+
+    <RadioGroup
+        android:id="@+id/mMusicPlayModeRG"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/mMusicPlayModeSingLoopRB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="单曲循环" />
+
+        <RadioButton
+            android:id="@+id/mMusicPlayModeListLoopRB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:checked="true"
+            android:text="列表循环" />
+
+        <RadioButton
+            android:id="@+id/mMusicPlayModeRandomRB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="随机" />
+
+    </RadioGroup>
 
     <com.qw.widget.list.v2.PullRecyclerView
         android:id="@+id/mPullRecyclerView"

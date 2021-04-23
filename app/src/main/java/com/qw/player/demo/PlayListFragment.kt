@@ -1,13 +1,13 @@
 package com.qw.player.demo
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.qw.framework.ui.BaseListV2Fragment
+import com.qw.player.core.IPlayMode
 import com.qw.player.core.mode.IPod
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
 import com.qw.player.demo.widget.MusicView
@@ -21,10 +21,6 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         return inflater.inflate(R.layout.play_list_fragment, container, false)
     }
 
-    override fun onResume() {
-        super.onResume()
-        PlayList.addOnPlayListListener(playListListener)
-    }
 
     override fun initView(v: View) {
         super.initView(v)
@@ -43,6 +39,26 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
                 PlayList.seekTo(seekBar.progress.toLong())
             }
         })
+        findViewById<RadioGroup>(R.id.mMusicPlayModeRG).let {
+            it.setOnCheckedChangeListener { group, checkedId ->
+                setPlayMode(checkedId)
+            }
+            setPlayMode(it.checkedRadioButtonId)
+        }
+    }
+
+    private fun setPlayMode(checkedId: Int) {
+        when (checkedId) {
+            R.id.mMusicPlayModeSingLoopRB -> {
+                PlayList.setPlayMode(IPlayMode.PLAY_MODEL_SINGLE_LOOP)
+            }
+            R.id.mMusicPlayModeListLoopRB -> {
+                PlayList.setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
+            }
+            R.id.mMusicPlayModeRandomRB -> {
+                PlayList.setPlayMode(IPlayMode.PLAY_MODEL_RANDOM)
+            }
+        }
     }
 
     override fun onCreateItemView(parent: ViewGroup?, viewType: Int): BaseViewHolder {
@@ -76,7 +92,25 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_play_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.previous -> {
+                PlayList.skipToPrevious()
+            }
+            R.id.next -> {
+                PlayList.skipToNext()
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun initData() {
+        setHasOptionsMenu(true)
         modules.add(Pod().apply {
             _id = "123"
             _title = "还是很想你"
@@ -160,6 +194,11 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
             mMusicView.setMax(total)
             mMusicView.setProgress(cur)
         }
+
+        override fun onPlayCompleted(mCurrPodId: String) {
+            super.onPlayCompleted(mCurrPodId)
+            notifyPlayUpdated()
+        }
     }
 
     private fun notifyPlayUpdated() {
@@ -177,6 +216,13 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
                     .setUrl(it.getURL())
                     .notifyDataChanged()
         }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        PlayList.addOnPlayListListener(playListListener)
+        notifyPlayUpdated()
     }
 
     override fun onPause() {

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/previous"
+        android:icon="@drawable/ic_baseline_skip_previous_24"
+        android:title="上一首"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/next"
+        android:icon="@drawable/ic_baseline_skip_next_24"
+        android:title="下一首"
+        app:showAsAction="ifRoom" />
+</menu>

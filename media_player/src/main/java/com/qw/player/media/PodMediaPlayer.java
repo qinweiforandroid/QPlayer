@@ -15,7 +15,7 @@ public class PodMediaPlayer implements IPodPlayer {
     /**
      * 计时器
      */
-    private PodPlayerTimer mTimer;
+    private final PodPlayerTimer mTimer;
     private OnPlayListener listener;
     private int mDuring;
     private int state;
@@ -56,9 +56,9 @@ public class PodMediaPlayer implements IPodPlayer {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                stop();
-                listener.onPlayProgressUpdated(mDuring, mDuring);
+                listener.onPlayProgressUpdated(0, mDuring);
                 state = State.IDLE;
+                reset();
                 listener.onPlayCompleted();
             }
         });
@@ -77,6 +77,7 @@ public class PodMediaPlayer implements IPodPlayer {
     private void reset() {
         if (isPrepared) {
             mMediaPlayer.reset();
+            isPrepared = false;
         }
     }
 
