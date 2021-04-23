@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
@@ -16,11 +17,14 @@ import com.qw.player.demo.R
  * email: qinwei_it@163.com
  */
 class MusicView : ConstraintLayout {
+
     private var mMusicIconImg: ImageView
     private var mMusicPlayStateImg: ImageView
     private var mMusicNameLabel: TextView
     private var mMusicSingerLabel: TextView
     private var mMusicLoadingProgressBar: ProgressBar
+    private var mMusicSeekBar: SeekBar
+    private var listener: OnSeekChangedListener? = null
     private var mMusicVO = MusicVO()
 
     constructor(context: Context) : super(context)
@@ -31,6 +35,8 @@ class MusicView : ConstraintLayout {
             defStyleAttr
     )
 
+    private var isTrackingTouch = false
+
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_music, this)
         mMusicIconImg = findViewById(R.id.mMusicIconImg)
@@ -38,6 +44,22 @@ class MusicView : ConstraintLayout {
         mMusicNameLabel = findViewById(R.id.mMusicNameLabel)
         mMusicSingerLabel = findViewById(R.id.mMusicSingerLabel)
         mMusicLoadingProgressBar = findViewById(R.id.mMusicLoadingProgressBar)
+        mMusicSeekBar = findViewById(R.id.mMusicSeekBar)
+        mMusicSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                isTrackingTouch = true
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                isTrackingTouch = false
+                listener?.onSeekChanged(seekBar)
+            }
+        })
     }
 
     fun setCover(cover: String): MusicView {
@@ -90,6 +112,22 @@ class MusicView : ConstraintLayout {
 
     fun setOnMusicPlayStateClickListener(listener: View.OnClickListener) {
         mMusicPlayStateImg.setOnClickListener(listener)
+    }
+
+    fun setOnSeekChangedListener(listener: OnSeekChangedListener) {
+        this.listener = listener
+    }
+
+    fun setMax(max: Int) {
+        mMusicSeekBar.max = max
+    }
+
+    fun setProgress(progress: Int) {
+        mMusicSeekBar.progress = progress
+    }
+
+    interface OnSeekChangedListener {
+        fun onSeekChanged(seekBar: SeekBar)
     }
 
     class MusicVO {

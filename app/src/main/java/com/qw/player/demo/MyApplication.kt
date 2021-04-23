@@ -9,5 +9,6 @@ class MyApplication : Application() {
         super.onCreate()
         App.init(App.Builder(this))
         AppStateTracker.init(this)
+        PlayManager.init(this)
     }
 }

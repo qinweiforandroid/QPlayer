@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.qw.framework.ui.BaseListV2Fragment
 import com.qw.player.core.mode.IPod
@@ -28,8 +30,19 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         super.initView(v)
         mPullRecyclerView.setEnablePullToStart(false)
         mPullRecyclerView.setEnablePullToEnd(false)
-        PlayManager.init(requireContext())
         mMusicView = findViewById<MusicView>(R.id.mMusicView)
+        mMusicView.setOnMusicPlayStateClickListener(View.OnClickListener {
+            if (PlayList.isConnecting()) {
+                Toast.makeText(requireContext(), "加载中...", Toast.LENGTH_SHORT).show()
+                return@OnClickListener
+            }
+            PlayList.play()
+        })
+        mMusicView.setOnSeekChangedListener(object : MusicView.OnSeekChangedListener {
+            override fun onSeekChanged(seekBar: SeekBar) {
+                PlayList.seekTo(seekBar.progress.toLong())
+            }
+        })
     }
 
     override fun onCreateItemView(parent: ViewGroup?, viewType: Int): BaseViewHolder {
@@ -140,7 +153,12 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         override fun onPlayResumed(mCurrPodId: String) {
             super.onPlayResumed(mCurrPodId)
             notifyPlayUpdated()
+        }
 
+        override fun onPlayProgressUpdated(mCurrPodId: String, cur: Int, total: Int) {
+            super.onPlayProgressUpdated(mCurrPodId, cur, total)
+            mMusicView.setMax(total)
+            mMusicView.setProgress(cur)
         }
     }
 
@@ -159,7 +177,6 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
                     .setUrl(it.getURL())
                     .notifyDataChanged()
         }
-
     }
 
     override fun onPause() {

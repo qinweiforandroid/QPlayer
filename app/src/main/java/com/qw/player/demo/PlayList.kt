@@ -98,18 +98,31 @@ object PlayList {
     }
 
     fun play() {
-        play(0)
+        if(mCurrPosition>=0){
+            play(mCurrPosition)
+        }else{
+            play(0)
+        }
     }
 
     fun play(position: Int) {
+        if(mPods.size==0){
+            return
+        }
         if (position < 0 || position > mPods.size - 1) {
             return
         }
         if (mCurrPosition == position) {
-            if (mPlayer.isPlaying) {
-                mPlayer.pause()
-            } else if (mPlayer.isPaused) {
-                mPlayer.resume()
+            when {
+                mPlayer.isPlaying -> {
+                    mPlayer.pause()
+                }
+                mPlayer.isPaused -> {
+                    mPlayer.resume()
+                }
+                else -> {
+                    play(mPods[position])
+                }
             }
             return
         }

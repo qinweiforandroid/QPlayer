@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/mMusicIconImg"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:text="菊花台"
         app:layout_constraintLeft_toRightOf="@id/mMusicIconImg"
         app:layout_constraintTop_toTopOf="@id/mMusicIconImg" />
@@ -48,8 +48,16 @@
         style="@style/TextAppearance.Overline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
+        android:layout_marginTop="8dp"
         android:text="周杰伦"
-        app:layout_constraintBottom_toBottomOf="@id/mMusicIconImg"
-        app:layout_constraintLeft_toLeftOf="@id/mMusicNameLabel" />
+        app:layout_constraintLeft_toLeftOf="@id/mMusicNameLabel"
+        app:layout_constraintTop_toBottomOf="@id/mMusicNameLabel" />
+
+    <SeekBar
+        android:id="@+id/mMusicSeekBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/mMusicIconImg"
+        app:layout_constraintEnd_toStartOf="@+id/mMusicPlayStateImg"
+        app:layout_constraintStart_toEndOf="@+id/mMusicIconImg" />
 </merge>

@@ -8,9 +8,12 @@ import com.qw.player.core.mode.IPod
 import com.qw.player.media.PodMediaPlayer
 
 object PlayManager {
-    private lateinit var context: Context
+    private var context: Context? = null
 
     fun init(context: Context) {
+        if (this.context != null) {
+            return
+        }
         this.context = context.applicationContext
         PlayList.initPlayer(PodMediaPlayer(this.context))
     }
@@ -41,7 +44,7 @@ object PlayManager {
         val intent = Intent(context, AudioPlayService::class.java)
         intent.putExtra(AudioPlayService.KEY_ACTION, action)
         intent.putExtras(bundle)
-        ContextCompat.startForegroundService(context, intent)
+        ContextCompat.startForegroundService(context!!, intent)
     }
 
     fun setPlayList(pods: ArrayList<IPod>) {
