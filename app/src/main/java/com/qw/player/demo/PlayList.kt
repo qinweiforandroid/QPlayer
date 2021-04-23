@@ -95,8 +95,9 @@ object PlayList {
 
     fun setPlayMode(playMode: Int) {
         this.mPlayModeImpl = PlayModeFactory.create(playMode)
-        this.mPlayMode=playMode
+        this.mPlayMode = playMode
     }
+
     fun getPlayMode(): Int {
         return this.mPlayMode
     }
@@ -244,6 +245,10 @@ object PlayList {
 
     fun removeOnPlayListListener(playListListener: OnPlayListListener) {
         listeners.remove(playListListener)
+    }
+
+    fun getDuring(): Int {
+        return mPlayer.during
     }
 
     interface OnPlayListListener {

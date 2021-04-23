@@ -43,14 +43,14 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
                 setPlayMode(checkedId)
             }
             //显示当前的播放模式
-            when (PlayList.getPlayMode()){
-                IPlayMode.PLAY_MODEL_SINGLE_LOOP->{
+            when (PlayList.getPlayMode()) {
+                IPlayMode.PLAY_MODEL_SINGLE_LOOP -> {
                     it.check(R.id.mMusicPlayModeSingLoopRB)
                 }
-                IPlayMode.PLAY_MODEL_LIST_LOOP->{
+                IPlayMode.PLAY_MODEL_LIST_LOOP -> {
                     it.check(R.id.mMusicPlayModeListLoopRB)
                 }
-                IPlayMode.PLAY_MODEL_RANDOM->{
+                IPlayMode.PLAY_MODEL_RANDOM -> {
                     it.check(R.id.mMusicPlayModeRandomRB)
                 }
                 else -> {
@@ -201,6 +201,11 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         override fun onPlayResumed(mCurrPodId: String) {
             super.onPlayResumed(mCurrPodId)
             notifyPlayUpdated()
+        }
+
+        override fun onPlayBufferingUpdated(mCurrPodId: String, percent: Int) {
+            super.onPlayBufferingUpdated(mCurrPodId, percent)
+            mMusicView.setSecondaryProgress((percent / 100.0 * PlayList.getDuring()).toInt())
         }
 
         override fun onPlayProgressUpdated(mCurrPodId: String, cur: Int, total: Int) {

@@ -55,7 +55,7 @@ class AudioPlayService : Service() {
 
         override fun onPlayCompleted(mCurrPodId: String) {
             super.onPlayCompleted(mCurrPodId)
-            skipToNext()
+            skipToNext(true)
         }
     }
 
@@ -170,8 +170,8 @@ class AudioPlayService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun skipToNext() {
-        PlayList.skipToNext()
+    private fun skipToNext(auto: Boolean = false) {
+        PlayList.skipToNext(auto)
     }
 
     private fun skipToPrevious() {

@@ -126,6 +126,10 @@ class MusicView : ConstraintLayout {
         mMusicSeekBar.progress = progress
     }
 
+    fun setSecondaryProgress(secondaryProgress: Int) {
+        mMusicSeekBar.secondaryProgress = secondaryProgress
+    }
+
     interface OnSeekChangedListener {
         fun onSeekChanged(seekBar: SeekBar)
     }
