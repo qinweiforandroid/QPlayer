@@ -6,7 +6,6 @@ import com.qw.player.core.IPlayMode
 import com.qw.player.core.IPodPlayer
 import com.qw.player.core.PlayModeFactory
 import com.qw.player.core.mode.IPod
-import com.qw.player.core.mode.ListLoopPlayMode
 
 object PlayList {
     private val mPods = ArrayList<IPod>()
@@ -27,11 +26,12 @@ object PlayList {
      */
     private lateinit var mAudioFocus: IAudioFocus
 
-    private var mPlayMode: IPlayMode = ListLoopPlayMode()
-
+    private lateinit var mPlayModeImpl: IPlayMode
+    private var mPlayMode: Int = 0
     private var listeners = ArrayList<OnPlayListListener>()
     fun initPlayer(player: IPodPlayer) {
         this.mPlayer = player
+        setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
         this.mPlayer.registerListener(object : IPodPlayer.OnPlayListener {
             override fun onPlayStart() {
                 for (listener in listeners) {
@@ -94,7 +94,11 @@ object PlayList {
     }
 
     fun setPlayMode(playMode: Int) {
-        this.mPlayMode = PlayModeFactory.create(playMode)
+        this.mPlayModeImpl = PlayModeFactory.create(playMode)
+        this.mPlayMode=playMode
+    }
+    fun getPlayMode(): Int {
+        return this.mPlayMode
     }
 
     fun play() {
@@ -146,7 +150,7 @@ object PlayList {
 
     fun skipToNext(auto: Boolean = false) {
         if (hasToNext(auto)) {
-            val next = mPlayMode.next(auto, getPos(), mPods.size - 1)
+            val next = mPlayModeImpl.next(auto, getPos(), mPods.size - 1)
             stop()
             play(next)
         }
@@ -154,7 +158,7 @@ object PlayList {
 
     fun skipToPrevious(auto: Boolean = false) {
         if (hasToPrevious(auto)) {
-            val previous = mPlayMode.previous(auto, getPos(), mPods.size - 1)
+            val previous = mPlayModeImpl.previous(auto, getPos(), mPods.size - 1)
             stop()
             play(previous)
         }
@@ -181,11 +185,11 @@ object PlayList {
     }
 
     fun hasToNext(auto: Boolean): Boolean {
-        return mPlayMode.hasNext(auto, getPos(), mPods.size)
+        return mPlayModeImpl.hasNext(auto, getPos(), mPods.size)
     }
 
     fun hasToPrevious(auto: Boolean): Boolean {
-        return mPlayMode.hasPrevious(auto, getPos(), mPods.size)
+        return mPlayModeImpl.hasPrevious(auto, getPos(), mPods.size)
     }
 
     fun stop() {

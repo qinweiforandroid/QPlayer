@@ -21,7 +21,6 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         return inflater.inflate(R.layout.play_list_fragment, container, false)
     }
 
-
     override fun initView(v: View) {
         super.initView(v)
         mPullRecyclerView.setEnablePullToStart(false)
@@ -43,8 +42,23 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
             it.setOnCheckedChangeListener { group, checkedId ->
                 setPlayMode(checkedId)
             }
-            setPlayMode(it.checkedRadioButtonId)
+            //显示当前的播放模式
+            when (PlayList.getPlayMode()){
+                IPlayMode.PLAY_MODEL_SINGLE_LOOP->{
+                    it.check(R.id.mMusicPlayModeSingLoopRB)
+                }
+                IPlayMode.PLAY_MODEL_LIST_LOOP->{
+                    it.check(R.id.mMusicPlayModeListLoopRB)
+                }
+                IPlayMode.PLAY_MODEL_RANDOM->{
+                    it.check(R.id.mMusicPlayModeRandomRB)
+                }
+                else -> {
+
+                }
+            }
         }
+
     }
 
     private fun setPlayMode(checkedId: Int) {

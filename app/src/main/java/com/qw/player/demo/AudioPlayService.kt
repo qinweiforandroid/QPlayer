@@ -52,6 +52,11 @@ class AudioPlayService : Service() {
             super.onPlayResumed(mCurrPodId)
             notifyNotificationUpdated()
         }
+
+        override fun onPlayCompleted(mCurrPodId: String) {
+            super.onPlayCompleted(mCurrPodId)
+            skipToNext()
+        }
     }
 
 
