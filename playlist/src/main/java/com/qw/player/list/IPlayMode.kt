@@ -1,4 +1,4 @@
-package com.qw.player.core
+package com.qw.player.list
 
 /**
  * 设置播放器模式，mode取值为PlayMode中的下列之一：

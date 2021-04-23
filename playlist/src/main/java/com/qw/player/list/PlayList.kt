@@ -1,11 +1,9 @@
-package com.qw.player.demo
+package com.qw.player.list
 
 import android.media.AudioManager
 import com.qw.player.core.IAudioFocus
-import com.qw.player.core.IPlayMode
 import com.qw.player.core.IPodPlayer
-import com.qw.player.core.PlayModeFactory
-import com.qw.player.core.mode.IPod
+import com.qw.player.list.mode.IPod
 
 object PlayList {
     private val mPods = ArrayList<IPod>()
@@ -30,9 +28,9 @@ object PlayList {
     private var mPlayMode: Int = 0
     private var listeners = ArrayList<OnPlayListListener>()
     fun initPlayer(player: IPodPlayer) {
-        this.mPlayer = player
+        mPlayer = player
         setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
-        this.mPlayer.registerListener(object : IPodPlayer.OnPlayListener {
+        mPlayer.registerListener(object : IPodPlayer.OnPlayListener {
             override fun onPlayStart() {
                 for (listener in listeners) {
                     listener.onPlayStart(mCurrPodId)
@@ -90,16 +88,16 @@ object PlayList {
     }
 
     fun setAudioFocus(audioFocus: IAudioFocus) {
-        this.mAudioFocus = audioFocus
+        mAudioFocus = audioFocus
     }
 
     fun setPlayMode(playMode: Int) {
-        this.mPlayModeImpl = PlayModeFactory.create(playMode)
-        this.mPlayMode = playMode
+        mPlayModeImpl = PlayModeFactory.create(playMode)
+        mPlayMode = playMode
     }
 
     fun getPlayMode(): Int {
-        return this.mPlayMode
+        return mPlayMode
     }
 
     fun play() {
@@ -143,7 +141,7 @@ object PlayList {
     }
 
     private fun play(iPod: IPod) {
-        this.mCurrPodId = iPod.getId()
+        mCurrPodId = iPod.getId()
         if (mAudioFocus.requestAudioFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             mPlayer.play(iPod.getURL())
         }
@@ -206,16 +204,16 @@ object PlayList {
     }
 
     fun setPlayList(pods: ArrayList<IPod>) {
-        this.mPods.clear()
-        this.mPods.addAll(pods)
+        mPods.clear()
+        mPods.addAll(pods)
     }
 
     fun addPlayListHeader(pod: IPod) {
-        this.mPods.add(0, pod)
+        mPods.add(0, pod)
     }
 
     fun addPlayListFooter(pod: IPod) {
-        this.mPods.add(pod)
+        mPods.add(pod)
     }
 
     fun isPaused(): Boolean {
@@ -249,37 +247,5 @@ object PlayList {
 
     fun getDuring(): Int {
         return mPlayer.during
-    }
-
-    interface OnPlayListListener {
-        fun onPlaySwitched(newId: String, oldId: String) {
-        }
-
-        fun onPlayConnecting(mCurrPodId: String) {
-        }
-
-        fun onPlayProgressUpdated(mCurrPodId: String, cur: Int, total: Int) {
-        }
-
-        fun onPlayCompleted(mCurrPodId: String) {
-        }
-
-        fun onPlayPaused(mCurrPodId: String) {
-        }
-
-        fun onPlayStopped(mCurrPodId: String) {
-        }
-
-        fun onPlayError(mCurrPodId: String, code: Int, msg: String) {
-        }
-
-        fun onPlayBufferingUpdated(mCurrPodId: String, percent: Int) {
-        }
-
-        fun onPlayResumed(mCurrPodId: String) {
-        }
-
-        fun onPlayStart(mCurrPodId: String) {
-        }
     }
 }

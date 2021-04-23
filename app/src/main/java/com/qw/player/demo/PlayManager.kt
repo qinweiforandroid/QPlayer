@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
-import com.qw.player.core.mode.IPod
+import com.qw.player.list.OnPlayListListener
+import com.qw.player.list.mode.IPod
+import com.qw.player.list.PlayList
 import com.qw.player.media.PodMediaPlayer
 
 object PlayManager {
@@ -75,11 +77,11 @@ object PlayManager {
         return PlayList.getPod()
     }
 
-    fun addOnPlayListListener(playListListener: PlayList.OnPlayListListener) {
+    fun addOnPlayListListener(playListListener: OnPlayListListener) {
         PlayList.addOnPlayListListener(playListListener)
     }
 
-    fun removeOnPlayListListener(playListListener: PlayList.OnPlayListListener) {
+    fun removeOnPlayListListener(playListListener: OnPlayListListener) {
         PlayList.removeOnPlayListListener(playListListener)
     }
 

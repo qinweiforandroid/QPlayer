@@ -7,10 +7,11 @@ import android.widget.SeekBar
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.qw.framework.ui.BaseListV2Fragment
-import com.qw.player.core.IPlayMode
-import com.qw.player.core.mode.IPod
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
 import com.qw.player.demo.widget.MusicView
+import com.qw.player.list.IPlayMode
+import com.qw.player.list.OnPlayListListener
+import com.qw.player.list.mode.IPod
 import com.qw.widget.list.BaseViewHolder
 
 class PlayListFragment : BaseListV2Fragment<IPod>() {
@@ -177,7 +178,7 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         }
     }
 
-    private val playListListener = object : PlayList.OnPlayListListener {
+    private val playListListener = object : OnPlayListListener {
         override fun onPlayConnecting(mCurrPodId: String) {
             super.onPlayConnecting(mCurrPodId)
             notifyPlayUpdated()

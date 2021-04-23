@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import com.qw.framework.App
-import com.qw.framework.AppStateTracker
 import com.qw.framework.ui.QFragmentActivity.Clazz
 import com.qw.framework.ui.SupportFragmentListActivity
 import java.util.*

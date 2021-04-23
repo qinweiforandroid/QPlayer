@@ -13,13 +13,14 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.qw.player.core.IPlayNotification
 import com.qw.player.core.IPodPlayer
-import com.qw.player.demo.PlayList.getState
-import com.qw.player.demo.PlayList.isConnecting
-import com.qw.player.demo.PlayList.isPlaying
-import com.qw.player.demo.PlayManager.next
+import com.qw.player.list.PlayList.getState
+import com.qw.player.list.PlayList.isConnecting
+import com.qw.player.list.PlayList.isPlaying
+import com.qw.player.demo.PlayManager.skipToNext
 import com.qw.player.demo.PlayManager.pause
 import com.qw.player.demo.PlayManager.skipToPrevious
 import com.qw.player.demo.PlayManager.resume
+import com.qw.player.list.PlayList
 
 class PlayNotification constructor(private val context: Context) : IPlayNotification {
     private lateinit var receiver: NotificationReceiver
@@ -153,7 +154,7 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
                     IPodPlayer.State.PLAYING -> pause()
                 }
                 ACTION_PRE -> skipToPrevious()
-                ACTION_NEXT -> next()
+                ACTION_NEXT -> skipToNext()
                 ACTION_CLOSE -> {
                     cancel()
                     pause()

@@ -1,8 +1,8 @@
-package com.qw.player.core
+package com.qw.player.list
 
-import com.qw.player.core.mode.ListLoopPlayMode
-import com.qw.player.core.mode.RandomPlayMode
-import com.qw.player.core.mode.SingleLoopPlayMode
+import com.qw.player.list.mode.ListLoopPlayMode
+import com.qw.player.list.mode.RandomPlayMode
+import com.qw.player.list.mode.SingleLoopPlayMode
 
 object PlayModeFactory {
     fun create(mode: Int): IPlayMode {

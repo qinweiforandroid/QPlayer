@@ -12,7 +12,8 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.qw.player.core.IAudioFocus
 import com.qw.player.core.IPlayNotification
-import com.qw.player.media.PodMediaPlayer
+import com.qw.player.list.OnPlayListListener
+import com.qw.player.list.PlayList
 
 class AudioPlayService : Service() {
     companion object {
@@ -32,7 +33,7 @@ class AudioPlayService : Service() {
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var stateBuilder: PlaybackStateCompat.Builder
     private lateinit var playNotification: IPlayNotification
-    private val playListListener = object : PlayList.OnPlayListListener {
+    private val playListListener = object : OnPlayListListener {
         override fun onPlayPaused(mCurrPodId: String) {
             super.onPlayPaused(mCurrPodId)
             notifyNotificationUpdated()
