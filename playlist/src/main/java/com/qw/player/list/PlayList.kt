@@ -36,7 +36,7 @@ object PlayList {
     private var listeners = ArrayList<OnPlayListListener>()
 
     fun injectUrlLoad(iUrlLoad: IUrlLoad) {
-        this.mUrlLoad = iUrlLoad
+        mUrlLoad = iUrlLoad
     }
 
     fun injectPlayer(player: IPodPlayer) {
@@ -133,24 +133,24 @@ object PlayList {
             when {
                 mPlayer.isPlaying -> {
                     mPlayer.pause()
+                    return
                 }
                 mPlayer.isPaused -> {
                     mPlayer.resume()
-                }
-                else -> {
-                    play(mPods[position])
+                    return
                 }
             }
-            return
-        }
-        if (mPlayer.isPlaying) {
-            mPlayer.stop()
+        } else {
+            if (mPlayer.isPlaying) {
+                mPlayer.stop()
+            }
         }
         val pod = mPods[position]
-        for (listener in listeners) {
-            listener.onPlaySwitched(pod.getPodId(), mCurrPodId)
-        }
+        val oldId= mCurrPodId
         mCurrPosition = position
+        for (listener in listeners) {
+            listener.onPlaySwitched(pod.getPodId(), oldId)
+        }
         play(pod)
     }
 
@@ -173,7 +173,8 @@ object PlayList {
         // try load url by pod id
         if (this::mUrlLoad.isInitialized) {
             mPlayer.notifyPlayConnecting()
-            mUrlLoad.load(pod.getPodId(), object : UrlLoadCallback {
+            mUrlLoad.load(pod.getPodId(), object :
+                    UrlLoadCallback {
                 override fun onLoadSuccess(url: String) {
                     pod.setPodUrl(url)
                     play(pod)
@@ -189,7 +190,10 @@ object PlayList {
     fun skipToNext(auto: Boolean = false) {
         log("skipToNext")
         if (hasToNext(auto)) {
-            val next = mPlayModeImpl.next(auto, getPos(), mPods.size - 1)
+            val next = mPlayModeImpl.next(
+                    auto,
+                    getPos(), mPods.size - 1
+            )
             stop()
             play(next)
         }
@@ -198,7 +202,10 @@ object PlayList {
     fun skipToPrevious(auto: Boolean = false) {
         log("skipToPrevious")
         if (hasToPrevious(auto)) {
-            val previous = mPlayModeImpl.previous(auto, getPos(), mPods.size - 1)
+            val previous = mPlayModeImpl.previous(
+                    auto,
+                    getPos(), mPods.size - 1
+            )
             stop()
             play(previous)
         }
@@ -225,11 +232,17 @@ object PlayList {
     }
 
     fun hasToNext(auto: Boolean): Boolean {
-        return mPlayModeImpl.hasNext(auto, getPos(), mPods.size)
+        return mPlayModeImpl.hasNext(
+                auto,
+                getPos(), mPods.size
+        )
     }
 
     fun hasToPrevious(auto: Boolean): Boolean {
-        return mPlayModeImpl.hasPrevious(auto, getPos(), mPods.size)
+        return mPlayModeImpl.hasPrevious(
+                auto,
+                getPos(), mPods.size
+        )
     }
 
     fun stop() {
@@ -247,13 +260,25 @@ object PlayList {
         mPlayer.seekTo(pos.toInt())
     }
 
-    fun setPlayList(pods: ArrayList<IPod>) {
+    fun setPlayList(pods: ArrayList<IPod>, checkedPos: Int = -1) {
         log("setPlayList size:${pods.size}")
+        if (checkedPos > pods.size - 1) {
+            return
+        }
         mPods.clear()
         mPods.addAll(pods)
         stop()
-        mCurrPosition = -1
-        mCurrPodId = ""
+        if (checkedPos >= 0) {
+            mCurrPosition = checkedPos
+            mCurrPodId = pods[mCurrPosition].getPodId()
+        } else {
+            mCurrPosition = -1
+            mCurrPodId = ""
+        }
+    }
+
+    fun getPlayList(): ArrayList<IPod> {
+        return mPods
     }
 
     fun addPlayListHeader(pod: IPod) {
@@ -261,7 +286,8 @@ object PlayList {
         mPods.add(0, pod)
         if (mCurrPodId.isNotEmpty()) {
             //重置当前的播放位置
-            mCurrPosition = getPosById(mCurrPodId)
+            mCurrPosition =
+                    getPosById(mCurrPodId)
         }
     }
 
@@ -281,6 +307,7 @@ object PlayList {
     fun isConnecting(): Boolean {
         return mPlayer.isConnecting
     }
+
 
     fun getState(): Int {
         return mPlayer.state

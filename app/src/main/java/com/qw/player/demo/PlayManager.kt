@@ -14,11 +14,11 @@ object PlayManager {
     private var context: Context? = null
 
     fun init(context: Context) {
-        if (this.context != null) {
+        if (PlayManager.context != null) {
             return
         }
-        this.context = context.applicationContext
-        PlayList.injectPlayer(PodMediaPlayer(this.context))
+        PlayManager.context = context.applicationContext
+        PlayList.injectPlayer(PodMediaPlayer(PlayManager.context))
     }
 
     fun play(position: Int = 0) {
@@ -50,8 +50,12 @@ object PlayManager {
         ContextCompat.startForegroundService(context!!, intent)
     }
 
-    fun setPlayList(pods: ArrayList<IPod>) {
-        PlayList.setPlayList(pods)
+    fun setPlayList(pods: ArrayList<IPod>,checkedPos:Int=0) {
+        PlayList.setPlayList(pods,checkedPos)
+    }
+
+    fun getPlayList(): ArrayList<IPod> {
+        return PlayList.getPlayList()
     }
 
     fun isPlaying(): Boolean {
@@ -77,7 +81,6 @@ object PlayManager {
     fun getPod(): IPod? {
         return PlayList.getPod()
     }
-
     fun addPlayListHeader(pod: IPod) {
         PlayList.addPlayListHeader(pod)
     }
@@ -85,7 +88,6 @@ object PlayManager {
     fun addPlayListFooter(pod: IPod) {
         PlayList.addPlayListFooter(pod)
     }
-
     fun addOnPlayListListener(playListListener: OnPlayListListener) {
         PlayList.addOnPlayListListener(playListListener)
     }
@@ -96,6 +98,7 @@ object PlayManager {
 
     fun getDuring(): Int {
         return PlayList.getDuring()
+
     }
 
     fun setPlayMode(playMode: Int) {
@@ -105,12 +108,11 @@ object PlayManager {
     fun injectUrlLoad(urlLoad: IUrlLoad) {
         PlayList.injectUrlLoad(urlLoad)
     }
-
     fun startCountdown(time: Long) {
         PlayCountdownManager.startCountdown(time)
     }
 
-    fun stopCountDown(){
+    fun stopCountDown() {
         PlayCountdownManager.stopCountdown()
     }
 }
