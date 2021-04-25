@@ -1,4 +1,4 @@
-package com.qw.player.list.mode
+package com.qw.player.list
 
 interface IPod {
     fun getPodId(): String {

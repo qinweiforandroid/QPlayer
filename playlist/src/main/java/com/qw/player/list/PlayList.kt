@@ -3,7 +3,8 @@ package com.qw.player.list
 import android.media.AudioManager
 import com.qw.player.core.IAudioFocus
 import com.qw.player.core.IPodPlayer
-import com.qw.player.list.mode.IPod
+import com.qw.player.list.mode.IPlayMode
+import com.qw.player.list.mode.PlayModeFactory
 
 object PlayList {
     private val mPods = ArrayList<IPod>()
@@ -110,14 +111,6 @@ object PlayList {
         return mPlayMode
     }
 
-    fun play() {
-        if (mCurrPosition >= 0) {
-            play(mCurrPosition)
-        } else {
-            play(0)
-        }
-    }
-
     fun play(position: Int) {
         if (mPods.size == 0) {
             return
@@ -174,7 +167,7 @@ object PlayList {
                 }
 
                 override fun onLoadFailure(code: Int, msg: String) {
-                    mPlayer.notifyPlayError(code,msg)
+                    mPlayer.notifyPlayError(code, msg)
                 }
             })
         }
@@ -239,10 +232,15 @@ object PlayList {
     fun setPlayList(pods: ArrayList<IPod>) {
         mPods.clear()
         mPods.addAll(pods)
+        stop()
     }
 
     fun addPlayListHeader(pod: IPod) {
         mPods.add(0, pod)
+        if (mCurrPodId.isNotEmpty()) {
+            //重置当前的播放位置
+            mCurrPosition = getPosById(mCurrPodId)
+        }
     }
 
     fun addPlayListFooter(pod: IPod) {

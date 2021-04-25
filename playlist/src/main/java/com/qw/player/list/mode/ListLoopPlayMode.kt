@@ -1,7 +1,5 @@
 package com.qw.player.list.mode
 
-import com.qw.player.list.IPlayMode
-
 class ListLoopPlayMode : IPlayMode {
     override fun previous(auto: Boolean, pos: Int, max: Int): Int {
         if (pos == 0) {

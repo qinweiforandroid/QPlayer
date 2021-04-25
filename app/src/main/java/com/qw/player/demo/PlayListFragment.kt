@@ -9,10 +9,10 @@ import com.bumptech.glide.Glide
 import com.qw.framework.ui.BaseListV2Fragment
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
 import com.qw.player.demo.widget.MusicView
-import com.qw.player.list.IPlayMode
+import com.qw.player.list.mode.IPlayMode
 import com.qw.player.list.OnPlayListListener
-import com.qw.player.list.mode.IPod
-import com.qw.player.list.mode.Pod
+import com.qw.player.list.IPod
+import com.qw.player.list.Pod
 import com.qw.widget.list.BaseViewHolder
 
 class PlayListFragment : BaseListV2Fragment<IPod>() {

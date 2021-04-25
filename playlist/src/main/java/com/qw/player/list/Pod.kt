@@ -1,8 +1,8 @@
-package com.qw.player.list.mode
+package com.qw.player.list
 
 import java.io.Serializable
 
-class Pod:IPod,Serializable {
+class Pod: IPod,Serializable {
     var id:String=""
     var title=""
     var author=""

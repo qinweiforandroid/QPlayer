@@ -5,7 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import com.qw.player.list.OnPlayListListener
-import com.qw.player.list.mode.IPod
+import com.qw.player.list.IPod
+import com.qw.player.list.IUrlLoad
 import com.qw.player.list.PlayList
 import com.qw.player.media.PodMediaPlayer
 
@@ -77,6 +78,14 @@ object PlayManager {
         return PlayList.getPod()
     }
 
+    fun addPlayListHeader(pod: IPod) {
+        PlayList.addPlayListHeader(pod)
+    }
+
+    fun addPlayListFooter(pod: IPod) {
+        PlayList.addPlayListFooter(pod)
+    }
+
     fun addOnPlayListListener(playListListener: OnPlayListListener) {
         PlayList.addOnPlayListListener(playListListener)
     }
@@ -91,5 +100,8 @@ object PlayManager {
 
     fun setPlayMode(playMode: Int) {
         PlayList.setPlayMode(playMode)
+    }
+    fun injectUrlLoad(urlLoad: IUrlLoad) {
+        PlayList.injectUrlLoad(urlLoad)
     }
 }
