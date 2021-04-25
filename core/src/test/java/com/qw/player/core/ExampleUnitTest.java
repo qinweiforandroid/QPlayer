@@ -1,8 +1,5 @@
 package com.qw.player.core;
 
-import com.qw.player.list.mode.ListLoopPlayMode;
-import com.qw.player.list.mode.RandomPlayMode;
-import com.qw.player.list.mode.SingleLoopPlayMode;
 
 import org.junit.Test;
 
@@ -19,54 +16,4 @@ public class ExampleUnitTest {
         assertEquals(4, 2 + 2);
     }
 
-    @Test
-    public void singLoop() {
-        IPlayMode playMode = new SingleLoopPlayMode();
-        int pos = 1;
-        int max = 10;
-        assertEquals(playMode.next(true, pos, max), 1);
-
-        assertEquals(playMode.next(false, pos, max), 2);
-        assertEquals(playMode.previous(false, pos, max), 0);
-
-        pos = 9;
-        assertEquals(playMode.next(false, pos, max), 10);
-        assertEquals(playMode.previous(false, pos, max), 8);
-
-
-        pos = 10;
-        assertEquals(playMode.next(false, pos, max), 0);
-        pos = 0;
-        assertEquals(playMode.previous(false, pos, max), 10);
-    }
-
-    @Test
-    public void listLoop() {
-        IPlayMode playMode = new ListLoopPlayMode();
-        int pos = 1;
-        int max = 10;
-        assertEquals(playMode.next(true, pos, max), 2);
-
-        assertEquals(playMode.next(false, pos, max), 2);
-        assertEquals(playMode.previous(false, pos, max), 0);
-
-        pos = 9;
-        assertEquals(playMode.next(false, pos, max), 10);
-        assertEquals(playMode.previous(false, pos, max), 8);
-
-        pos = 10;
-        assertEquals(playMode.next(false, pos, max), 0);
-        pos = 0;
-        assertEquals(playMode.previous(false, pos, max), 10);
-    }
-
-    @Test
-    public void random() {
-        IPlayMode playMode = new RandomPlayMode();
-        int pos = 1;
-        int max = 10;
-        for (int i = 0; i < 20; i++) {
-            System.out.println("random:"+playMode.next(false,pos,max));
-        }
-    }
 }
