@@ -101,7 +101,12 @@ object PlayManager {
     fun setPlayMode(playMode: Int) {
         PlayList.setPlayMode(playMode)
     }
+
     fun injectUrlLoad(urlLoad: IUrlLoad) {
         PlayList.injectUrlLoad(urlLoad)
+    }
+
+    fun startCountdown(time: Long) {
+
     }
 }

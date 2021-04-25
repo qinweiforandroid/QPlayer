@@ -2,12 +2,11 @@ package com.qw.player.demo
 
 import android.os.Bundle
 import android.view.*
-import android.widget.RadioGroup
-import android.widget.SeekBar
-import android.widget.Toast
+import android.widget.*
 import com.bumptech.glide.Glide
 import com.qw.framework.ui.BaseListV2Fragment
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
+import com.qw.player.demo.databinding.PlayListFragmentBinding
 import com.qw.player.demo.widget.MusicView
 import com.qw.player.list.mode.IPlayMode
 import com.qw.player.list.OnPlayListListener
@@ -17,30 +16,32 @@ import com.qw.widget.list.BaseViewHolder
 
 class PlayListFragment : BaseListV2Fragment<IPod>() {
 
-    private lateinit var mMusicView: MusicView
+    private lateinit var bind: PlayListFragmentBinding
 
     override fun getCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.play_list_fragment, container, false)
+
+        return PlayListFragmentBinding.inflate(inflater, container, false).apply {
+            bind = this
+        }.root
     }
 
     override fun initView(v: View) {
         super.initView(v)
         mPullRecyclerView.setEnablePullToStart(false)
         mPullRecyclerView.setEnablePullToEnd(false)
-        mMusicView = findViewById<MusicView>(R.id.mMusicView)
-        mMusicView.setOnMusicPlayStateClickListener(View.OnClickListener {
+        bind.mMusicView.setOnMusicPlayStateClickListener(View.OnClickListener {
             if (PlayManager.isConnecting()) {
                 Toast.makeText(requireContext(), "加载中...", Toast.LENGTH_SHORT).show()
                 return@OnClickListener
             }
             PlayManager.play()
         })
-        mMusicView.setOnSeekChangedListener(object : MusicView.OnSeekChangedListener {
+        bind.mMusicView.setOnSeekChangedListener(object : MusicView.OnSeekChangedListener {
             override fun onSeekChanged(seekBar: SeekBar) {
                 PlayManager.seekTo(seekBar.progress.toLong())
             }
         })
-        findViewById<RadioGroup>(R.id.mMusicPlayModeRG).let {
+        bind.mMusicPlayModeRG.let {
             it.setOnCheckedChangeListener { group, checkedId ->
                 setPlayMode(checkedId)
             }
@@ -60,8 +61,11 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
                 }
             }
         }
-
+        bind.mPlayCountdownBtn.setOnClickListener {
+            CountdownManager.startCountdown(10000)
+        }
     }
+
 
     private fun setPlayMode(checkedId: Int) {
         when (checkedId) {
@@ -181,13 +185,13 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
 
         override fun onPlayBufferingUpdated(mCurrPodId: String, percent: Int) {
             super.onPlayBufferingUpdated(mCurrPodId, percent)
-            mMusicView.setSecondaryProgress((percent / 100.0 * PlayManager.getDuring()).toInt())
+            bind.mMusicView.setSecondaryProgress((percent / 100.0 * PlayManager.getDuring()).toInt())
         }
 
         override fun onPlayProgressUpdated(mCurrPodId: String, cur: Int, total: Int) {
             super.onPlayProgressUpdated(mCurrPodId, cur, total)
-            mMusicView.setMax(total)
-            mMusicView.setProgress(cur)
+            bind.mMusicView.setMax(total)
+            bind.mMusicView.setProgress(cur)
         }
 
         override fun onPlayCompleted(mCurrPodId: String) {
@@ -199,13 +203,13 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
     private fun notifyPlayUpdated() {
         adapter.notifyDataSetChanged()
         if (PlayManager.isPlaying()) {
-            mMusicView.playing()
+            bind.mMusicView.playing()
         } else {
-            mMusicView.paused()
+            bind.mMusicView.paused()
         }
-        mMusicView.loading(PlayManager.isConnecting())
+        bind.mMusicView.loading(PlayManager.isConnecting())
         PlayManager.getPod()?.let {
-            mMusicView.setCover(it.getPodCover())
+            bind.mMusicView.setCover(it.getPodCover())
                     .setName(it.getPodTitle())
                     .setSinger(it.getPodAuthor())
                     .setUrl(it.getPodUrl())
@@ -217,11 +221,29 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
     override fun onResume() {
         super.onResume()
         PlayManager.addOnPlayListListener(playListListener)
+        CountdownManager.addOnCountdownListener(countDownListener)
         notifyPlayUpdated()
     }
 
     override fun onPause() {
         super.onPause()
+        CountdownManager.removeOnCountdownListener(countDownListener)
         PlayManager.removeOnPlayListListener(playListListener)
+    }
+
+
+    private val countDownListener = object : CountdownManager.OnCountdownListener {
+        override fun onCountdownCompleted() {
+            bind.mPlayCountdownInfoLabel.post {
+                bind.mPlayCountdownInfoLabel.text = "未开启"
+            }
+        }
+
+        override fun onExecute(time: Long) {
+            super.onExecute(time)
+            bind.mPlayCountdownInfoLabel.post {
+                bind.mPlayCountdownInfoLabel.text = time.toString()
+            }
+        }
     }
 }

@@ -233,6 +233,8 @@ object PlayList {
         mPods.clear()
         mPods.addAll(pods)
         stop()
+        mCurrPosition=-1
+        mCurrPodId=""
     }
 
     fun addPlayListHeader(pod: IPod) {

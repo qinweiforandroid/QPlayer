@@ -70,9 +70,11 @@ class AudioPlayService : Service() {
 //        initMediaSession()
         initPlayer()
         initNotification()
+        registerCountdownListener()
         //通知数据变更
 //        mediaSession.setMetadata()
     }
+
 
     private fun initNotification() {
         playNotification = PlayNotification(this)
@@ -94,13 +96,13 @@ class AudioPlayService : Service() {
             }
         })
         PlayList.addOnPlayListListener(playListListener)
-        PlayList.injectUrlLoad(object:IUrlLoad{
+        PlayList.injectUrlLoad(object : IUrlLoad {
             override fun load(id: String, callback: UrlLoadCallback) {
                 //fixme load url by ID
-                val url="http://m10.music.126.net/20210423195257/1dea994446019b032b0da563474e3568/ymusic/0409/0558/005d/3c30ad207f221448759e7716e61df79d.mp3"
+                val url = "http://m10.music.126.net/20210423195257/1dea994446019b032b0da563474e3568/ymusic/0409/0558/005d/3c30ad207f221448759e7716e61df79d.mp3"
                 Handler(Looper.myLooper()!!).postDelayed({
                     callback.onLoadSuccess(url)
-                },2000)
+                }, 2000)
 
             }
         })
@@ -259,10 +261,30 @@ class AudioPlayService : Service() {
         }
     }
 
+
+    private val listener: CountdownManager.OnCountdownListener = object : CountdownManager.OnCountdownListener {
+        override fun onCountdownCompleted() {
+            if (PlayManager.isPlaying()) {
+                PlayManager.pause()
+            }
+        }
+    }
+
+    private fun registerCountdownListener() {
+        CountdownManager.addOnCountdownListener(listener)
+    }
+
+    private fun unRegisterCountdownListener() {
+        CountdownManager.removeOnCountdownListener(listener)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         playNotification.unRegisterListener()
         playNotification.cancel()
+        unRegisterCountdownListener()
         PlayList.onDestroy()
     }
+
+
 }

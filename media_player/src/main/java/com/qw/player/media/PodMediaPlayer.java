@@ -74,10 +74,8 @@ public class PodMediaPlayer implements IPodPlayer {
     }
 
     private void reset() {
-        if (isPrepared) {
-            mMediaPlayer.reset();
-            isPrepared = false;
-        }
+        mMediaPlayer.reset();
+        isPrepared = false;
     }
 
 
@@ -185,16 +183,16 @@ public class PodMediaPlayer implements IPodPlayer {
 
     @Override
     public void notifyPlayConnecting() {
-        if(isConnecting()){
+        if (isConnecting()) {
             return;
         }
-        state=State.CONNECT;
+        state = State.CONNECT;
         listener.onPlayConnect();
     }
 
     @Override
     public void notifyPlayError(int code, String msg) {
-        state=State.ERROR;
-        listener.onPlayError(code,msg);
+        state = State.ERROR;
+        listener.onPlayError(code, msg);
     }
 }
