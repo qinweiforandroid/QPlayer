@@ -2,7 +2,7 @@ package com.qw.player.demo
 
 import com.qw.player.core.PodPlayerTimer
 
-object CountdownManager {
+object PlayCountdownManager {
     private var mListenerTime: Long = 0
     private val timer = PodPlayerTimer()
     private var mCurrentTime = 0L

@@ -3,6 +3,7 @@ package com.qw.player.list
 import android.media.AudioManager
 import com.qw.player.core.IAudioFocus
 import com.qw.player.core.IPodPlayer
+import com.qw.player.core.PlayLog
 import com.qw.player.list.mode.IPlayMode
 import com.qw.player.list.mode.PlayModeFactory
 
@@ -43,54 +44,63 @@ object PlayList {
         setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
         mPlayer.registerListener(object : IPodPlayer.OnPlayListener {
             override fun onPlayStart() {
+                log("onPlayStart")
                 for (listener in listeners) {
                     listener.onPlayStart(mCurrPodId)
                 }
             }
 
             override fun onPlayResumed() {
+                log("onPlayResumed")
                 for (listener in listeners) {
                     listener.onPlayResumed(mCurrPodId)
                 }
             }
 
             override fun onPlayBufferingUpdated(percent: Int) {
+                log("percent:$percent")
                 for (listener in listeners) {
                     listener.onPlayBufferingUpdated(mCurrPodId, percent)
                 }
             }
 
             override fun onPlayError(code: Int, message: String?) {
+                log("onPlayError code:$code,message:$message")
                 for (listener in listeners) {
                     listener.onPlayError(mCurrPodId, code, message ?: "")
                 }
             }
 
             override fun onPlayStopped() {
+                log("onPlayStopped")
                 for (listener in listeners) {
                     listener.onPlayStopped(mCurrPodId)
                 }
             }
 
             override fun onPlayPaused() {
+                log("onPlayPaused")
                 for (listener in listeners) {
                     listener.onPlayPaused(mCurrPodId)
                 }
             }
 
             override fun onPlayCompleted() {
+                log("onPlayCompleted")
                 for (listener in listeners) {
                     listener.onPlayCompleted(mCurrPodId)
                 }
             }
 
             override fun onPlayProgressUpdated(cur: Int, total: Int) {
+                log("onPlayProgressUpdated: $cur/$total")
                 for (listener in listeners) {
                     listener.onPlayProgressUpdated(mCurrPodId, cur, total)
                 }
             }
 
             override fun onPlayConnect() {
+                log("onPlayConnect")
                 for (listener in listeners) {
                     listener.onPlayConnecting(mCurrPodId)
                 }
@@ -112,6 +122,7 @@ object PlayList {
     }
 
     fun play(position: Int) {
+        log("play position:$position")
         if (mPods.size == 0) {
             return
         }
@@ -145,6 +156,7 @@ object PlayList {
 
     private fun play(pod: IPod) {
         mCurrPodId = pod.getPodId()
+        log("play ${pod.getPodId()}")
         if (mAudioFocus.requestAudioFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             //check url is exist
             if (pod.getPodUrl().isEmpty()) {
@@ -157,6 +169,7 @@ object PlayList {
     }
 
     private fun tryLoadUrlAndPlay(pod: IPod) {
+        log("tryLoadUrlAndPlay:${pod.getPodId()}")
         // try load url by pod id
         if (this::mUrlLoad.isInitialized) {
             mPlayer.notifyPlayConnecting()
@@ -174,6 +187,7 @@ object PlayList {
     }
 
     fun skipToNext(auto: Boolean = false) {
+        log("skipToNext")
         if (hasToNext(auto)) {
             val next = mPlayModeImpl.next(auto, getPos(), mPods.size - 1)
             stop()
@@ -182,6 +196,7 @@ object PlayList {
     }
 
     fun skipToPrevious(auto: Boolean = false) {
+        log("skipToPrevious")
         if (hasToPrevious(auto)) {
             val previous = mPlayModeImpl.previous(auto, getPos(), mPods.size - 1)
             stop()
@@ -218,26 +233,31 @@ object PlayList {
     }
 
     fun stop() {
+        log("stop")
         mPlayer.stop()
     }
 
     fun pause() {
+        log("pause")
         mPlayer.pause()
     }
 
     fun seekTo(pos: Long) {
+        log("seekTo $pos")
         mPlayer.seekTo(pos.toInt())
     }
 
     fun setPlayList(pods: ArrayList<IPod>) {
+        log("setPlayList size:${pods.size}")
         mPods.clear()
         mPods.addAll(pods)
         stop()
-        mCurrPosition=-1
-        mCurrPodId=""
+        mCurrPosition = -1
+        mCurrPodId = ""
     }
 
     fun addPlayListHeader(pod: IPod) {
+        log("addPlayListHeader ${pod.getPodId()}")
         mPods.add(0, pod)
         if (mCurrPodId.isNotEmpty()) {
             //重置当前的播放位置
@@ -246,6 +266,7 @@ object PlayList {
     }
 
     fun addPlayListFooter(pod: IPod) {
+        log("addPlayListFooter ${pod.getPodId()}")
         mPods.add(pod)
     }
 
@@ -280,5 +301,9 @@ object PlayList {
 
     fun getDuring(): Int {
         return mPlayer.during
+    }
+
+    private fun log(msg: String) {
+        PlayLog.d("PlayList > id:$mCurrPodId,p:$mCurrPosition $msg")
     }
 }

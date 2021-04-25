@@ -62,7 +62,7 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
             }
         }
         bind.mPlayCountdownBtn.setOnClickListener {
-            CountdownManager.startCountdown(10000)
+            PlayManager.startCountdown(10000)
         }
     }
 
@@ -221,18 +221,18 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
     override fun onResume() {
         super.onResume()
         PlayManager.addOnPlayListListener(playListListener)
-        CountdownManager.addOnCountdownListener(countDownListener)
+        PlayCountdownManager.addOnCountdownListener(countDownListener)
         notifyPlayUpdated()
     }
 
     override fun onPause() {
         super.onPause()
-        CountdownManager.removeOnCountdownListener(countDownListener)
+        PlayCountdownManager.removeOnCountdownListener(countDownListener)
         PlayManager.removeOnPlayListListener(playListListener)
     }
 
 
-    private val countDownListener = object : CountdownManager.OnCountdownListener {
+    private val countDownListener = object : PlayCountdownManager.OnCountdownListener {
         override fun onCountdownCompleted() {
             bind.mPlayCountdownInfoLabel.post {
                 bind.mPlayCountdownInfoLabel.text = "未开启"

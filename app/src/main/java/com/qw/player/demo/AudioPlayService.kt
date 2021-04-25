@@ -4,9 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.media.AudioAttributesCompat
@@ -14,10 +12,8 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.qw.player.core.IAudioFocus
 import com.qw.player.core.IPlayNotification
-import com.qw.player.list.IUrlLoad
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.PlayList
-import com.qw.player.list.UrlLoadCallback
 
 class AudioPlayService : Service() {
     companion object {
@@ -96,16 +92,7 @@ class AudioPlayService : Service() {
             }
         })
         PlayList.addOnPlayListListener(playListListener)
-        PlayList.injectUrlLoad(object : IUrlLoad {
-            override fun load(id: String, callback: UrlLoadCallback) {
-                //fixme load url by ID
-                val url = "http://m10.music.126.net/20210423195257/1dea994446019b032b0da563474e3568/ymusic/0409/0558/005d/3c30ad207f221448759e7716e61df79d.mp3"
-                Handler(Looper.myLooper()!!).postDelayed({
-                    callback.onLoadSuccess(url)
-                }, 2000)
 
-            }
-        })
     }
 
 
@@ -262,7 +249,7 @@ class AudioPlayService : Service() {
     }
 
 
-    private val listener: CountdownManager.OnCountdownListener = object : CountdownManager.OnCountdownListener {
+    private val listener: PlayCountdownManager.OnCountdownListener = object : PlayCountdownManager.OnCountdownListener {
         override fun onCountdownCompleted() {
             if (PlayManager.isPlaying()) {
                 PlayManager.pause()
@@ -271,11 +258,11 @@ class AudioPlayService : Service() {
     }
 
     private fun registerCountdownListener() {
-        CountdownManager.addOnCountdownListener(listener)
+        PlayCountdownManager.addOnCountdownListener(listener)
     }
 
     private fun unRegisterCountdownListener() {
-        CountdownManager.removeOnCountdownListener(listener)
+        PlayCountdownManager.removeOnCountdownListener(listener)
     }
 
     override fun onDestroy() {

@@ -107,6 +107,10 @@ object PlayManager {
     }
 
     fun startCountdown(time: Long) {
+        PlayCountdownManager.startCountdown(time)
+    }
 
+    fun stopCountDown(){
+        PlayCountdownManager.stopCountdown()
     }
 }
