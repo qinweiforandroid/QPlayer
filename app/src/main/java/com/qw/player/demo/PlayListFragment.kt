@@ -153,6 +153,8 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
 //            url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
             cover = "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4205434820,3446918311&fm=26&gp=0.jpg"
         })
+        PlayManager.setPlayList(modules, 0)
+        notifyPlayUpdated()
         adapter.notifyDataSetChanged()
     }
 

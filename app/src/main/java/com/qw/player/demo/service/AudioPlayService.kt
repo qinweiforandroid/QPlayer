@@ -1,17 +1,23 @@
-package com.qw.player.demo
+package com.qw.player.demo.service
 
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.media.AudioManager
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.qw.player.core.IAudioFocus
-import com.qw.player.core.IPlayNotification
+import com.qw.player.demo.*
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.PlayList
 
@@ -77,8 +83,33 @@ class AudioPlayService : Service() {
         playNotification.registerListener()
     }
 
-    private fun notifyNotificationUpdated() {
-        playNotification.notifyNotification(this)
+    private val handler = Handler(Looper.myLooper()!!)
+    private fun notifyNotificationUpdated(bitmap: Bitmap? = null) {
+        val pod = PlayManager.getPod() ?: return
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed({
+            playNotification.notifyNotification(
+                    IPlayNotification.PlayEntity.Builder()
+                            .setDefaultIcon(R.drawable.ic_launcher_background)
+                            .setIcon(bitmap)
+                            .setTitle(pod.getPodTitle())
+                            .setSubTitle(pod.getPodAuthor())
+                            .builder(), this
+            )
+        }, 50)
+        if (bitmap == null) {
+            Glide.with(this@AudioPlayService)
+                    .asBitmap()
+                    .load(pod.getPodCover())
+                    .into(object : SimpleTarget<Bitmap>() {
+                        override fun onResourceReady(
+                                resource: Bitmap,
+                                transition: Transition<in Bitmap>?
+                        ) {
+                            notifyNotificationUpdated(resource)
+                        }
+                    })
+        }
     }
 
     private fun initPlayer() {

@@ -1,4 +1,4 @@
-package com.qw.player.demo
+package com.qw.player.demo.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,8 +11,8 @@ import android.content.IntentFilter
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
-import com.qw.player.core.IPlayNotification
 import com.qw.player.core.IPodPlayer
+import com.qw.player.demo.MainActivity
 import com.qw.player.list.PlayList.getState
 import com.qw.player.list.PlayList.isConnecting
 import com.qw.player.list.PlayList.isPlaying
@@ -20,9 +20,10 @@ import com.qw.player.demo.PlayManager.skipToNext
 import com.qw.player.demo.PlayManager.pause
 import com.qw.player.demo.PlayManager.skipToPrevious
 import com.qw.player.demo.PlayManager.resume
-import com.qw.player.list.PlayList
+import com.qw.player.demo.R
 
 class PlayNotification constructor(private val context: Context) : IPlayNotification {
+    private var play: IPlayNotification.PlayEntity? = null
     private lateinit var receiver: NotificationReceiver
 
     override fun createNotificationChannel() {
@@ -43,60 +44,122 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
     }
 
     override fun createRemoteViews(): RemoteViews {
-        val remoteViews = RemoteViews(context.packageName, R.layout.music_play_notification)
+        val remoteViews = RemoteViews(
+                context.packageName,
+                R.layout.music_play_notification
+        )
         remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, "")
         if (isPlaying() || isConnecting()) {
-            remoteViews.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_pause_24)
+            remoteViews.setImageViewResource(
+                    R.id.mNMusicPlayPlayImg,
+                    R.drawable.ic_baseline_pause_24
+            )
         } else {
-            remoteViews.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_play_arrow_24)
+            remoteViews.setImageViewResource(
+                    R.id.mNMusicPlayPlayImg,
+                    R.drawable.ic_baseline_play_arrow_24
+            )
         }
 
-        PlayList.getPod()?.let {
-            remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getPodTitle())
-            remoteViews.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getPodAuthor())
+        play?.let {
+            remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getTitle())
+            remoteViews.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getSubTitle())
+            if (it.getIcon() != null) {
+                remoteViews.setImageViewBitmap(R.id.mNMusicPlayIconImg, it.getIcon())
+            } else {
+                remoteViews.setImageViewResource(R.id.mNMusicPlayIconImg, it.getDefaultIcon())
+            }
         }
 
         val intent = Intent(context, MainActivity::class.java)
         // 点击跳转到主界面
-        val intentGo = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intentGo =
+                PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         remoteViews.setOnClickPendingIntent(R.id.mNMusicPlayIconImg, intentGo)
         //关闭通知栏
-        remoteViews.setOnClickPendingIntent(R.id.mNMusicPlayCloseImg, getBroadcastIntent(ACTION_CLOSE, 2))
+        remoteViews.setOnClickPendingIntent(
+                R.id.mNMusicPlayCloseImg, getBroadcastIntent(
+                ACTION_CLOSE, 2
+        )
+        )
         //设置上一曲
-        remoteViews.setOnClickPendingIntent(R.id.mNMusicPlayPreImg, getBroadcastIntent(ACTION_PRE, 3))
+        remoteViews.setOnClickPendingIntent(
+                R.id.mNMusicPlayPreImg, getBroadcastIntent(
+                ACTION_PRE, 3
+        )
+        )
         //播放/暂停
-        remoteViews.setOnClickPendingIntent(R.id.mNMusicPlayPlayImg, getBroadcastIntent(ACTION_PLAY, 4))
+        remoteViews.setOnClickPendingIntent(
+                R.id.mNMusicPlayPlayImg, getBroadcastIntent(
+                ACTION_PLAY, 4
+        )
+        )
         //下一曲
-        remoteViews.setOnClickPendingIntent(R.id.mNMusicPlayNextImg, getBroadcastIntent(ACTION_NEXT, 5))
+        remoteViews.setOnClickPendingIntent(
+                R.id.mNMusicPlayNextImg, getBroadcastIntent(
+                ACTION_NEXT, 5
+        )
+        )
         return remoteViews
     }
 
     override fun createSmallRemoteViews(): RemoteViews {
-        val remoteViewsSmall = RemoteViews(context.packageName, R.layout.music_play_small_notification)
+        val remoteViewsSmall = RemoteViews(
+                context.packageName,
+                R.layout.music_play_small_notification
+        )
         remoteViewsSmall.setTextViewText(R.id.mNMusicPlayTitleLabel, "")
         if (isPlaying() || isConnecting()) {
-            remoteViewsSmall.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_pause_24)
+            remoteViewsSmall.setImageViewResource(
+                    R.id.mNMusicPlayPlayImg,
+                    R.drawable.ic_baseline_pause_24
+            )
         } else {
-            remoteViewsSmall.setImageViewResource(R.id.mNMusicPlayPlayImg, R.drawable.ic_baseline_play_arrow_24)
+            remoteViewsSmall.setImageViewResource(
+                    R.id.mNMusicPlayPlayImg,
+                    R.drawable.ic_baseline_play_arrow_24
+            )
         }
 
-        PlayList.getPod()?.let {
-            remoteViewsSmall.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getPodTitle())
-            remoteViewsSmall.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getPodAuthor())
+        play?.let {
+            remoteViewsSmall.setTextViewText(R.id.mNMusicPlayTitleLabel, it.getTitle())
+            remoteViewsSmall.setTextViewText(R.id.mNMusicPlaySubTitleLabel, it.getSubTitle())
+            if (it.getIcon() != null) {
+                remoteViewsSmall.setImageViewBitmap(R.id.mNMusicPlayIconImg, it.getIcon())
+            } else {
+                remoteViewsSmall.setImageViewResource(R.id.mNMusicPlayIconImg, it.getDefaultIcon())
+            }
         }
 
         val intent = Intent(context, MainActivity::class.java)
         // 点击跳转到主界面
-        val intentGo = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intentGo =
+                PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         remoteViewsSmall.setOnClickPendingIntent(R.id.mNMusicPlayIconImg, intentGo)
         //关闭通知栏
-        remoteViewsSmall.setOnClickPendingIntent(R.id.mNMusicPlayCloseImg, getBroadcastIntent(ACTION_CLOSE, 2))
+        remoteViewsSmall.setOnClickPendingIntent(
+                R.id.mNMusicPlayCloseImg, getBroadcastIntent(
+                ACTION_CLOSE, 2
+        )
+        )
         //设置上一曲
-        remoteViewsSmall.setOnClickPendingIntent(R.id.mNMusicPlayPreImg, getBroadcastIntent(ACTION_PRE, 3))
+        remoteViewsSmall.setOnClickPendingIntent(
+                R.id.mNMusicPlayPreImg, getBroadcastIntent(
+                ACTION_PRE, 3
+        )
+        )
         //播放/暂停
-        remoteViewsSmall.setOnClickPendingIntent(R.id.mNMusicPlayPlayImg, getBroadcastIntent(ACTION_PLAY, 4))
+        remoteViewsSmall.setOnClickPendingIntent(
+                R.id.mNMusicPlayPlayImg, getBroadcastIntent(
+                ACTION_PLAY, 4
+        )
+        )
         //下一曲
-        remoteViewsSmall.setOnClickPendingIntent(R.id.mNMusicPlayNextImg, getBroadcastIntent(ACTION_NEXT, 5))
+        remoteViewsSmall.setOnClickPendingIntent(
+                R.id.mNMusicPlayNextImg, getBroadcastIntent(
+                ACTION_NEXT, 5
+        )
+        )
         return remoteViewsSmall
     }
 
@@ -104,10 +167,13 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
      * 设置通知
      */
     override fun createNotificationBuilder(): NotificationCompat.Builder {
-        val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(
+                context,
+                CHANNEL_ID
+        )
 //        notificationBuilder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
-        notificationBuilder.setContent(createRemoteViews())
-        notificationBuilder.setCustomBigContentView(createSmallRemoteViews())
+        notificationBuilder.setContent(createSmallRemoteViews())
+        notificationBuilder.setCustomBigContentView(createRemoteViews())
         notificationBuilder.priority = NotificationCompat.PRIORITY_HIGH
         notificationBuilder.setSound(null)
         notificationBuilder.setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
@@ -121,7 +187,8 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
         return 10000
     }
 
-    override fun notifyNotification(service: Service) {
+    override fun notifyNotification(play: IPlayNotification.PlayEntity, service: Service) {
+        this.play = play
         val notificationBuilder = createNotificationBuilder()
         service.startForeground(getNotificationId(), notificationBuilder.build())
     }
@@ -147,7 +214,8 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
 
     inner class NotificationReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager =
+                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             when (intent.action) {
                 ACTION_PLAY -> when (getState()) {
                     IPodPlayer.State.IDLE, IPodPlayer.State.PAUSED -> resume()
@@ -166,7 +234,12 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
     private fun getBroadcastIntent(action: String, requestCode: Int): PendingIntent {
         val close = Intent()
         close.action = action
-        return PendingIntent.getBroadcast(context, requestCode, close, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                close,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     init {

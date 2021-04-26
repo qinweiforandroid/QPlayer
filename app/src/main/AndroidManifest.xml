@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".AudioPlayService"
+            android:name=".service.AudioPlayService"
             android:exported="false" />
     </application>
 
