@@ -146,7 +146,7 @@ object PlayList {
             }
         }
         val pod = mPods[position]
-        val oldId= mCurrPodId
+        val oldId = mCurrPodId
         mCurrPosition = position
         for (listener in listeners) {
             listener.onPlaySwitched(pod.getPodId(), oldId)
@@ -265,9 +265,9 @@ object PlayList {
         if (checkedPos > pods.size - 1) {
             return
         }
+        stop()
         mPods.clear()
         mPods.addAll(pods)
-        stop()
         if (checkedPos >= 0) {
             mCurrPosition = checkedPos
             mCurrPodId = pods[mCurrPosition].getPodId()
