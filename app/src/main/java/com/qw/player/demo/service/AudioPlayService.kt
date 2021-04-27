@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.qw.player.core.IAudioFocus
+import com.qw.player.core.PlayLog
 import com.qw.player.demo.*
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.PlayList
@@ -69,19 +70,28 @@ class AudioPlayService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        log("onCreate")
 //        initMediaSession()
-        initPlayer()
-        initNotification()
-        registerCountdownListener()
+        PlayList.injectAudioFocus(object : IAudioFocus {
+            override fun requestAudioFocus(): Int {
+                return this@AudioPlayService.requestAudioFocus()
+            }
+
+            override fun abandonAudioFocus() {
+                this@AudioPlayService.abandonAudioFocus()
+            }
+        })
+        PlayList.addOnPlayListListener(playListListener)
+
+        playNotification = PlayNotification(this)
+        playNotification.registerListener()
+        PlayCountdownManager.addOnCountdownListener(
+                listener
+        )
         //通知数据变更
 //        mediaSession.setMetadata()
     }
 
-
-    private fun initNotification() {
-        playNotification = PlayNotification(this)
-        playNotification.registerListener()
-    }
 
     private val handler = Handler(Looper.myLooper()!!)
     private fun notifyNotificationUpdated(bitmap: Bitmap? = null) {
@@ -93,10 +103,11 @@ class AudioPlayService : Service() {
                             .setDefaultIcon(R.drawable.ic_launcher_background)
                             .setIcon(bitmap)
                             .setTitle(pod.getPodTitle())
+                            .setPlaying(PlayManager.isPlaying())
                             .setSubTitle(pod.getPodAuthor())
                             .builder(), this
             )
-        }, 50)
+        }, 100)
         if (bitmap == null) {
             Glide.with(this@AudioPlayService)
                     .asBitmap()
@@ -112,37 +123,24 @@ class AudioPlayService : Service() {
         }
     }
 
-    private fun initPlayer() {
-        PlayList.injectAudioFocus(object : IAudioFocus {
-            override fun requestAudioFocus(): Int {
-                return this@AudioPlayService.requestAudioFocus()
-            }
-
-            override fun abandonAudioFocus() {
-                this@AudioPlayService.abandonAudioFocus()
-            }
-        })
-        PlayList.addOnPlayListListener(playListListener)
-
-    }
-
-
     private fun initMediaSession() {
         mediaSession = MediaSessionCompat(baseContext, "AudioPlayService").apply {
 
             // Enable callbacks from MediaButtons and TransportControls
-            setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-                    or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+            setFlags(
+                    MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
+                            or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
             )
 
             // Set an initial PlaybackState with ACTION_PLAY, so media buttons can start the player
             stateBuilder = PlaybackStateCompat.Builder()
-                    .setActions(PlaybackStateCompat.ACTION_PLAY
-                            or PlaybackStateCompat.ACTION_PLAY_PAUSE
-                            or PlaybackStateCompat.ACTION_PAUSE
-                            or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-                            or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-                            or PlaybackStateCompat.ACTION_SEEK_TO
+                    .setActions(
+                            PlaybackStateCompat.ACTION_PLAY
+                                    or PlaybackStateCompat.ACTION_PLAY_PAUSE
+                                    or PlaybackStateCompat.ACTION_PAUSE
+                                    or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                                    or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                                    or PlaybackStateCompat.ACTION_SEEK_TO
                     )
             setPlaybackState(stateBuilder.build())
 
@@ -206,28 +204,34 @@ class AudioPlayService : Service() {
     }
 
     private fun skipToNext(auto: Boolean = false) {
+        log("skipToNext auto:$auto")
         PlayList.skipToNext(auto)
     }
 
     private fun skipToPrevious() {
+        log("skipToPrevious")
         PlayList.skipToPrevious()
     }
 
     private fun stop() {
+        log("stop")
         PlayList.stop()
     }
 
     private fun pause(resumeOnFocusGain: Boolean) {
+        log("pause resumeOnFocusGain:$resumeOnFocusGain")
         this.resumeOnFocusGain = resumeOnFocusGain
         PlayList.pause()
     }
 
     private fun resume() {
+        log("resume")
         play(PlayList.getPos())
     }
 
 
     private fun play(position: Int) {
+        log("play position:$position")
         val requestAudioFocus = requestAudioFocus()
         notifyNotificationUpdated()
         if (requestAudioFocus == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -241,32 +245,36 @@ class AudioPlayService : Service() {
 
     private lateinit var audioFocusRequest: AudioFocusRequestCompat
     private var resumeOnFocusGain = true
-    private val audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener = object : AudioManager.OnAudioFocusChangeListener {
-        override fun onAudioFocusChange(focusChange: Int) {
-            when (focusChange) {
-                AudioManager.AUDIOFOCUS_GAIN -> {
-                    if (resumeOnFocusGain) {
-                        play(PlayList.getPos())
+    private val audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener =
+            object : AudioManager.OnAudioFocusChangeListener {
+                override fun onAudioFocusChange(focusChange: Int) {
+                    log("onAudioFocusChange focusChange:$focusChange")
+                    when (focusChange) {
+                        AudioManager.AUDIOFOCUS_GAIN -> {
+                            if (resumeOnFocusGain) {
+                                play(PlayList.getPos())
+                            }
+                        }
+                        AudioManager.AUDIOFOCUS_LOSS -> {
+                            pause(false)
+                        }
+                        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
+                        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                            pause(true)
+                        }
                     }
                 }
-                AudioManager.AUDIOFOCUS_LOSS -> {
-                    pause(false)
-                }
-                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
-                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                    pause(true)
-                }
             }
-        }
-    }
 
     private fun requestAudioFocus(): Int {
         val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioFocusRequest = AudioFocusRequestCompat.Builder(AudioManagerCompat.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(AudioAttributesCompat.Builder()
-                        .setUsage(AudioAttributesCompat.USAGE_MEDIA)
-                        .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
-                        .build())
+                .setAudioAttributes(
+                        AudioAttributesCompat.Builder()
+                                .setUsage(AudioAttributesCompat.USAGE_MEDIA)
+                                .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
+                                .build()
+                )
                 .setOnAudioFocusChangeListener(audioFocusChangeListener)
                 .build()
         return AudioManagerCompat.requestAudioFocus(am, audioFocusRequest)
@@ -279,8 +287,8 @@ class AudioPlayService : Service() {
         }
     }
 
-
-    private val listener: PlayCountdownManager.OnCountdownListener = object : PlayCountdownManager.OnCountdownListener {
+    private val listener: PlayCountdownManager.OnCountdownListener = object :
+            PlayCountdownManager.OnCountdownListener {
         override fun onCountdownCompleted() {
             if (PlayManager.isPlaying()) {
                 PlayManager.pause()
@@ -288,21 +296,15 @@ class AudioPlayService : Service() {
         }
     }
 
-    private fun registerCountdownListener() {
-        PlayCountdownManager.addOnCountdownListener(listener)
-    }
-
-    private fun unRegisterCountdownListener() {
+    override fun onDestroy() {
+        super.onDestroy()
+        log("onDestroy")
+        playNotification.unRegisterListener()
+        abandonAudioFocus()
         PlayCountdownManager.removeOnCountdownListener(listener)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        playNotification.unRegisterListener()
-        playNotification.cancel()
-        unRegisterCountdownListener()
-        PlayList.onDestroy()
+    private fun log(msg: String) {
+        PlayLog.d("service $msg")
     }
-
-
 }

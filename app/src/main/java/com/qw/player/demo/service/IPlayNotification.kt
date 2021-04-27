@@ -45,6 +45,11 @@ interface IPlayNotification {
             return isPlaying
         }
 
+        override fun toString(): String {
+            return "PlayEntity(title='$title', isPlaying=$isPlaying) icon:$icon"
+        }
+
+
         class Builder {
             private var icon: Bitmap? = null
             private var defaultIcon: Int = 0

@@ -12,7 +12,9 @@ import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.qw.player.core.IPodPlayer
+import com.qw.player.core.PlayLog
 import com.qw.player.demo.MainActivity
+import com.qw.player.demo.PlayManager
 import com.qw.player.list.PlayList.getState
 import com.qw.player.list.PlayList.isConnecting
 import com.qw.player.list.PlayList.isPlaying
@@ -188,14 +190,18 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
     }
 
     override fun notifyNotification(play: IPlayNotification.PlayEntity, service: Service) {
+        log("notifyNotification $play")
         this.play = play
         val notificationBuilder = createNotificationBuilder()
         service.startForeground(getNotificationId(), notificationBuilder.build())
     }
 
     override fun cancel() {
-        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.cancel(getNotificationId())
+//        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+//        manager.cancel(getNotificationId())
+        if (context is Service) {
+            context.stopSelf()
+        }
     }
 
     override fun registerListener() {
@@ -214,18 +220,21 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
 
     inner class NotificationReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val manager =
-                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            PlayLog.d("PlayNotification $intent.action")
             when (intent.action) {
-                ACTION_PLAY -> when (getState()) {
-                    IPodPlayer.State.IDLE, IPodPlayer.State.PAUSED -> resume()
-                    IPodPlayer.State.PLAYING -> pause()
-                }
+                ACTION_PLAY ->
+                    when {
+                        PlayManager.isPaused() -> resume()
+                        isPlaying() -> pause()
+                        else -> {
+                            PlayManager.play()
+                        }
+                    }
                 ACTION_PRE -> skipToPrevious()
                 ACTION_NEXT -> skipToNext()
                 ACTION_CLOSE -> {
-                    cancel()
                     pause()
+                    cancel()
                 }
             }
         }
@@ -252,5 +261,9 @@ class PlayNotification constructor(private val context: Context) : IPlayNotifica
         const val ACTION_PRE = "android.intent.action.music.pre"
         const val ACTION_NEXT = "android.intent.action.music.next"
         const val ACTION_CLOSE = "android.intent.action.music.close"
+    }
+
+    private fun log(msg: String) {
+        PlayLog.d("notification $msg")
     }
 }

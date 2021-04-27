@@ -13,13 +13,16 @@ import com.qw.player.media.PodMediaPlayer
 
 object PlayManager {
     private var context: Context? = null
-
     fun init(context: Context) {
         if (PlayManager.context != null) {
             return
         }
         PlayManager.context = context.applicationContext
         PlayList.injectPlayer(PodMediaPlayer(PlayManager.context))
+    }
+
+    fun injectUrlLoad(urlLoad: IUrlLoad) {
+        PlayList.injectUrlLoad(urlLoad)
     }
 
     fun play(position: Int = 0) {
@@ -51,8 +54,8 @@ object PlayManager {
         ContextCompat.startForegroundService(context!!, intent)
     }
 
-    fun setPlayList(pods: ArrayList<IPod>,checkedPos:Int=0) {
-        PlayList.setPlayList(pods,checkedPos)
+    fun setPlayList(pods: ArrayList<IPod>, checkedPos: Int = 0) {
+        PlayList.setPlayList(pods, checkedPos)
     }
 
     fun getPlayList(): ArrayList<IPod> {
@@ -82,6 +85,7 @@ object PlayManager {
     fun getPod(): IPod? {
         return PlayList.getPod()
     }
+
     fun addPlayListHeader(pod: IPod) {
         PlayList.addPlayListHeader(pod)
     }
@@ -89,6 +93,7 @@ object PlayManager {
     fun addPlayListFooter(pod: IPod) {
         PlayList.addPlayListFooter(pod)
     }
+
     fun addOnPlayListListener(playListListener: OnPlayListListener) {
         PlayList.addOnPlayListListener(playListListener)
     }
@@ -106,14 +111,16 @@ object PlayManager {
         PlayList.setPlayMode(playMode)
     }
 
-    fun injectUrlLoad(urlLoad: IUrlLoad) {
-        PlayList.injectUrlLoad(urlLoad)
-    }
+
     fun startCountdown(time: Long) {
         PlayCountdownManager.startCountdown(time)
     }
 
     fun stopCountDown() {
         PlayCountdownManager.stopCountdown()
+    }
+
+    fun isPaused(): Boolean {
+        return PlayList.isPaused()
     }
 }
