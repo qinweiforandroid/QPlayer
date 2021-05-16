@@ -7,8 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import androidx.appcompat.app.AppCompatActivity
-import com.qw.framework.ui.BaseFragment
+import com.qw.framework.core.ui.BaseFragment
 import com.qw.player.core.IPodPlayer
 import com.qw.player.core.IPodPlayer.OnPlayListener
 import com.qw.player.media.PodMediaPlayer

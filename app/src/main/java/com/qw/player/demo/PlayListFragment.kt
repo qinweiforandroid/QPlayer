@@ -135,7 +135,7 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         modules.add(Pod().apply {
             id = "123"
             title = "还是很想你"
-            author = "周杰伦"
+            author = "赵丽"
             url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
             cover = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=558639239,778636013&fm=26&gp=0.jpg"
         })
@@ -143,15 +143,15 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
             id = "124"
             title = "再看孤独的风景"
             author = "本兮"
-            url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            cover = "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1034080536,554682047&fm=26&gp=0.jpg"
+            url = "http://192.168.123.171:8080/life/1.mp3"
+            cover = "https://dss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1166503026,41947489&fm=26&gp=0.jpg"
         })
         modules.add(Pod().apply {
             id = "125"
             title = "客官不可以"
-            author = "徐良"
-//            url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            cover = "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4205434820,3446918311&fm=26&gp=0.jpg"
+            author = "梁静茹"
+            url = "http://192.168.123.171:8080/life/2.mp3"
+            cover = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1475331839,2066156315&fm=26&gp=0.jpg"
         })
         PlayManager.setPlayList(modules, 0)
         notifyPlayUpdated()
