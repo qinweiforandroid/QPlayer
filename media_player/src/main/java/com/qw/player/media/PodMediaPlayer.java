@@ -149,6 +149,11 @@ public class PodMediaPlayer implements IPodPlayer {
     }
 
     @Override
+    public void setSpeed(float speed) {
+        //not support
+    }
+
+    @Override
     public void release() {
         if (mMediaPlayer.isPlaying()) {
             mMediaPlayer.stop();

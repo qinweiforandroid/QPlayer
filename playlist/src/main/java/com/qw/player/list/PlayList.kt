@@ -330,6 +330,10 @@ object PlayList {
         return mPlayer.during
     }
 
+    fun setSpeed(speed: Float) {
+        mPlayer.setSpeed(speed)
+    }
+
     private fun log(msg: String) {
         PlayLog.d("PlayList > id:$mCurrPodId,p:$mCurrPosition $msg")
     }

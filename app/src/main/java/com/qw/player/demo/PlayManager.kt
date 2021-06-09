@@ -10,6 +10,7 @@ import com.qw.player.list.IPod
 import com.qw.player.list.IUrlLoad
 import com.qw.player.list.PlayList
 import com.qw.player.media.PodMediaPlayer
+import com.xiaoniu.exoplayer.PodExoplayer
 
 object PlayManager {
     private var context: Context? = null
@@ -18,7 +19,8 @@ object PlayManager {
             return
         }
         PlayManager.context = context.applicationContext
-        PlayList.injectPlayer(PodMediaPlayer(PlayManager.context))
+//        PlayList.injectPlayer(PodMediaPlayer(PlayManager.context))
+        PlayList.injectPlayer(PodExoplayer(PlayManager.context))
     }
 
     fun injectUrlLoad(urlLoad: IUrlLoad) {
@@ -111,6 +113,9 @@ object PlayManager {
         PlayList.setPlayMode(playMode)
     }
 
+    fun setSpeed(speed: Float) {
+        PlayList.setSpeed(speed)
+    }
 
     fun startCountdown(time: Long) {
         PlayCountdownManager.startCountdown(time)

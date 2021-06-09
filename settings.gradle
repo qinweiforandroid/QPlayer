@@ -1,5 +1,6 @@
 include ':playlist'
 include ':media_player'
+include ':media_exoplayer'
 include ':core'
 include ':app'
 rootProject.name = "QPlayer"
