@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         val list = ArrayList<Clazz>()
         list.add(Clazz("MediaPlayer", PodPlayerFragment::class.java))
         list.add(Clazz("PlayList", PlayListFragment::class.java))
+        list.add(Clazz("VideoPodPlayer", VideoPodPlayerFragment::class.java))
         SupportFragmentListActivity.startActivity(this, list, false)
         finish()
     }

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="#50ffffff"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/mControllerPlayOrPauseImg"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageView
+        android:id="@+id/mControllerNextImg"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/mControllerPlayOrPauseImg"
+        app:layout_constraintStart_toEndOf="@+id/mControllerPlayOrPauseImg"
+        app:layout_constraintTop_toTopOf="@+id/mControllerPlayOrPauseImg"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/mControllerPosTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="00:50"
+        app:layout_constraintBottom_toTopOf="@+id/mControllerPlayOrPauseImg"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/mControllerTotalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="07:50"
+        app:layout_constraintBottom_toBottomOf="@+id/mControllerPosTimeLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/mControllerPosTimeLabel" />
+
+    <SeekBar
+        android:id="@+id/mControllerSeekBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/mControllerPosTimeLabel"
+        app:layout_constraintEnd_toStartOf="@+id/mControllerTotalLabel"
+        app:layout_constraintStart_toEndOf="@+id/mControllerPosTimeLabel"
+        app:layout_constraintTop_toTopOf="@+id/mControllerPosTimeLabel" />
+
+    <ImageView
+        android:id="@+id/mControllerBackImg"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/mControllerTitleLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:text="声明式UI"
+        app:layout_constraintBottom_toBottomOf="@+id/mControllerBackImg"
+        app:layout_constraintStart_toEndOf="@+id/mControllerBackImg"
+        app:layout_constraintTop_toTopOf="@+id/mControllerBackImg" />
+</androidx.constraintlayout.widget.ConstraintLayout>
