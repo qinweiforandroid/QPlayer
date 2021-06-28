@@ -1,5 +1,7 @@
 package com.qw.player.core;
 
+import android.view.Surface;
+
 public interface IPodPlayer {
 
 
@@ -49,6 +51,8 @@ public interface IPodPlayer {
     boolean isPlaying();
 
     void setSpeed(float speed);
+
+    void setSurface(Surface surface);
 
     void release();
 
