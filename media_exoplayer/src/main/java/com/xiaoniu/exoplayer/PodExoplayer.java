@@ -3,6 +3,7 @@ package com.xiaoniu.exoplayer;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Surface;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -130,6 +131,11 @@ public class PodExoplayer implements IPodPlayer {
             PlaybackParameters playbackParameters = new PlaybackParameters(speed);
             player.setPlaybackParameters(playbackParameters);
         }
+    }
+
+    @Override
+    public void setSurface(Surface surface) {
+        player.setVideoSurface(surface);
     }
 
     @Override

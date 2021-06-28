@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
+import android.view.Surface;
 
 import com.qw.player.core.IPodPlayer;
 import com.qw.player.core.PodPlayerTimer;
@@ -151,6 +152,11 @@ public class PodMediaPlayer implements IPodPlayer {
     @Override
     public void setSpeed(float speed) {
         //not support
+    }
+
+    @Override
+    public void setSurface(Surface surface) {
+        mMediaPlayer.setSurface(surface);
     }
 
     @Override
