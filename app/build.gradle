@@ -39,9 +39,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation project(path: ':core')
-    implementation project(path: ':media_player')
-    implementation project(path: ':media_exoplayer')
+    implementation project(path: ':player_core')
+    implementation project(path: ':player_mediaplayer')
+    implementation project(path: ':player_exoplayer')
     implementation project(path: ':playlist')
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

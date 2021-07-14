@@ -13,14 +13,13 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/media_exoplayer" />
-            <option value="$PROJECT_DIR$/media_player" />
+            <option value="$PROJECT_DIR$/player_core" />
+            <option value="$PROJECT_DIR$/player_exoplayer" />
+            <option value="$PROJECT_DIR$/player_mediaplayer" />
             <option value="$PROJECT_DIR$/playlist" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
-        <option name="useQualifiedModuleNames" value="true" />
       </GradleProjectSettings>
     </option>
   </component>
