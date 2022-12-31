@@ -57,26 +57,25 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="horizontal"
+        android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:paddingLeft="16dp"
-        android:layout_height="wrap_content">
+        android:orientation="horizontal"
+        android:paddingLeft="16dp">
+
         <Button
             android:id="@+id/mPlayCountdownBtn"
             android:layout_width="wrap_content"
-            android:text="10秒"
+            android:layout_height="wrap_content"
             android:layout_marginRight="16dp"
-            android:layout_height="wrap_content"/>
+            android:text="10秒" />
+
         <TextView
             android:id="@+id/mPlayCountdownInfoLabel"
-            android:text="未开启"
-            android:textAppearance="@style/TextAppearance.Body2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="未开启"
+            android:textAppearance="@style/TextAppearance.Body2" />
     </LinearLayout>
 
-    <com.qw.widget.list.v2.PullRecyclerView
-        android:id="@+id/mPullRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <include layout="@layout/base_swipe_refresh_layout_activity" />
 </LinearLayout>

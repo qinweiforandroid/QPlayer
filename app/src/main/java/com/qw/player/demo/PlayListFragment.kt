@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import com.bumptech.glide.Glide
-import com.qw.framework.ui.BaseListV2Fragment
+import com.qw.framework.base.list.BaseSwipeListFragment
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
 import com.qw.player.demo.databinding.PlayListFragmentBinding
 import com.qw.player.demo.widget.MusicView
@@ -12,23 +12,26 @@ import com.qw.player.list.mode.IPlayMode
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.IPod
 import com.qw.player.list.Pod
-import com.qw.widget.list.BaseViewHolder
+import com.qw.recyclerview.core.BaseViewHolder
 
-class PlayListFragment : BaseListV2Fragment<IPod>() {
+class PlayListFragment : BaseSwipeListFragment<IPod>() {
 
     private lateinit var bind: PlayListFragmentBinding
 
-    override fun getCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun getCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         return PlayListFragmentBinding.inflate(inflater, container, false).apply {
             bind = this
         }.root
     }
 
+
     override fun initView(v: View) {
         super.initView(v)
-        mPullRecyclerView.setEnablePullToStart(false)
-        mPullRecyclerView.setEnablePullToEnd(false)
         bind.mMusicView.setOnMusicPlayStateClickListener(View.OnClickListener {
             if (PlayManager.isConnecting()) {
                 Toast.makeText(requireContext(), "加载中...", Toast.LENGTH_SHORT).show()
@@ -81,8 +84,10 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         }
     }
 
-    override fun onCreateItemView(parent: ViewGroup?, viewType: Int): BaseViewHolder {
-        return Holder(LayoutInflater.from(requireContext()).inflate(R.layout.audio_item_layout, parent, false))
+    override fun onCreateBaseViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        return Holder(
+            LayoutInflater.from(requireContext()).inflate(R.layout.audio_item_layout, parent, false)
+        )
     }
 
     inner class Holder(itemView: View) : BaseViewHolder(itemView) {
@@ -97,7 +102,7 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
             }
         }
 
-        override fun bindData(position: Int) {
+        override fun initData(position: Int) {
             modules[position].let {
                 pod = it
                 Glide.with(itemView).load(it.getPodCover()).into(bind.mMusicCoverImg)
@@ -137,21 +142,24 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
             title = "还是很想你"
             author = "赵丽"
             url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            cover = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=558639239,778636013&fm=26&gp=0.jpg"
+            cover =
+                "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=558639239,778636013&fm=26&gp=0.jpg"
         })
         modules.add(Pod().apply {
             id = "124"
             title = "再看孤独的风景"
             author = "本兮"
             url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            cover = "https://dss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1166503026,41947489&fm=26&gp=0.jpg"
+            cover =
+                "https://dss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1166503026,41947489&fm=26&gp=0.jpg"
         })
         modules.add(Pod().apply {
             id = "125"
             title = "客官不可以"
             author = "梁静茹"
             url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
-            cover = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1475331839,2066156315&fm=26&gp=0.jpg"
+            cover =
+                "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1475331839,2066156315&fm=26&gp=0.jpg"
         })
         PlayManager.setPlayList(modules, 0)
         notifyPlayUpdated()
@@ -215,10 +223,10 @@ class PlayListFragment : BaseListV2Fragment<IPod>() {
         bind.mMusicView.loading(PlayManager.isConnecting())
         PlayManager.getPod()?.let {
             bind.mMusicView.setCover(it.getPodCover())
-                    .setName(it.getPodTitle())
-                    .setSinger(it.getPodAuthor())
-                    .setUrl(it.getPodUrl())
-                    .notifyDataChanged()
+                .setName(it.getPodTitle())
+                .setSinger(it.getPodAuthor())
+                .setUrl(it.getPodUrl())
+                .notifyDataChanged()
         }
     }
 
