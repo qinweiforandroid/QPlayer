@@ -1,4 +1,4 @@
-package com.xiaoniu.exoplayer;
+package com.qw.exoplayer;
 
 import android.content.Context;
 import android.os.Handler;
@@ -12,8 +12,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.qw.player.core.IPodPlayer;
 import com.qw.player.core.PlayLog;
 import com.qw.player.core.PodPlayerTimer;

@@ -8,7 +8,7 @@ import com.qw.framework.core.ui.BaseActivity
 import com.qw.player.core.IPodPlayer
 import com.qw.player.demo.databinding.VideoPodplayerActivityBinding
 import com.qw.player.demo.widget.VideoControllerView
-import com.xiaoniu.exoplayer.PodExoplayer
+import com.qw.exoplayer.PodExoplayer
 
 /**
  * Created by qinwei on 2021/6/28 17:22

@@ -1,4 +1,4 @@
-include ':playlist'
+include ':player_playlist'
 include ':player_mediaplayer'
 include ':player_exoplayer'
 include ':player_core'

@@ -1,22 +1,39 @@
 package com.qw.player.demo
 
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import android.view.*
-import android.widget.*
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.SeekBar
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
 import com.qw.framework.base.list.BaseSwipeListFragment
+import com.qw.permission.OnResultListener
+import com.qw.permission.QPermission
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
 import com.qw.player.demo.databinding.PlayListFragmentBinding
 import com.qw.player.demo.widget.MusicView
-import com.qw.player.list.mode.IPlayMode
-import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.IPod
+import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.Pod
+import com.qw.player.list.mode.IPlayMode
 import com.qw.recyclerview.core.BaseViewHolder
 
 class PlayListFragment : BaseSwipeListFragment<IPod>() {
 
     private lateinit var bind: PlayListFragmentBinding
+
+    companion object {
+        private val TAG = "play"
+    }
+
 
     override fun getCreateView(
         inflater: LayoutInflater,
@@ -28,7 +45,6 @@ class PlayListFragment : BaseSwipeListFragment<IPod>() {
             bind = this
         }.root
     }
-
 
     override fun initView(v: View) {
         super.initView(v)
@@ -53,12 +69,15 @@ class PlayListFragment : BaseSwipeListFragment<IPod>() {
                 IPlayMode.PLAY_MODEL_SINGLE_LOOP -> {
                     it.check(R.id.mMusicPlayModeSingLoopRB)
                 }
+
                 IPlayMode.PLAY_MODEL_LIST_LOOP -> {
                     it.check(R.id.mMusicPlayModeListLoopRB)
                 }
+
                 IPlayMode.PLAY_MODEL_RANDOM -> {
                     it.check(R.id.mMusicPlayModeRandomRB)
                 }
+
                 else -> {
 
                 }
@@ -75,9 +94,11 @@ class PlayListFragment : BaseSwipeListFragment<IPod>() {
             R.id.mMusicPlayModeSingLoopRB -> {
                 PlayManager.setPlayMode(IPlayMode.PLAY_MODEL_SINGLE_LOOP)
             }
+
             R.id.mMusicPlayModeListLoopRB -> {
                 PlayManager.setPlayMode(IPlayMode.PLAY_MODEL_LIST_LOOP)
             }
+
             R.id.mMusicPlayModeRandomRB -> {
                 PlayManager.setPlayMode(IPlayMode.PLAY_MODEL_RANDOM)
             }
@@ -127,6 +148,7 @@ class PlayListFragment : BaseSwipeListFragment<IPod>() {
             R.id.previous -> {
                 PlayManager.skipToPrevious()
             }
+
             R.id.next -> {
                 PlayManager.skipToNext()
             }
@@ -167,6 +189,34 @@ class PlayListFragment : BaseSwipeListFragment<IPod>() {
 
         //exoplayer 支持倍速播放
         PlayManager.setSpeed(1.2f)
+        checkNotificationPermission()
+    }
+
+    private fun checkNotificationPermission(isReasonBeforeRequest: Boolean = false) {
+        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+            QPermission.init(this)
+                .permission(android.Manifest.permission.POST_NOTIFICATIONS)
+                .setOnResultListener(object : OnResultListener {
+                    override fun onGranted(permissions: ArrayList<String>) {
+                        Log.d(TAG, "通知权限已申请")
+                    }
+
+                    override fun onDeniedAndNeverAskAgain(deniedPermissions: ArrayList<String>) {
+                        Log.d(TAG, "通知权限申请被拒绝")
+                    }
+
+                    override fun onShowRequestPermissionRationale(deniedPermissions: ArrayList<String>) {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("权限申请")
+                            .setMessage("申请通知权限，更方便控制音频操作哦")
+                            .setNegativeButton(
+                                "同意"
+                            ) { _, _ -> checkNotificationPermission(false) }
+                            .setPositiveButton("拒绝", null)
+                            .show()
+                    }
+                }).request(true)
+        }
     }
 
 

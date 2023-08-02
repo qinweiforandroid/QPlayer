@@ -3,15 +3,10 @@ package com.qw.player.demo
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
 import com.qw.framework.core.ui.BaseFragment
-import com.qw.player.core.IPodPlayer
 import com.qw.player.demo.databinding.VideoPodplayerFragmentBinding
-import com.qw.player.demo.widget.VideoControllerView
-import com.xiaoniu.exoplayer.PodExoplayer
 
 /**
  * Created by qinwei on 2021/6/28 17:22

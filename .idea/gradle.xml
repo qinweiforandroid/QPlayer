@@ -15,7 +15,7 @@
             <option value="$PROJECT_DIR$/player_core" />
             <option value="$PROJECT_DIR$/player_exoplayer" />
             <option value="$PROJECT_DIR$/player_mediaplayer" />
-            <option value="$PROJECT_DIR$/playlist" />
+            <option value="$PROJECT_DIR$/player_playlist" />
           </set>
         </option>
       </GradleProjectSettings>

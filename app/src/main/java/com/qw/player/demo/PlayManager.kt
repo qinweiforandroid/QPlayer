@@ -9,8 +9,7 @@ import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.IPod
 import com.qw.player.list.IUrlLoad
 import com.qw.player.list.PlayList
-import com.qw.player.media.PodMediaPlayer
-import com.xiaoniu.exoplayer.PodExoplayer
+import com.qw.exoplayer.PodExoplayer
 
 object PlayManager {
     private var context: Context? = null
