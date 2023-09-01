@@ -158,7 +158,7 @@ class PlayList {
     private fun play(pod: IPod) {
         mCurrPodId = pod.getPodId()
         log("play ${pod.getPodId()}")
-        if (mAudioFocus.requestAudioFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+        if (audioFocusRequestGranted()) {
             //check url is exist
             if (pod.getPodUrl().isEmpty()) {
                 tryLoadUrlAndPlay(pod)
@@ -166,6 +166,14 @@ class PlayList {
                 //fixme check url is expire
                 mPlayer.play(pod.getPodUrl())
             }
+        }
+    }
+
+    private fun audioFocusRequestGranted(): Boolean {
+        return if (this::mAudioFocus.isInitialized) {
+            mAudioFocus.requestAudioFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        } else {
+            true
         }
     }
 
@@ -256,6 +264,11 @@ class PlayList {
         mPlayer.pause()
     }
 
+    fun resume() {
+        log("resume")
+        mPlayer.resume()
+    }
+
     fun seekTo(pos: Long) {
         log("seekTo $pos")
         mPlayer.seekTo(pos.toInt())
@@ -333,6 +346,10 @@ class PlayList {
 
     fun setSpeed(speed: Float) {
         mPlayer.setSpeed(speed)
+    }
+
+    fun getPlayer(): IPodPlayer {
+        return mPlayer
     }
 
     private fun log(msg: String) {
