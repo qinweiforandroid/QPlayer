@@ -11,13 +11,11 @@ import android.content.IntentFilter
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
-import com.qw.player.core.IPodPlayer
 import com.qw.player.core.PlayLog
 import com.qw.player.demo.MainActivity
 import com.qw.player.demo.PlayManager
-import com.qw.player.list.PlayList.getState
-import com.qw.player.list.PlayList.isConnecting
-import com.qw.player.list.PlayList.isPlaying
+import com.qw.player.list.PlayListManager.isConnecting
+import com.qw.player.list.PlayListManager.isPlaying
 import com.qw.player.demo.PlayManager.skipToNext
 import com.qw.player.demo.PlayManager.pause
 import com.qw.player.demo.PlayManager.skipToPrevious

@@ -156,6 +156,7 @@ public class PodMediaPlayer implements IPodPlayer {
 
     @Override
     public void setSurface(Surface surface) {
+        mMediaPlayer.setDisplay(null);
         mMediaPlayer.setSurface(surface);
     }
 

@@ -45,7 +45,7 @@ dependencies {
 
     implementation project(path: ':player_core')
     implementation project(path: ':player_mediaplayer')
-    implementation project(path: ':player_exoplayer')
+    implementation project(path: ':player_media3')
     implementation project(path: ':player_playlist')
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

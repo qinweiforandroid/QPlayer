@@ -12,23 +12,33 @@ import com.qw.player.core.IPodPlayer
 import com.qw.player.core.IPodPlayer.OnPlayListener
 import com.qw.player.media.PodMediaPlayer
 
+
 class PodPlayerFragment : BaseFragment() {
-    var url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
+    private var url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
     private lateinit var podPlayer: IPodPlayer
     private lateinit var mPlayerBtn: Button
     private lateinit var mPlayerSeekBar: SeekBar
 
-    override fun getCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun getCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.pod_player_fragment, container, false)
     }
 
+    private var isTrackingTouch = false
     override fun initView(view: View) {
         mPlayerBtn = findViewById(R.id.mPlayerBtn)
         mPlayerSeekBar = findViewById(R.id.mPlayerSeekBar)
         mPlayerSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                isTrackingTouch = true
+            }
+
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                isTrackingTouch = false
                 if (podPlayer.isPrepared) {
                     podPlayer.seekTo(seekBar.progress)
                 }
@@ -46,12 +56,12 @@ class PodPlayerFragment : BaseFragment() {
         podPlayer = PodMediaPlayer(requireContext())
         podPlayer.registerListener(object : OnPlayListener {
             override fun onPlayConnect() {
-                mPlayerBtn.setText("加载中")
-                mPlayerBtn.setEnabled(false)
+                mPlayerBtn.text = "加载中"
+                mPlayerBtn.isEnabled = false
             }
 
             override fun onPlayStart() {
-                mPlayerBtn.setEnabled(true)
+                mPlayerBtn.isEnabled = true
                 setButtonText()
             }
 
@@ -68,14 +78,16 @@ class PodPlayerFragment : BaseFragment() {
             }
 
             override fun onPlayBufferingUpdated(percent: Int) {
-                mPlayerSeekBar.setSecondaryProgress((podPlayer.getDuring() * percent * 0.01).toInt())
+                mPlayerSeekBar.secondaryProgress = (podPlayer.during * percent * 0.01).toInt()
             }
 
             override fun onPlayProgressUpdated(cur: Int, total: Int) {
-                mPlayerSeekBar.post(Runnable {
-                    mPlayerSeekBar.setMax(total)
-                    mPlayerSeekBar.setProgress(cur)
-                })
+                if (!isTrackingTouch) {
+                    mPlayerSeekBar.post {
+                        mPlayerSeekBar.max = total
+                        mPlayerSeekBar.progress = cur
+                    }
+                }
             }
 
             override fun onPlayCompleted() {
@@ -83,7 +95,7 @@ class PodPlayerFragment : BaseFragment() {
             }
 
             override fun onPlayError(code: Int, message: String) {
-                mPlayerBtn.setEnabled(true)
+                mPlayerBtn.isEnabled = true
             }
         })
     }

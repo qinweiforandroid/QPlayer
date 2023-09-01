@@ -20,7 +20,7 @@ import com.qw.player.core.IAudioFocus
 import com.qw.player.core.PlayLog
 import com.qw.player.demo.*
 import com.qw.player.list.OnPlayListListener
-import com.qw.player.list.PlayList
+import com.qw.player.list.PlayListManager
 
 class AudioPlayService : Service() {
     companion object {
@@ -72,7 +72,7 @@ class AudioPlayService : Service() {
         super.onCreate()
         log("onCreate")
 //        initMediaSession()
-        PlayList.injectAudioFocus(object : IAudioFocus {
+        PlayListManager.injectAudioFocus(object : IAudioFocus {
             override fun requestAudioFocus(): Int {
                 return this@AudioPlayService.requestAudioFocus()
             }
@@ -81,7 +81,7 @@ class AudioPlayService : Service() {
                 this@AudioPlayService.abandonAudioFocus()
             }
         })
-        PlayList.addOnPlayListListener(playListListener)
+        PlayListManager.addOnPlayListListener(playListListener)
 
         playNotification = PlayNotification(this)
         playNotification.registerListener()
@@ -205,28 +205,28 @@ class AudioPlayService : Service() {
 
     private fun skipToNext(auto: Boolean = false) {
         log("skipToNext auto:$auto")
-        PlayList.skipToNext(auto)
+        PlayListManager.skipToNext(auto)
     }
 
     private fun skipToPrevious() {
         log("skipToPrevious")
-        PlayList.skipToPrevious()
+        PlayListManager.skipToPrevious()
     }
 
     private fun stop() {
         log("stop")
-        PlayList.stop()
+        PlayListManager.stop()
     }
 
     private fun pause(resumeOnFocusGain: Boolean) {
         log("pause resumeOnFocusGain:$resumeOnFocusGain")
         this.resumeOnFocusGain = resumeOnFocusGain
-        PlayList.pause()
+        PlayListManager.pause()
     }
 
     private fun resume() {
         log("resume")
-        play(PlayList.getPos())
+        play(PlayListManager.getPos())
     }
 
 
@@ -235,12 +235,12 @@ class AudioPlayService : Service() {
         val requestAudioFocus = requestAudioFocus()
         notifyNotificationUpdated()
         if (requestAudioFocus == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            PlayList.play(position)
+            PlayListManager.play(position)
         }
     }
 
     private fun seekTo(pos: Long) {
-        PlayList.seekTo(pos)
+        PlayListManager.seekTo(pos)
     }
 
     private lateinit var audioFocusRequest: AudioFocusRequestCompat
@@ -252,7 +252,7 @@ class AudioPlayService : Service() {
                     when (focusChange) {
                         AudioManager.AUDIOFOCUS_GAIN -> {
                             if (resumeOnFocusGain) {
-                                play(PlayList.getPos())
+                                play(PlayListManager.getPos())
                             }
                         }
                         AudioManager.AUDIOFOCUS_LOSS -> {

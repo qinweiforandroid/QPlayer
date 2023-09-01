@@ -13,7 +13,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/player_core" />
-            <option value="$PROJECT_DIR$/player_exoplayer" />
+            <option value="$PROJECT_DIR$/player_media3" />
             <option value="$PROJECT_DIR$/player_mediaplayer" />
             <option value="$PROJECT_DIR$/player_playlist" />
           </set>

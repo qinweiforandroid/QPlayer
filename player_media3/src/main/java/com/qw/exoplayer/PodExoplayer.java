@@ -5,25 +5,22 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Surface;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackParameters;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.audio.AudioAttributes;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+
 import com.qw.player.core.IPodPlayer;
 import com.qw.player.core.PlayLog;
 import com.qw.player.core.PodPlayerTimer;
-
-import java.io.IOException;
 
 /**
  * Created by qinwei on 2021/6/9 20:21
  */
 public class PodExoplayer implements IPodPlayer {
 
-    private SimpleExoPlayer player;
+    private ExoPlayer player;
     private OnPlayListener listener;
     private int state;
     private boolean isPrepared;
@@ -50,14 +47,7 @@ public class PodExoplayer implements IPodPlayer {
                 }
             }
         });
-        player = new SimpleExoPlayer.Builder(context)
-                .setAudioAttributes(new AudioAttributes.Builder()
-                                .setContentType(C.CONTENT_TYPE_MUSIC)
-                                .setUsage(C.USAGE_MEDIA)
-                                .build(),
-                        false)
-                .build();
-
+        player = new ExoPlayer.Builder(context).build();
         player.addListener(new Player.Listener() {
             @Override
             public void onPlaybackStateChanged(int state) {
@@ -97,29 +87,12 @@ public class PodExoplayer implements IPodPlayer {
             }
 
             @Override
-            public void onPlayerError(ExoPlaybackException error) {
+            public void onPlayerError(PlaybackException error) {
                 d("onPlayerError：" + error.getMessage());
-                if (error.type == ExoPlaybackException.TYPE_SOURCE) {
-                    IOException cause = error.getSourceException();
-                    state = State.ERROR;
-                    listener.onPlayError(-1, cause.getMessage());
-//                    if (cause instanceof HttpDataSource.HttpDataSourceException) {
-//                        // An HTTP error occurred.
-//                        HttpDataSource.HttpDataSourceException httpError = (HttpDataSource.HttpDataSourceException) cause;
-//                        // This is the request for which the error occurred.
-//                        DataSpec requestDataSpec = httpError.dataSpec;
-//                        // It's possible to find out more about the error both by casting and by
-//                        // querying the cause.
-//                        if (httpError instanceof HttpDataSource.InvalidResponseCodeException) {
-//                            // Cast to InvalidResponseCodeException and retrieve the response code,
-//                            // message and headers.
-//                        } else {
-//                            // Try calling httpError.getCause() to retrieve the underlying cause,
-//                            // although note that it may be null.
-//                        }
-//                    }
-                }
+                state = State.ERROR;
+                listener.onPlayError(error.errorCode, error.getMessage());
             }
+
         });
     }
 
@@ -141,9 +114,8 @@ public class PodExoplayer implements IPodPlayer {
         isPrepared = false;
         try {
             MediaItem item = MediaItem.fromUri(content);
-            player.stop(true);
-
-
+            player.stop();
+            player.clearMediaItems();
             player.addMediaItem(item);
             player.prepare();
             state = State.CONNECT;
@@ -220,7 +192,7 @@ public class PodExoplayer implements IPodPlayer {
     @Override
     public void stop() {
         d("stop");
-        player.stop(true);
+        player.stop();
         state = State.STOPPED;
         mTimer.stop();
         listener.onPlayStopped();

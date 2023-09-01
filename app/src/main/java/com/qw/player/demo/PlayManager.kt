@@ -8,7 +8,7 @@ import com.qw.player.demo.service.AudioPlayService
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.IPod
 import com.qw.player.list.IUrlLoad
-import com.qw.player.list.PlayList
+import com.qw.player.list.PlayListManager
 import com.qw.exoplayer.PodExoplayer
 
 object PlayManager {
@@ -19,11 +19,11 @@ object PlayManager {
         }
         PlayManager.context = context.applicationContext
 //        PlayList.injectPlayer(PodMediaPlayer(PlayManager.context))
-        PlayList.injectPlayer(PodExoplayer(PlayManager.context))
+        PlayListManager.injectPlayer(PodExoplayer(PlayManager.context))
     }
 
     fun injectUrlLoad(urlLoad: IUrlLoad) {
-        PlayList.injectUrlLoad(urlLoad)
+        PlayListManager.injectUrlLoad(urlLoad)
     }
 
     fun play(position: Int = 0) {
@@ -56,64 +56,64 @@ object PlayManager {
     }
 
     fun setPlayList(pods: ArrayList<IPod>, checkedPos: Int = 0) {
-        PlayList.setPlayList(pods, checkedPos)
+        PlayListManager.setPlayList(pods, checkedPos)
     }
 
     fun getPlayList(): ArrayList<IPod> {
-        return PlayList.getPlayList()
+        return PlayListManager.getPlayList()
     }
 
     fun isPlaying(): Boolean {
-        return PlayList.isPlaying()
+        return PlayListManager.isPlaying()
     }
 
     fun getPos(): Int {
-        return PlayList.getPos()
+        return PlayListManager.getPos()
     }
 
     fun isConnecting(): Boolean {
-        return PlayList.isConnecting()
+        return PlayListManager.isConnecting()
     }
 
     fun seekTo(toLong: Long) {
-        PlayList.seekTo(toLong)
+        PlayListManager.seekTo(toLong)
     }
 
     fun getPlayMode(): Int {
-        return PlayList.getPlayMode()
+        return PlayListManager.getPlayMode()
     }
 
     fun getPod(): IPod? {
-        return PlayList.getPod()
+        return PlayListManager.getPod()
     }
 
     fun addPlayListHeader(pod: IPod) {
-        PlayList.addPlayListHeader(pod)
+        PlayListManager.addPlayListHeader(pod)
     }
 
     fun addPlayListFooter(pod: IPod) {
-        PlayList.addPlayListFooter(pod)
+        PlayListManager.addPlayListFooter(pod)
     }
 
     fun addOnPlayListListener(playListListener: OnPlayListListener) {
-        PlayList.addOnPlayListListener(playListListener)
+        PlayListManager.addOnPlayListListener(playListListener)
     }
 
     fun removeOnPlayListListener(playListListener: OnPlayListListener) {
-        PlayList.removeOnPlayListListener(playListListener)
+        PlayListManager.removeOnPlayListListener(playListListener)
     }
 
     fun getDuring(): Int {
-        return PlayList.getDuring()
+        return PlayListManager.getDuring()
 
     }
 
     fun setPlayMode(playMode: Int) {
-        PlayList.setPlayMode(playMode)
+        PlayListManager.setPlayMode(playMode)
     }
 
     fun setSpeed(speed: Float) {
-        PlayList.setSpeed(speed)
+        PlayListManager.setSpeed(speed)
     }
 
     fun startCountdown(time: Long) {
@@ -125,6 +125,6 @@ object PlayManager {
     }
 
     fun isPaused(): Boolean {
-        return PlayList.isPaused()
+        return PlayListManager.isPaused()
     }
 }

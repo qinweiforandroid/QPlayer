@@ -7,7 +7,7 @@ import com.qw.player.core.PlayLog
 import com.qw.player.list.mode.IPlayMode
 import com.qw.player.list.mode.PlayModeFactory
 
-object PlayList {
+class PlayList {
     private val mPods = ArrayList<IPod>()
 
     /**
@@ -135,6 +135,7 @@ object PlayList {
                     mPlayer.pause()
                     return
                 }
+
                 mPlayer.isPaused -> {
                     mPlayer.resume()
                     return
@@ -174,7 +175,7 @@ object PlayList {
         if (this::mUrlLoad.isInitialized) {
             mPlayer.notifyPlayConnecting()
             mUrlLoad.load(pod.getPodId(), object :
-                    UrlLoadCallback {
+                UrlLoadCallback {
                 override fun onLoadSuccess(url: String) {
                     pod.setPodUrl(url)
                     play(pod)
@@ -191,8 +192,8 @@ object PlayList {
         log("skipToNext")
         if (hasToNext(auto)) {
             val next = mPlayModeImpl.next(
-                    auto,
-                    getPos(), mPods.size - 1
+                auto,
+                getPos(), mPods.size - 1
             )
             stop()
             play(next)
@@ -203,8 +204,8 @@ object PlayList {
         log("skipToPrevious")
         if (hasToPrevious(auto)) {
             val previous = mPlayModeImpl.previous(
-                    auto,
-                    getPos(), mPods.size - 1
+                auto,
+                getPos(), mPods.size - 1
             )
             stop()
             play(previous)
@@ -233,15 +234,15 @@ object PlayList {
 
     fun hasToNext(auto: Boolean): Boolean {
         return mPlayModeImpl.hasNext(
-                auto,
-                getPos(), mPods.size
+            auto,
+            getPos(), mPods.size
         )
     }
 
     fun hasToPrevious(auto: Boolean): Boolean {
         return mPlayModeImpl.hasPrevious(
-                auto,
-                getPos(), mPods.size
+            auto,
+            getPos(), mPods.size
         )
     }
 
@@ -287,7 +288,7 @@ object PlayList {
         if (mCurrPodId.isNotEmpty()) {
             //重置当前的播放位置
             mCurrPosition =
-                    getPosById(mCurrPodId)
+                getPosById(mCurrPodId)
         }
     }
 
