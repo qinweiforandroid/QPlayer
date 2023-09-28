@@ -1,32 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SurfaceView
-        android:id="@+id/mVideoSurfaceView"
+    <androidx.media3.ui.PlayerView
+        android:id="@+id/player_view"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/mVideoProgressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/mVideoSurfaceView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/mVideoSurfaceView"
-        app:layout_constraintTop_toTopOf="@+id/mVideoSurfaceView" />
-
-    <com.qw.player.demo.widget.VideoControllerView
-        android:id="@+id/mVideoControllerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/mVideoSurfaceView"
-        app:layout_constraintEnd_toEndOf="@id/mVideoSurfaceView"
-        app:layout_constraintStart_toStartOf="@id/mVideoSurfaceView"
-        app:layout_constraintTop_toTopOf="@id/mVideoSurfaceView" />
+        android:layout_height="match_parent"
+        app:show_buffering="when_playing"
+        app:show_shuffle_button="true" />
 </androidx.constraintlayout.widget.ConstraintLayout>

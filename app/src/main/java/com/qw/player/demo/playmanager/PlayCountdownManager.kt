@@ -1,4 +1,4 @@
-package com.qw.player.demo
+package com.qw.player.demo.playmanager
 
 import com.qw.player.core.PodPlayerTimer
 
@@ -9,7 +9,7 @@ object PlayCountdownManager {
     private val listeners = ArrayList<OnCountdownListener>()
     fun startCountdown(time: Long) {
         stopCountdown()
-        this.mListenerTime = time
+        mListenerTime = time
         timer.setOnPodPlayerTimerListener {
             mCurrentTime += 1000
             if (mListenerTime == mCurrentTime) {

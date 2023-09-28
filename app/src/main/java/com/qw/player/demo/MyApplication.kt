@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import com.qw.framework.core.App
 import com.qw.framework.core.tracker.AppStateTracker
+import com.qw.player.demo.playmanager.PlayManager
 import com.qw.player.list.IUrlLoad
 import com.qw.player.list.UrlLoadCallback
 

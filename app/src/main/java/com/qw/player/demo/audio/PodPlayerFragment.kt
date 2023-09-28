@@ -1,4 +1,4 @@
-package com.qw.player.demo
+package com.qw.player.demo.audio
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +10,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import com.qw.framework.core.ui.BaseFragment
 import com.qw.player.core.IPodPlayer
 import com.qw.player.core.IPodPlayer.OnPlayListener
+import com.qw.player.demo.R
 import com.qw.player.media.PodMediaPlayer
 
 

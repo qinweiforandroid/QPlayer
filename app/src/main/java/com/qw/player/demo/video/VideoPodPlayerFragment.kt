@@ -1,4 +1,4 @@
-package com.qw.player.demo
+package com.qw.player.demo.video
 
 import android.content.Intent
 import android.os.Bundle
@@ -21,7 +21,7 @@ class VideoPodPlayerFragment : BaseFragment() {
 
     override fun initView(view: View) {
         bind.mExoplayerVideoBtn.setOnClickListener {
-            startActivity(Intent(requireContext(),VideoPodPlayerActivity::class.java))
+            startActivity(Intent(requireContext(), VideoPodPlayerActivity::class.java))
 
         }
         bind.mMediaVideoBtn.setOnClickListener {

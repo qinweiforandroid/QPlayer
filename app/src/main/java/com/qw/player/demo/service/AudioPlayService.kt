@@ -19,6 +19,8 @@ import com.bumptech.glide.request.transition.Transition
 import com.qw.player.core.IAudioFocus
 import com.qw.player.core.PlayLog
 import com.qw.player.demo.*
+import com.qw.player.demo.playmanager.PlayCountdownManager
+import com.qw.player.demo.playmanager.PlayManager
 import com.qw.player.list.OnPlayListListener
 import com.qw.player.list.PlayListManager
 

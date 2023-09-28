@@ -1,4 +1,4 @@
-package com.qw.player.demo
+package com.qw.player.demo.audio
 
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
@@ -17,8 +17,11 @@ import com.bumptech.glide.Glide
 import com.qw.framework.base.list.BaseSwipeListFragment
 import com.qw.permission.OnResultListener
 import com.qw.permission.QPermission
+import com.qw.player.demo.R
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
 import com.qw.player.demo.databinding.PlayListFragmentBinding
+import com.qw.player.demo.playmanager.PlayCountdownManager
+import com.qw.player.demo.playmanager.PlayManager
 import com.qw.player.demo.widget.MusicView
 import com.qw.player.list.IPod
 import com.qw.player.list.OnPlayListListener
@@ -215,7 +218,7 @@ class PlayListFragment : BaseSwipeListFragment<IPod>() {
                             .setPositiveButton("拒绝", null)
                             .show()
                     }
-                }).request(true)
+                }).request(isReasonBeforeRequest)
         }
     }
 

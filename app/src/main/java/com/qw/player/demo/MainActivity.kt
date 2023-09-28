@@ -6,6 +6,9 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.qw.framework.ui.QFragmentActivity.Clazz
 import com.qw.framework.ui.SupportFragmentListActivity
+import com.qw.player.demo.audio.PlayListFragment
+import com.qw.player.demo.audio.PodPlayerFragment
+import com.qw.player.demo.video.VideoPodPlayerFragment
 import java.util.*
 
 class MainActivity : AppCompatActivity() {

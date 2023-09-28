@@ -69,23 +69,31 @@ public interface IPodPlayer {
     void notifyPlayError(int code, String msg);
 
     interface OnPlayListener {
-        void onPlayConnect();
+        default void onPlayConnect() {
+        }
 
-        void onPlayStart();
+        default void onPlayStart() {
+        }
 
-        void onPlayPaused();
+        default void onPlayPaused() {
+        }
 
-        void onPlayResumed();
+        default void onPlayResumed() {
+        }
 
-        void onPlayStopped();
+        default void onPlayStopped() {
+        }
 
-        void onPlayBufferingUpdated(int percent);
+        default void onPlayBufferingUpdated(int percent) {
+        }
 
-        void onPlayProgressUpdated(int cur, int total);
+        default void onPlayProgressUpdated(int cur, int total) {
+        }
 
-        void onPlayCompleted();
+        default void onPlayCompleted() {
+        }
 
-        void onPlayError(int code, String message);
-
+        default void onPlayError(int code, String message) {
+        }
     }
 }

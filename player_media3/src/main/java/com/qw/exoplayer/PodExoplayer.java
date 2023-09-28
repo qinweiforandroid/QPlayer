@@ -32,19 +32,12 @@ public class PodExoplayer implements IPodPlayer {
 
     public PodExoplayer(Context context) {
         mTimer = new PodPlayerTimer();
-        mTimer.setOnPodPlayerTimerListener(new PodPlayerTimer.OnPlayerTimerListener() {
-
-            @Override
-            public void onExecute() {
-                if (isPrepared) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onPlayBufferingUpdated(player.getBufferedPercentage());
-                            listener.onPlayProgressUpdated((int) player.getCurrentPosition(), getDuring());
-                        }
-                    });
-                }
+        mTimer.setOnPodPlayerTimerListener(() -> {
+            if (isPrepared) {
+                handler.post(() -> {
+                    listener.onPlayBufferingUpdated(player.getBufferedPercentage());
+                    listener.onPlayProgressUpdated((int) player.getCurrentPosition(), getDuring());
+                });
             }
         });
         player = new ExoPlayer.Builder(context).build();
@@ -227,5 +220,9 @@ public class PodExoplayer implements IPodPlayer {
 
     private void d(String msg) {
         PlayLog.Companion.d("PodExoplayer > " + msg);
+    }
+
+    public ExoPlayer getExoPlayer() {
+        return player;
     }
 }

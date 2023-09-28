@@ -1,4 +1,4 @@
-package com.qw.player.demo;
+package com.qw.player.demo.playmanager;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;

@@ -13,13 +13,13 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.qw.player.core.PlayLog
 import com.qw.player.demo.MainActivity
-import com.qw.player.demo.PlayManager
+import com.qw.player.demo.playmanager.PlayManager
 import com.qw.player.list.PlayListManager.isConnecting
 import com.qw.player.list.PlayListManager.isPlaying
-import com.qw.player.demo.PlayManager.skipToNext
-import com.qw.player.demo.PlayManager.pause
-import com.qw.player.demo.PlayManager.skipToPrevious
-import com.qw.player.demo.PlayManager.resume
+import com.qw.player.demo.playmanager.PlayManager.skipToNext
+import com.qw.player.demo.playmanager.PlayManager.pause
+import com.qw.player.demo.playmanager.PlayManager.skipToPrevious
+import com.qw.player.demo.playmanager.PlayManager.resume
 import com.qw.player.demo.R
 
 class PlayNotification constructor(private val context: Context) : IPlayNotification {
