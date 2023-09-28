@@ -1,23 +1,20 @@
 package com.qw.player.demo.video
 
 import android.os.Bundle
-import android.view.SurfaceHolder
-import android.view.View
-import android.widget.SeekBar
+import com.qw.exoplayer.PodExoplayer
 import com.qw.framework.core.ui.BaseActivity
 import com.qw.player.core.IPodPlayer
-import com.qw.player.demo.databinding.VideoPodplayerActivityBinding
-import com.qw.player.demo.widget.VideoControllerView
-import com.qw.exoplayer.PodExoplayer
+import com.qw.player.demo.Constants
+import com.qw.player.demo.databinding.VideoMedia3PlayerViewActivityBinding
 
 /**
  * Created by qinwei on 2021/6/28 17:22
  */
-class VideoPodPlayerActivity : BaseActivity() {
-    private lateinit var bind: VideoPodplayerActivityBinding
+class VideoMedia3PlayerViewActivity : BaseActivity() {
+    private lateinit var bind: VideoMedia3PlayerViewActivityBinding
     private lateinit var podPlayer: PodExoplayer
     override fun setContentView() {
-        VideoPodplayerActivityBinding.inflate(layoutInflater, null, false).apply {
+        VideoMedia3PlayerViewActivityBinding.inflate(layoutInflater, null, false).apply {
             bind = this
             setContentView(this.root, false)
         }
@@ -25,6 +22,7 @@ class VideoPodPlayerActivity : BaseActivity() {
 
     override fun initView() {
         podPlayer = PodExoplayer(this)
+        podPlayer.setVideoScalingMode(IPodPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
         bind.playerView.player = podPlayer.exoPlayer
         podPlayer.registerListener(object : IPodPlayer.OnPlayListener {
             override fun onPlayConnect() {
@@ -37,10 +35,27 @@ class VideoPodPlayerActivity : BaseActivity() {
             override fun onPlayProgressUpdated(cur: Int, total: Int) {
             }
         })
-        podPlayer.play("https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4")
+        podPlayer.play(Constants.VIDEO_URL)
     }
 
     override fun initData(savedInstanceState: Bundle?) {
 
+    }
+
+    override fun onPause() {
+        super.onPause()
+        podPlayer.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (podPlayer.isPaused) {
+            podPlayer.resume()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        podPlayer.release()
     }
 }

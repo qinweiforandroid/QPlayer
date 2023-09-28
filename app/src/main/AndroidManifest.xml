@@ -26,7 +26,10 @@
         </activity>
 
         <activity
-            android:name=".video.VideoPodPlayerActivity"
+            android:name=".video.VideoMedia3PlayerViewActivity"
+            android:exported="true" />
+        <activity
+            android:name=".video.VideoCustomPlayerViewActivity"
             android:exported="true" />
 
         <service

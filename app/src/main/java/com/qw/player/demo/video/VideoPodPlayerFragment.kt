@@ -21,11 +21,11 @@ class VideoPodPlayerFragment : BaseFragment() {
 
     override fun initView(view: View) {
         bind.mExoplayerVideoBtn.setOnClickListener {
-            startActivity(Intent(requireContext(), VideoPodPlayerActivity::class.java))
+            startActivity(Intent(requireContext(), VideoMedia3PlayerViewActivity::class.java))
 
         }
         bind.mMediaVideoBtn.setOnClickListener {
-
+            startActivity(Intent(requireContext(), VideoCustomPlayerViewActivity::class.java))
         }
     }
 

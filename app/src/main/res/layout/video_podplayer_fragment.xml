@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/key_line_2"
-        android:text="media_exoplayer" />
+        android:text="custom_player_view" />
 
     <TextView
         android:layout_width="wrap_content"

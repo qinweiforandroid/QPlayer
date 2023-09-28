@@ -32,6 +32,12 @@ public interface IPodPlayer {
         public static final int ERROR = 6;
     }
 
+    int VIDEO_SCALING_MODE_SCALE_TO_FIT = 1;
+
+    int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING = 2;
+
+    void setVideoScalingMode(int mode);
+
     void play(String content);
 
     boolean isConnecting();
@@ -94,6 +100,9 @@ public interface IPodPlayer {
         }
 
         default void onPlayError(int code, String message) {
+        }
+
+        default void onVideoSizeChanged(int width, int height) {
         }
     }
 }

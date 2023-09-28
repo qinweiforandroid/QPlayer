@@ -9,6 +9,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
+import androidx.media3.common.VideoSize;
 import androidx.media3.exoplayer.ExoPlayer;
 
 import com.qw.player.core.IPodPlayer;
@@ -55,9 +56,6 @@ public class PodExoplayer implements IPodPlayer {
                         PlayLog.Companion.d("STATE_READY");
                         isPrepared = true;
                         player.play();
-                        PodExoplayer.this.state = State.PLAYING;
-                        listener.onPlayStart();
-                        mTimer.start();
                         break;
                     case Player.STATE_ENDED:
                         PlayLog.Companion.d("STATE_ENDED");
@@ -67,16 +65,26 @@ public class PodExoplayer implements IPodPlayer {
                 }
             }
 
+            @Override
+            public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+                d("onPlayWhenReadyChanged：" + playWhenReady);
+                if (playWhenReady) {
+                    listener.onPlayStart();
+                    mTimer.start();
+                }
+            }
 
             @Override
             public void onIsLoadingChanged(boolean isLoading) {
-                d("onIsLoadingChanged：" + isLoading);
+//                d("onIsLoadingChanged：" + isLoading);
             }
-
 
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
                 d("onIsPlayingChanged：" + isPlaying);
+                if (isPlaying) {
+                    PodExoplayer.this.state = State.PLAYING;
+                }
             }
 
             @Override
@@ -86,6 +94,10 @@ public class PodExoplayer implements IPodPlayer {
                 listener.onPlayError(error.errorCode, error.getMessage());
             }
 
+            @Override
+            public void onVideoSizeChanged(VideoSize videoSize) {
+                listener.onVideoSizeChanged(videoSize.width, videoSize.height);
+            }
         });
     }
 
@@ -100,6 +112,11 @@ public class PodExoplayer implements IPodPlayer {
     @Override
     public void setSurface(Surface surface) {
         player.setVideoSurface(surface);
+    }
+
+    @Override
+    public void setVideoScalingMode(int mode) {
+        player.setVideoScalingMode(mode);
     }
 
     @Override

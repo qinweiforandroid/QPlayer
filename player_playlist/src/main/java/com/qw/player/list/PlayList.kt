@@ -90,6 +90,7 @@ class PlayList {
                 for (listener in listeners) {
                     listener.onPlayCompleted(mCurrPodId)
                 }
+                skipToNext(true)
             }
 
             override fun onPlayProgressUpdated(cur: Int, total: Int) {
