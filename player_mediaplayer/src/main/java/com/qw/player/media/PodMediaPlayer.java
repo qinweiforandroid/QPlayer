@@ -18,9 +18,11 @@ public class PodMediaPlayer implements IPodPlayer {
      */
     private final PodPlayerTimer mTimer;
     private OnPlayListener listener;
+    private OnVideoListener videoListener;
     private int mDuring;
     private int state;
     private boolean isPrepared;
+
 
     public PodMediaPlayer(Context context) {
         mTimer = new PodPlayerTimer();
@@ -35,7 +37,12 @@ public class PodMediaPlayer implements IPodPlayer {
         });
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
-        mMediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> listener.onVideoSizeChanged(width, height));
+
+        mMediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> {
+            if (videoListener != null) {
+                videoListener.onVideoSizeChanged(width, height);
+            }
+        });
         mMediaPlayer.setOnPreparedListener(mp -> {
             mDuring = mp.getDuration();
             mp.start();
@@ -189,6 +196,11 @@ public class PodMediaPlayer implements IPodPlayer {
     @Override
     public void registerListener(OnPlayListener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void registerVideoListener(OnVideoListener listener) {
+        this.videoListener = listener;
     }
 
     @Override

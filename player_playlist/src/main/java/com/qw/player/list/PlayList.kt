@@ -143,7 +143,7 @@ class PlayList {
                 }
             }
         } else {
-            if (mPlayer.isPlaying) {
+            if (mPlayer.isPlaying || mPlayer.isConnecting) {
                 mPlayer.stop()
             }
         }

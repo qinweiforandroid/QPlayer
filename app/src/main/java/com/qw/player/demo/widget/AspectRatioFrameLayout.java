@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * A {@link FrameLayout} that resizes itself to match a specified aspect ratio.
  */
-public final class AspectRatioFrameLayout extends FrameLayout {
+public class AspectRatioFrameLayout extends FrameLayout {
 
     /**
      * Listener to be notified about changes of the aspect ratios of this view.
@@ -58,7 +58,8 @@ public final class AspectRatioFrameLayout extends FrameLayout {
             RESIZE_MODE_FIXED_WIDTH,
             RESIZE_MODE_FIXED_HEIGHT,
             RESIZE_MODE_FILL,
-            RESIZE_MODE_ZOOM
+            RESIZE_MODE_ZOOM,
+            RESIZE_MODE_ASPECT_FILL
     })
     public @interface ResizeMode {
     }
@@ -85,6 +86,11 @@ public final class AspectRatioFrameLayout extends FrameLayout {
     public static final int RESIZE_MODE_ZOOM = 4;
 
     /**
+     * 无变形；画面短边充满控件，长边按比例适配；画面可能被裁剪；无黑边
+     */
+    public static final int RESIZE_MODE_ASPECT_FILL = 5;
+
+    /**
      * The {@link FrameLayout} will not resize itself if the fractional difference between its natural
      * aspect ratio and the requested aspect ratio falls below this threshold.
      *
@@ -100,7 +106,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
     @Nullable
     private AspectRatioListener aspectRatioListener;
 
-    private float videoAspectRatio;
+    protected float videoAspectRatio;
     private @ResizeMode int resizeMode;
 
     public AspectRatioFrameLayout(Context context) {
@@ -154,6 +160,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
         }
     }
 
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -173,6 +180,15 @@ public final class AspectRatioFrameLayout extends FrameLayout {
         }
 
         switch (resizeMode) {
+            case RESIZE_MODE_ASPECT_FILL:
+                if (videoAspectRatio >= 1) {
+                    //视频宽高
+                    height = (int) (width / videoAspectRatio);
+                } else {
+                    //视频高高
+                    width = (int) (height * videoAspectRatio);
+                }
+                break;
             case RESIZE_MODE_FIXED_WIDTH:
                 height = (int) (width / videoAspectRatio);
                 break;
@@ -203,6 +219,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
     }
+
 
     /**
      * Dispatches updates to {@link AspectRatioListener}.

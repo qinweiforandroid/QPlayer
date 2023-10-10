@@ -68,11 +68,20 @@ public interface IPodPlayer {
 
     void registerListener(OnPlayListener listener);
 
+    default void registerVideoListener(OnVideoListener listener) {
+
+    }
+
     void unregisterListener();
 
     void notifyPlayConnecting();
 
     void notifyPlayError(int code, String msg);
+
+    interface OnVideoListener {
+        default void onVideoSizeChanged(int width, int height) {
+        }
+    }
 
     interface OnPlayListener {
         default void onPlayConnect() {
@@ -102,7 +111,6 @@ public interface IPodPlayer {
         default void onPlayError(int code, String message) {
         }
 
-        default void onVideoSizeChanged(int width, int height) {
-        }
+
     }
 }

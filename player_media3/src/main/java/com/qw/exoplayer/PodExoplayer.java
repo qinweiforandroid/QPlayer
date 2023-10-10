@@ -23,6 +23,7 @@ public class PodExoplayer implements IPodPlayer {
 
     private ExoPlayer player;
     private OnPlayListener listener;
+    private OnVideoListener videoListener;
     private int state;
     private boolean isPrepared;
     /**
@@ -30,6 +31,7 @@ public class PodExoplayer implements IPodPlayer {
      */
     private PodPlayerTimer mTimer;
     private Handler handler = new Handler(Looper.getMainLooper());
+
 
     public PodExoplayer(Context context) {
         mTimer = new PodPlayerTimer();
@@ -96,9 +98,16 @@ public class PodExoplayer implements IPodPlayer {
 
             @Override
             public void onVideoSizeChanged(VideoSize videoSize) {
-                listener.onVideoSizeChanged(videoSize.width, videoSize.height);
+                if (videoListener != null) {
+                    videoListener.onVideoSizeChanged(videoSize.width, videoSize.height);
+                }
             }
         });
+    }
+
+    @Override
+    public void registerVideoListener(OnVideoListener listener) {
+        this.videoListener = listener;
     }
 
     @Override

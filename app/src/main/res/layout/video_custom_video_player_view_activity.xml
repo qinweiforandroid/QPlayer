@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.qw.player.demo.widget.AspectRatioFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mAspectRatioFrameLayout"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextureView
-        android:id="@+id/mTextureView"
+    <com.qw.player.demo.widget.VideoTextureView
+        android:id="@+id/mVideoTextureView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-</com.qw.player.demo.widget.AspectRatioFrameLayout>
+</FrameLayout>
