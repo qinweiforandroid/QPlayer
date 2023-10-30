@@ -46,6 +46,7 @@ class PlayList {
             override fun onPlayStart() {
                 log("onPlayStart")
                 for (listener in listeners) {
+                    listener.onPlayStateChanged(mCurrPodId, player.state)
                     listener.onPlayStart(mCurrPodId)
                 }
             }
@@ -53,12 +54,13 @@ class PlayList {
             override fun onPlayResumed() {
                 log("onPlayResumed")
                 for (listener in listeners) {
+                    listener.onPlayStateChanged(mCurrPodId, player.state)
                     listener.onPlayResumed(mCurrPodId)
                 }
             }
 
             override fun onPlayBufferingUpdated(percent: Int) {
-                log("percent:$percent")
+//                log("onPlayBufferingUpdated percent:$percent")
                 for (listener in listeners) {
                     listener.onPlayBufferingUpdated(mCurrPodId, percent)
                 }
@@ -67,6 +69,7 @@ class PlayList {
             override fun onPlayError(code: Int, message: String?) {
                 log("onPlayError code:$code,message:$message")
                 for (listener in listeners) {
+                    listener.onPlayStateChanged(mCurrPodId, player.state)
                     listener.onPlayError(mCurrPodId, code, message ?: "")
                 }
             }
@@ -74,6 +77,7 @@ class PlayList {
             override fun onPlayStopped() {
                 log("onPlayStopped")
                 for (listener in listeners) {
+                    listener.onPlayStateChanged(mCurrPodId, player.state)
                     listener.onPlayStopped(mCurrPodId)
                 }
             }
@@ -81,6 +85,7 @@ class PlayList {
             override fun onPlayPaused() {
                 log("onPlayPaused")
                 for (listener in listeners) {
+                    listener.onPlayStateChanged(mCurrPodId, player.state)
                     listener.onPlayPaused(mCurrPodId)
                 }
             }
@@ -88,9 +93,9 @@ class PlayList {
             override fun onPlayCompleted() {
                 log("onPlayCompleted")
                 for (listener in listeners) {
+                    listener.onPlayStateChanged(mCurrPodId, player.state)
                     listener.onPlayCompleted(mCurrPodId)
                 }
-                skipToNext(true)
             }
 
             override fun onPlayProgressUpdated(cur: Int, total: Int) {
@@ -103,6 +108,7 @@ class PlayList {
             override fun onPlayConnect() {
                 log("onPlayConnect")
                 for (listener in listeners) {
+                    listener.onPlayStateChanged(mCurrPodId, player.state)
                     listener.onPlayConnecting(mCurrPodId)
                 }
             }
@@ -123,7 +129,7 @@ class PlayList {
     }
 
     fun play(position: Int) {
-        log("play position:$position")
+        log("will play $position")
         if (mPods.size == 0) {
             return
         }
@@ -144,6 +150,7 @@ class PlayList {
             }
         } else {
             if (mPlayer.isPlaying || mPlayer.isConnecting) {
+                log("stop pod position $mCurrPosition")
                 mPlayer.stop()
             }
         }
@@ -204,7 +211,6 @@ class PlayList {
                 auto,
                 getPos(), mPods.size - 1
             )
-            stop()
             play(next)
         }
     }
@@ -256,18 +262,33 @@ class PlayList {
     }
 
     fun stop() {
-        log("stop")
-        mPlayer.stop()
+        if (isPlaying() or isConnecting()) {
+            //playing connecting状态才需要stop
+            log("stop")
+            mPlayer.stop()
+        }
     }
 
     fun pause() {
-        log("pause")
-        mPlayer.pause()
+        if (mPlayer.isPlaying) {
+            //只有播放中状态才可以暂停
+            log("pause")
+            mPlayer.pause()
+        } else {
+            stop()
+        }
     }
 
     fun resume() {
-        log("resume")
-        mPlayer.resume()
+        if (isPaused()) {
+            log("resume")
+            mPlayer.resume()
+        } else {
+            getPod()?.let {
+                //重播
+                play(it)
+            }
+        }
     }
 
     fun seekTo(pos: Long) {
@@ -280,8 +301,7 @@ class PlayList {
         if (checkedPos > pods.size - 1) {
             return
         }
-        stop()
-        mPods.clear()
+        reset()
         mPods.addAll(pods)
         if (checkedPos >= 0) {
             mCurrPosition = checkedPos
@@ -290,6 +310,16 @@ class PlayList {
             mCurrPosition = -1
             mCurrPodId = ""
         }
+    }
+
+    private fun reset() {
+        //暂停
+        stop()
+        //清除列表
+        mPods.clear()
+        //清空当前播放
+        mCurrPodId = ""
+        mCurrPosition = -1
     }
 
     fun getPlayList(): ArrayList<IPod> {
@@ -329,7 +359,6 @@ class PlayList {
     }
 
     fun onDestroy() {
-        mPlayer.unregisterListener()
         mPlayer.release()
     }
 
@@ -354,6 +383,14 @@ class PlayList {
     }
 
     private fun log(msg: String) {
-        PlayLog.d("PlayList > id:$mCurrPodId,p:$mCurrPosition $msg")
+        PlayLog.d("PlayList > id:$mCurrPodId,curPos:$mCurrPosition $msg")
+    }
+
+    fun pauseOrResume() {
+        if (isPaused() or !isPlaying()) {
+            resume()
+        } else {
+            pause()
+        }
     }
 }

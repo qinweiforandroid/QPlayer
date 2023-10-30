@@ -4,7 +4,6 @@ import android.view.Surface;
 
 public interface IPodPlayer {
 
-
     class State {
         /**
          * 空闲
@@ -31,12 +30,6 @@ public interface IPodPlayer {
          */
         public static final int ERROR = 6;
     }
-
-    int VIDEO_SCALING_MODE_SCALE_TO_FIT = 1;
-
-    int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING = 2;
-
-    void setVideoScalingMode(int mode);
 
     void play(String content);
 

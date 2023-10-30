@@ -1,6 +1,7 @@
 package com.qw.player.demo.video
 
 import android.os.Bundle
+import androidx.media3.ui.AspectRatioFrameLayout
 import com.qw.exoplayer.PodExoplayer
 import com.qw.framework.core.ui.BaseActivity
 import com.qw.player.core.IPodPlayer
@@ -22,8 +23,8 @@ class VideoMedia3PlayerViewActivity : BaseActivity() {
 
     override fun initView() {
         podPlayer = PodExoplayer(this)
-        podPlayer.setVideoScalingMode(IPodPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
         bind.playerView.player = podPlayer.exoPlayer
+        bind.playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM)
         podPlayer.registerListener(object : IPodPlayer.OnPlayListener {
             override fun onPlayConnect() {
             }

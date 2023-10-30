@@ -84,12 +84,6 @@ public class PodMediaPlayer implements IPodPlayer {
         isPrepared = false;
     }
 
-
-    @Override
-    public void setVideoScalingMode(int mode) {
-        mMediaPlayer.setVideoScalingMode(mode);
-    }
-
     @Override
     public void play(String content) {
         reset();

@@ -18,6 +18,7 @@ public class PodPlayerTimer {
      * Syncs the mMediaPlayer position with mPlaybackProgressCallback via recurring task.
      */
     public void start(long interval_ms) {
+        stop();
         if (mExecutor != null) {
             return;
         }

@@ -86,7 +86,6 @@ public class VideoTextureView extends AspectRatioFrameLayout {
 
             @Override
             public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
-                podPlayer.setSurface(null);
                 return false;
             }
         });

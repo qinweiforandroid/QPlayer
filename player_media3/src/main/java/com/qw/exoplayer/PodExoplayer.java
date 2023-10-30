@@ -43,8 +43,11 @@ public class PodExoplayer implements IPodPlayer {
                 });
             }
         });
+
         player = new ExoPlayer.Builder(context).build();
+//        player.addAnalyticsListener(new EventLogger());
         player.addListener(new Player.Listener() {
+
             @Override
             public void onPlaybackStateChanged(int state) {
                 switch (state) {
@@ -55,9 +58,8 @@ public class PodExoplayer implements IPodPlayer {
                         PlayLog.Companion.d("STATE_BUFFERING");
                         break;
                     case Player.STATE_READY:
-                        PlayLog.Companion.d("STATE_READY");
+                        PlayLog.Companion.d("STATE_READY " + player.getPlayWhenReady());
                         isPrepared = true;
-                        player.play();
                         break;
                     case Player.STATE_ENDED:
                         PlayLog.Companion.d("STATE_ENDED");
@@ -70,27 +72,38 @@ public class PodExoplayer implements IPodPlayer {
             @Override
             public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
                 d("onPlayWhenReadyChanged：" + playWhenReady);
-                if (playWhenReady) {
-                    listener.onPlayStart();
-                    mTimer.start();
-                }
             }
 
             @Override
             public void onIsLoadingChanged(boolean isLoading) {
-//                d("onIsLoadingChanged：" + isLoading);
+                d("onIsLoadingChanged：" + isLoading);
             }
 
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
                 d("onIsPlayingChanged：" + isPlaying);
                 if (isPlaying) {
-                    PodExoplayer.this.state = State.PLAYING;
+                    if (isConnecting()) {
+                        PodExoplayer.this.state = State.PLAYING;
+                        mTimer.start();
+                        listener.onPlayStart();
+                    } else if (isPlaying()) {
+                        listener.onPlayResumed();
+                    }
+
+                } else {
+                    mTimer.stop();
+                    if (isPaused()) {
+                        listener.onPlayPaused();
+                    } else if (state == State.STOPPED) {
+                        listener.onPlayStopped();
+                    }
                 }
             }
 
             @Override
             public void onPlayerError(PlaybackException error) {
+                error.printStackTrace();
                 d("onPlayerError：" + error.getMessage());
                 state = State.ERROR;
                 listener.onPlayError(error.errorCode, error.getMessage());
@@ -98,6 +111,12 @@ public class PodExoplayer implements IPodPlayer {
 
             @Override
             public void onVideoSizeChanged(VideoSize videoSize) {
+                d("onVideoSizeChanged：" + videoSize.width + ":" + videoSize.height);
+                if (videoSize.equals(VideoSize.UNKNOWN)
+                        || player == null
+                        || player.getPlaybackState() == Player.STATE_IDLE) {
+                    return;
+                }
                 if (videoListener != null) {
                     videoListener.onVideoSizeChanged(videoSize.width, videoSize.height);
                 }
@@ -120,28 +139,28 @@ public class PodExoplayer implements IPodPlayer {
 
     @Override
     public void setSurface(Surface surface) {
+        d("setSurface " + surface.toString());
+        player.clearVideoSurface();
         player.setVideoSurface(surface);
     }
 
-    @Override
-    public void setVideoScalingMode(int mode) {
-        player.setVideoScalingMode(mode);
-    }
 
     @Override
     public void play(String content) {
         isPrepared = false;
         try {
+            d("play:" + content);
             MediaItem item = MediaItem.fromUri(content);
             player.stop();
             player.clearMediaItems();
             player.addMediaItem(item);
+            notifyPlayConnecting();
             player.prepare();
-            state = State.CONNECT;
-            listener.onPlayConnect();
+            player.setPlayWhenReady(true);
         } catch (Exception e) {
             e.printStackTrace();
             state = State.ERROR;
+            d("play：" + e.getMessage());
             listener.onPlayError(-1, e.getMessage());
         }
     }
@@ -163,19 +182,15 @@ public class PodExoplayer implements IPodPlayer {
 
     @Override
     public void seekTo(int position) {
-        if (isPrepared()) {
-            player.seekTo(position);
-        }
+        player.seekTo(position);
     }
 
     @Override
     public void pause() {
         d("pause");
         if (isPlaying()) {
-            player.pause();
             state = State.PAUSED;
-            mTimer.stop();
-            listener.onPlayPaused();
+            player.pause();
         }
     }
 
@@ -183,10 +198,8 @@ public class PodExoplayer implements IPodPlayer {
     public void resume() {
         d("resume");
         if (isPaused()) {
-            player.play();
             state = State.PLAYING;
-            mTimer.start();
-            listener.onPlayResumed();
+            player.play();
         }
     }
 
@@ -206,15 +219,14 @@ public class PodExoplayer implements IPodPlayer {
         d("release");
         stop();
         player.release();
+        unregisterListener();
     }
 
     @Override
     public void stop() {
         d("stop");
-        player.stop();
         state = State.STOPPED;
-        mTimer.stop();
-        listener.onPlayStopped();
+        player.stop();
     }
 
     @Override
@@ -234,8 +246,10 @@ public class PodExoplayer implements IPodPlayer {
 
     @Override
     public void notifyPlayConnecting() {
-        state = State.CONNECT;
-        this.listener.onPlayConnect();
+        if (state != State.CONNECT) {
+            state = State.CONNECT;
+            this.listener.onPlayConnect();
+        }
     }
 
     @Override

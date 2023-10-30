@@ -4,6 +4,7 @@ interface OnPlayListListener {
     fun onPlaySwitched(newId: String, oldId: String) {
     }
 
+    fun onPlayStateChanged(id: String, state: Int) {}
     fun onPlayConnecting(mCurrPodId: String) {
     }
 
