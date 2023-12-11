@@ -7,6 +7,7 @@ import android.os.PowerManager;
 import android.view.Surface;
 
 import com.qw.player.core.IPodPlayer;
+import com.qw.player.core.PodPlayerConfig;
 import com.qw.player.core.PodPlayerTimer;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class PodMediaPlayer implements IPodPlayer {
     private int mDuring;
     private int state;
     private boolean isPrepared;
+    private PodPlayerConfig playerConfig;
 
 
     public PodMediaPlayer(Context context) {
@@ -82,6 +84,16 @@ public class PodMediaPlayer implements IPodPlayer {
     private void reset() {
         mMediaPlayer.reset();
         isPrepared = false;
+    }
+
+    @Override
+    public void setPlayerConfig(PodPlayerConfig playerConfig) {
+        this.playerConfig = playerConfig;
+    }
+
+    @Override
+    public void preload(String content) {
+
     }
 
     @Override

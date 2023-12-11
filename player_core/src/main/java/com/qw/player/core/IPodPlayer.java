@@ -2,6 +2,11 @@ package com.qw.player.core;
 
 import android.view.Surface;
 
+/**
+ * 播放接口
+ *
+ * @author qinwei
+ */
 public interface IPodPlayer {
 
     class State {
@@ -31,12 +36,44 @@ public interface IPodPlayer {
         public static final int ERROR = 6;
     }
 
+    /**
+     * 设置播放配置
+     *
+     * @param playerConfig
+     */
+    void setPlayerConfig(PodPlayerConfig playerConfig);
+
+    /**
+     * 预加载内容
+     *
+     * @param content 内容链接
+     */
+    void preload(String content);
+
+    /**
+     * 播放内容
+     *
+     * @param content 内容链接
+     */
     void play(String content);
 
+    /**
+     * 是否连接中
+     *
+     * @return
+     */
     boolean isConnecting();
 
+    /**
+     * 资源是否准备好
+     *
+     * @return
+     */
     boolean isPrepared();
 
+    /**
+     * @return
+     */
     int getDuring();
 
     void seekTo(int position);
@@ -102,8 +139,7 @@ public interface IPodPlayer {
         }
 
         default void onPlayError(int code, String message) {
+
         }
-
-
     }
 }

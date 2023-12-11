@@ -14,6 +14,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 
 import com.qw.player.core.IPodPlayer;
 import com.qw.player.core.PlayLog;
+import com.qw.player.core.PodPlayerConfig;
 import com.qw.player.core.PodPlayerTimer;
 
 /**
@@ -31,6 +32,8 @@ public class PodExoplayer implements IPodPlayer {
      */
     private PodPlayerTimer mTimer;
     private Handler handler = new Handler(Looper.getMainLooper());
+
+    private PodPlayerConfig playerConfig;
 
 
     public PodExoplayer(Context context) {
@@ -144,6 +147,16 @@ public class PodExoplayer implements IPodPlayer {
         player.setVideoSurface(surface);
     }
 
+
+    @Override
+    public void setPlayerConfig(PodPlayerConfig playerConfig) {
+        this.playerConfig = playerConfig;
+    }
+
+    @Override
+    public void preload(String content) {
+        
+    }
 
     @Override
     public void play(String content) {
