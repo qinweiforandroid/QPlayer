@@ -7,26 +7,18 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import com.qw.framework.core.ui.BaseFragment
+import com.qw.framework.ui.BaseFragment
 import com.qw.player.core.IPodPlayer
 import com.qw.player.core.IPodPlayer.OnPlayListener
 import com.qw.player.demo.R
 import com.qw.player.media.PodMediaPlayer
 
 
-class PodPlayerFragment : BaseFragment() {
+class PodPlayerFragment : BaseFragment(R.layout.pod_player_fragment) {
     private var url = "http://mpge.5nd.com/2016/2016-3-18/71210/1.mp3"
     private lateinit var podPlayer: IPodPlayer
     private lateinit var mPlayerBtn: Button
     private lateinit var mPlayerSeekBar: SeekBar
-
-    override fun getCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.pod_player_fragment, container, false)
-    }
 
     private var isTrackingTouch = false
     override fun initView(view: View) {

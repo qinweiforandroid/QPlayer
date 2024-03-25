@@ -17,7 +17,7 @@
         android:paddingLeft="16dp"
         android:paddingTop="8dp"
         android:text="播放模式"
-        android:textAppearance="@style/TextAppearance.Overline" />
+        android:textAppearance="?attr/textAppearanceOverline" />
 
     <RadioGroup
         android:id="@+id/mMusicPlayModeRG"
@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:paddingLeft="16dp"
         android:text="定时关闭"
-        android:textAppearance="@style/TextAppearance.Overline" />
+        android:textAppearance="?attr/textAppearanceOverline" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -74,8 +74,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="未开启"
-            android:textAppearance="@style/TextAppearance.Body2" />
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
     </LinearLayout>
 
-    <include layout="@layout/base_swipe_refresh_layout_activity" />
+    <include layout="@layout/recyclerview_swiperefresh_layout" />
 </LinearLayout>

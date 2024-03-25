@@ -3,7 +3,7 @@ package com.qw.player.demo.video
 import android.os.Bundle
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.qw.exoplayer.PodExoplayer
-import com.qw.framework.core.ui.BaseActivity
+import com.qw.framework.ui.BaseActivity
 import com.qw.player.core.IPodPlayer
 import com.qw.player.demo.Constants
 import com.qw.player.demo.databinding.VideoMedia3PlayerViewActivityBinding

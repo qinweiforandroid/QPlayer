@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.qw.player.demo"
-        minSdk 19
-        targetSdk 33
+        minSdk 21
+        targetSdk 34
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -26,6 +26,10 @@ android {
         viewBinding = true
     }
     namespace 'com.qw.player.demo'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
 }
 
 dependencies {
@@ -35,10 +39,8 @@ dependencies {
     implementation "androidx.media:media:1.5.0"
     implementation "androidx.core:core-ktx:1.9.0"
     implementation 'com.github.qinweiforandroid:QPermission:2.0.0801'
-    api "com.qw.tools:framework-core:1.0.0-alpha01"
-    api "com.qw.tools:framework-list:1.0.0-alpha01"
-    api "com.qw.tools:framework-support:1.0.0-alpha01"
-    implementation 'com.github.qinweiforandroid:QUtils:1.0.220220303'
+    implementation 'com.github.qinweiforandroid:QUtils:1.1.0116'
+    api 'com.github.qinweiforandroid:QAppFramework:1.0.0325'
     api "com.github.bumptech.glide:glide:4.12.0"
 
     implementation project(path: ':player_core')

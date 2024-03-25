@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import com.qw.framework.ui.QFragmentActivity.Clazz
-import com.qw.framework.ui.SupportFragmentListActivity
+import com.qw.framework.ui.tools.ContainerClazz
+import com.qw.framework.ui.tools.FragmentListActivity
 import com.qw.player.demo.audio.PlayListFragment
 import com.qw.player.demo.audio.PodPlayerFragment
 import com.qw.player.demo.video.VideoPodPlayerFragment
@@ -21,11 +21,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goNext() {
-        val list = ArrayList<Clazz>()
-        list.add(Clazz("MediaPlayer", PodPlayerFragment::class.java))
-        list.add(Clazz("PlayList", PlayListFragment::class.java))
-        list.add(Clazz("VideoPodPlayer", VideoPodPlayerFragment::class.java))
-        SupportFragmentListActivity.startActivity(this, list, false)
+        val list = ArrayList<ContainerClazz>()
+        list.add(ContainerClazz("MediaPlayer", PodPlayerFragment::class.java))
+        list.add(ContainerClazz("PlayList", PlayListFragment::class.java))
+        list.add(ContainerClazz("VideoPodPlayer", VideoPodPlayerFragment::class.java))
+        FragmentListActivity.startActivity(this, list, false)
         finish()
     }
 

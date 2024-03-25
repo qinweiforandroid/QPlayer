@@ -3,12 +3,13 @@ package com.qw.player.demo.video
 import android.graphics.Color
 import android.os.Bundle
 import com.qw.exoplayer.PodExoplayer
-import com.qw.framework.core.ui.BaseActivity
+import com.qw.framework.ui.BaseActivity
 import com.qw.player.core.IPodPlayer.OnPlayListener
 import com.qw.player.demo.Constants
 import com.qw.player.demo.databinding.VideoCustomVideoPlayerViewActivityBinding
 import com.qw.player.demo.widget.AspectRatioFrameLayout
 import com.qw.utils.StatusBar
+import com.qw.utils.StatusBarUtil
 
 /**
  * Created by qinwei on 2023/9/28 16:22

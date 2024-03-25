@@ -3,8 +3,8 @@ package com.qw.player.demo
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import com.qw.framework.core.App
-import com.qw.framework.core.tracker.AppStateTracker
+import com.qw.framework.App
+import com.qw.framework.AppStateTracker
 import com.qw.player.demo.playmanager.PlayManager
 import com.qw.player.list.IUrlLoad
 import com.qw.player.list.UrlLoadCallback

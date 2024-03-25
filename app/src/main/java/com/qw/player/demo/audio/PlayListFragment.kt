@@ -14,7 +14,7 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
-import com.qw.framework.base.list.BaseSwipeListFragment
+import com.qw.framework.ui.BaseListFragment
 import com.qw.permission.OnResultListener
 import com.qw.permission.QPermission
 import com.qw.player.demo.R
@@ -29,7 +29,7 @@ import com.qw.player.list.Pod
 import com.qw.player.list.mode.IPlayMode
 import com.qw.recyclerview.core.BaseViewHolder
 
-class PlayListFragment : BaseSwipeListFragment<IPod>() {
+class PlayListFragment : BaseListFragment<IPod>() {
 
     private lateinit var bind: PlayListFragmentBinding
 
@@ -37,20 +37,19 @@ class PlayListFragment : BaseSwipeListFragment<IPod>() {
         private val TAG = "play"
     }
 
-
-    override fun getCreateView(
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         return PlayListFragmentBinding.inflate(inflater, container, false).apply {
             bind = this
         }.root
     }
 
-    override fun initView(v: View) {
-        super.initView(v)
+
+    override fun initView(view: View) {
+        super.initView(view)
         bind.mMusicView.setOnMusicPlayStateClickListener(View.OnClickListener {
             if (PlayManager.isConnecting()) {
                 Toast.makeText(requireContext(), "加载中...", Toast.LENGTH_SHORT).show()

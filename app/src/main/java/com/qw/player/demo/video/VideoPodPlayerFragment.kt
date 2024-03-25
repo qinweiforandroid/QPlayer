@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.qw.framework.core.ui.BaseFragment
+import com.qw.framework.ui.BaseFragment
 import com.qw.player.demo.databinding.VideoPodplayerFragmentBinding
 
 /**
@@ -13,7 +13,11 @@ import com.qw.player.demo.databinding.VideoPodplayerFragmentBinding
  */
 class VideoPodPlayerFragment : BaseFragment() {
     private lateinit var bind: VideoPodplayerFragmentBinding
-    override fun getCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         return VideoPodplayerFragmentBinding.inflate(inflater, container, false).apply {
             bind = this
         }.root

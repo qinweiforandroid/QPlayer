@@ -34,22 +34,22 @@
 
     <TextView
         android:id="@+id/mMusicNameLabel"
-        style="@style/TextAppearance.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="4dp"
         android:text="菊花台"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
         app:layout_constraintLeft_toRightOf="@id/mMusicIconImg"
         app:layout_constraintTop_toTopOf="@id/mMusicIconImg" />
 
     <TextView
         android:id="@+id/mMusicSingerLabel"
-        style="@style/TextAppearance.Overline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="周杰伦"
+        android:textAppearance="?attr/textAppearanceOverline"
         app:layout_constraintLeft_toLeftOf="@id/mMusicNameLabel"
         app:layout_constraintTop_toBottomOf="@id/mMusicNameLabel" />
 

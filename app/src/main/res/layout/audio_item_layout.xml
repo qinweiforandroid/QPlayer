@@ -15,6 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
+
     <TextView
         android:id="@+id/mMusicTitleLabel"
         android:layout_width="0dp"
@@ -25,8 +26,8 @@
         android:gravity="center_vertical"
         android:maxLines="1"
         android:paddingRight="32dp"
-        android:textAppearance="@style/TextAppearance.Subtitle1"
         android:text="拯救歌荒"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@id/mMusicAuthorLabel"
         app:layout_constraintEnd_toStartOf="@+id/mMusicStateImg"
@@ -39,7 +40,7 @@
         android:layout_height="20dp"
         android:layout_marginTop="8dp"
         android:text="周杰伦"
-        android:textAppearance="@style/TextAppearance.Subtitle2"
+        android:textAppearance="?attr/textAppearanceTitleSmall"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/mMusicTitleLabel"

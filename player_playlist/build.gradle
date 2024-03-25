@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.qw.player.list'
-    compileSdk 33
+    compileSdk 34
     defaultConfig {
         minSdk 19
         targetSdk 33
@@ -19,8 +19,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 

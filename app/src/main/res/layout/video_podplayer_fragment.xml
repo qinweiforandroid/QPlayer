@@ -3,32 +3,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="@dimen/key_line_4">
+    android:padding="16dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="media_exoplayer"
-        android:textAppearance="@style/TextAppearance.Overline" />
+        android:textAppearance="?attr/textAppearanceOverline" />
 
     <Button
         android:id="@+id/mMediaVideoBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/key_line_2"
+        android:layout_marginTop="8dp"
         android:text="custom_player_view" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/key_line_4"
+        android:layout_marginTop="16dp"
         android:text="media_player"
-        android:textAppearance="@style/TextAppearance.Overline" />
+        android:textAppearance="?attr/textAppearanceOverline" />
 
     <Button
         android:id="@+id/mExoplayerVideoBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/key_line_2"
+        android:layout_marginTop="8dp"
         android:text="media_player" />
 </LinearLayout>

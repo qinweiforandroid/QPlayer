@@ -1,5 +1,6 @@
 package com.qw.player.demo.playmanager
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -11,7 +12,9 @@ import com.qw.player.list.IUrlLoad
 import com.qw.player.list.PlayListManager
 import com.qw.exoplayer.PodExoplayer
 
+@SuppressLint("StaticFieldLeak")
 object PlayManager {
+
     private var context: Context? = null
     fun init(context: Context) {
         if (PlayManager.context != null) {

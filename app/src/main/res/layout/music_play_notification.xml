@@ -37,7 +37,7 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:text="歌曲名称"
-                    android:textAppearance="@style/TextAppearance.Compat.Notification.Title"
+                    android:textAppearance="@android:style/TextAppearance.Material.Notification.Title"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -57,7 +57,7 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:text="作者"
-                android:textAppearance="@style/TextAppearance.Compat.Notification.Info" />
+                android:textAppearance="@android:style/TextAppearance.Material.Notification.Info" />
         </LinearLayout>
 
         <LinearLayout
