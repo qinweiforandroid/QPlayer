@@ -36,9 +36,13 @@ dependencies {
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0'
     implementation "androidx.media:media:1.8.0"
     implementation "androidx.core:core-ktx:1.19.0"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
     implementation 'com.github.qinweiforandroid:QUtils:1.1.0116'
+    implementation 'io.github.scwang90:refresh-layout-kernel:2.1.1'
+    implementation 'io.github.scwang90:refresh-header-classics:2.1.1'
     implementation 'com.github.qinweiforandroid.SmartRefreshRecyclerView:recyclerview-smartrefreshlayout:4.2.0629'
     implementation 'com.github.qinweiforandroid.SmartRefreshRecyclerView:recyclerview-swiperefresh:4.2.0629'
     implementation 'com.github.qinweiforandroid.SmartRefreshRecyclerView:recyclerview-core:4.2.0629'
@@ -46,6 +50,7 @@ dependencies {
 
     implementation project(path: ':player-core')
     implementation project(path: ':player-media3')
+    implementation "androidx.media3:media3-exoplayer-hls:1.10.1"
     implementation "androidx.media3:media3-ui:1.10.1"
     // Common functionality used across multiple media libraries
     implementation "androidx.media3:media3-common:1.10.1"

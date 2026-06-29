@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.qw.player.demo.audio.AudioPlayerFragment
+import com.qw.player.demo.cctv.CctvPlayerActivity
 import com.qw.player.demo.video.VideoPlayerFragment
 
 class MainActivity : AppCompatActivity() {
@@ -16,6 +17,9 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<Button>(R.id.videoDemoButton).setOnClickListener {
             openDemo("VideoPlayer", VideoPlayerFragment::class.java.name)
+        }
+        findViewById<Button>(R.id.cctvButton).setOnClickListener {
+            startActivity(Intent(this, CctvPlayerActivity::class.java))
         }
     }
 
