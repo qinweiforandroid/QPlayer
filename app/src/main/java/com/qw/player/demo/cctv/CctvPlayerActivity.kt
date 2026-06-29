@@ -8,25 +8,33 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.activity.OnBackPressedCallback
-import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.PlaybackException
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import com.qw.player.core.engine.PlaybackError
+import com.qw.player.core.engine.PlaybackSnapshot
+import com.qw.player.core.engine.PlaybackState
+import com.qw.player.core.media.MediaType
+import com.qw.player.core.media.PlaySource
+import com.qw.player.core.media.PlayableMedia
+import com.qw.player.core.media.PlayerMediaMetadata
+import com.qw.player.core.session.PlaybackMode
+import com.qw.player.core.session.PlaybackSessionListener
+import com.qw.player.core.session.RepeatMode
 import com.qw.recyclerview.core.BaseViewHolder
 import com.qw.recyclerview.core.OnRefreshListener
 import com.qw.recyclerview.layout.MyLinearLayoutManager
 import com.qw.player.demo.R
 import com.qw.player.demo.databinding.ActivityCctvPlayerBinding
+import com.qw.player.demo.runtime.VideoPlaybackRuntime
+import com.qw.player.demo.widget.CctvPlayerControlView
+import com.qw.player.demo.widget.VideoPlayerControl
 import com.qw.recyclerview.swiperefresh.SwipeRecyclerView
 import com.qw.recyclerview.template.SmartListCompat
 import java.text.SimpleDateFormat
@@ -36,23 +44,19 @@ import java.util.Locale
 class CctvPlayerActivity : AppCompatActivity() {
 
     private lateinit var bind: ActivityCctvPlayerBinding
-    private lateinit var player: ExoPlayer
     private lateinit var list: SmartListCompat<TvChannel>
     private lateinit var vm: CctvPlayerVM
-    private var selectedChannelUrl: String? = null
     private var isFullscreen = false
-    private var controlsVisible = true
-    private var isTrackingSeekBar = false
     private val uiHandler = Handler(Looper.getMainLooper())
     private val hideControlsRunnable = Runnable {
-        if (isFullscreen || player.isPlaying) {
-            setControlsVisible(false)
+        if (isFullscreen || VideoPlaybackRuntime.isPlaying()) {
+            bind.mPlayerControls.setControlsVisible(false)
         }
     }
     private val progressRunnable = object : Runnable {
         override fun run() {
-            updateProgressUi()
-            bind.mClockLabel.text = clockFormatter.format(Date())
+            bind.mPlayerControls.bindClock(clockFormatter.format(Date()))
+            bindPlaybackSnapshot(VideoPlaybackRuntime.getSnapshot())
             uiHandler.postDelayed(this, 1000L)
         }
     }
@@ -64,6 +68,34 @@ class CctvPlayerActivity : AppCompatActivity() {
             } else {
                 finish()
             }
+        }
+    }
+
+    private val playbackListener = object : PlaybackSessionListener {
+        override fun onCurrentMediaChanged(current: PlayableMedia?, previous: PlayableMedia?) {
+            if (current != null) {
+                bind.mNowPlayingLabel.text = current.metadata.title
+                renderPlayerControls(
+                    snapshot = VideoPlaybackRuntime.getSnapshot(),
+                    title = current.metadata.title,
+                    liveBadgeText = current.metadata.artist.ifEmpty { "LIVE" }
+                )
+            }
+            list.adapter.notifyDataSetChanged()
+        }
+
+        override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
+            bindPlaybackSnapshot(snapshot)
+        }
+
+        override fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {
+            bindPlaybackSnapshot(snapshot)
+        }
+
+        override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+            bind.mStatusLabel.text = error.message
+            bindPlaybackSnapshot(snapshot)
+            showControlsTemporarily()
         }
     }
 
@@ -88,79 +120,58 @@ class CctvPlayerActivity : AppCompatActivity() {
     }
 
     private fun initPlayer() {
-        player = ExoPlayer.Builder(this).build().apply {
-            addListener(object : Player.Listener {
-                override fun onPlayerError(error: PlaybackException) {
-                    bind.mStatusLabel.text = error.localizedMessage ?: error.errorCodeName
-                    showControlsTemporarily()
-                }
-
-                override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    updatePlayPauseLabel()
-                    if (isPlaying) {
-                        autoHideControls()
-                    }
-                }
-
-                override fun onPlaybackStateChanged(playbackState: Int) {
-                    updateProgressUi()
-                }
-            })
-        }
-        bind.mPlayerView.player = player
+        bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+        bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
+        VideoPlaybackRuntime.updatePlaybackMode(
+            PlaybackMode(
+                repeatMode = RepeatMode.ALL,
+                shuffleEnabled = false
+            )
+        )
+        VideoPlaybackRuntime.addListener(playbackListener)
     }
 
     private fun initControls() {
-        bind.mPlayerContainer.setOnClickListener {
-            toggleControls()
-        }
-        bind.mControlOverlay.setOnClickListener {
-            toggleControls()
-        }
-        bind.mBackBtn.setOnClickListener {
-            if (isFullscreen) {
-                updateFullscreenUi(false)
-            } else {
-                finish()
+        bind.mPlayerControls.setActionListener(object : VideoPlayerControl.ActionListener {
+            override fun onBackClicked() {
+                if (isFullscreen) {
+                    updateFullscreenUi(false)
+                } else {
+                    finish()
+                }
             }
-        }
-        bind.mFullscreenBtn.setOnClickListener {
-            updateFullscreenUi(!isFullscreen)
-        }
-        bind.mPlayPauseBtn.setOnClickListener {
-            if (player.isPlaying) {
-                player.pause()
-            } else {
-                player.play()
-            }
-            updatePlayPauseLabel()
-            showControlsTemporarily()
-        }
-        bind.mSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    val duration = player.duration
-                    if (duration > 0) {
-                        val seekPosition = duration * progress / 1000L
-                        bind.mProgressLabel.text =
-                            "${formatDuration(seekPosition)} / ${formatDuration(duration)}"
+
+            override fun onPlayPauseClicked() {
+                when (VideoPlaybackRuntime.getSnapshot().state) {
+                    PlaybackState.PLAYING,
+                    PlaybackState.BUFFERING,
+                    PlaybackState.PREPARING -> VideoPlaybackRuntime.pause()
+
+                    PlaybackState.PAUSED,
+                    PlaybackState.READY -> VideoPlaybackRuntime.resume()
+
+                    else -> {
+                        val currentIndex = VideoPlaybackRuntime.getCurrentIndex()
+                        if (currentIndex >= 0) {
+                            VideoPlaybackRuntime.play(currentIndex)
+                        } else if (VideoPlaybackRuntime.getQueue().isNotEmpty()) {
+                            VideoPlaybackRuntime.play(0)
+                        }
                     }
                 }
+                showControlsTemporarily()
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                isTrackingSeekBar = true
-                uiHandler.removeCallbacks(hideControlsRunnable)
+            override fun onFullscreenClicked() {
+                updateFullscreenUi(!isFullscreen)
             }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                val duration = player.duration
-                if (duration > 0 && seekBar != null) {
-                    val seekPosition = duration * seekBar.progress / 1000L
-                    player.seekTo(seekPosition)
-                }
-                isTrackingSeekBar = false
-                updateProgressUi()
+            override fun onControllerTapped() {
+                toggleControls()
+            }
+
+            override fun onSeekFinished(positionMs: Long) {
+                VideoPlaybackRuntime.seekTo(positionMs)
                 autoHideControls()
             }
         })
@@ -200,27 +211,34 @@ class CctvPlayerActivity : AppCompatActivity() {
                 bind.mStatusLabel.text = getString(R.string.player_status_error)
             }
             bind.mAuthorMetaLabel.text = "${channels.size}个直播频道 · 筛选后公开 HLS"
+            val queue = channels.map { it.toPlayableMedia() }
+            VideoPlaybackRuntime.setQueue(queue, 0)
             if (channels.isNotEmpty()) {
                 val current =
-                    channels.firstOrNull { it.streamUrl == selectedChannelUrl } ?: channels.first()
+                    channels.firstOrNull {
+                        it.streamUrl == VideoPlaybackRuntime.getCurrentMedia()?.resolveDefaultSource()?.url
+                    } ?: channels.first()
                 playChannel(current)
             } else {
                 bind.mNowPlayingLabel.text = getString(R.string.player_empty)
-                bind.mOverlayTitleLabel.text = getString(R.string.player_empty)
+                renderPlayerControls(
+                    snapshot = VideoPlaybackRuntime.getSnapshot(),
+                    title = getString(R.string.player_empty),
+                    liveBadgeText = ""
+                )
             }
         }
     }
 
     private fun playChannel(channel: TvChannel) {
-        selectedChannelUrl = channel.streamUrl
         bind.mNowPlayingLabel.text = channel.name
-        bind.mOverlayTitleLabel.text = channel.name
         bind.mStatusLabel.text = "${channel.group} · ${channel.sourceLabel}"
-        bind.mLiveBadgeLabel.text = channel.group
-        player.setMediaItem(MediaItem.fromUri(channel.streamUrl))
-        player.prepare()
-        player.playWhenReady = true
-        updatePlayPauseLabel()
+        VideoPlaybackRuntime.play(channel.toPlayableMedia().mediaId)
+        renderPlayerControls(
+            snapshot = VideoPlaybackRuntime.getSnapshot(),
+            title = channel.name,
+            liveBadgeText = channel.group
+        )
         list.adapter.notifyDataSetChanged()
         showControlsTemporarily()
     }
@@ -244,7 +262,6 @@ class CctvPlayerActivity : AppCompatActivity() {
             }
             bind.mDetailContainer.visibility = View.GONE
             bind.mSwipeRefreshLayout.visibility = View.GONE
-            bind.mFullscreenIcon.setImageResource(R.drawable.ic_player_fullscreen_exit)
         } else {
             WindowCompat.setDecorFitsSystemWindows(window, true)
             WindowInsetsControllerCompat(
@@ -256,106 +273,63 @@ class CctvPlayerActivity : AppCompatActivity() {
             }
             bind.mDetailContainer.visibility = View.VISIBLE
             bind.mSwipeRefreshLayout.visibility = View.VISIBLE
-            bind.mFullscreenIcon.setImageResource(R.drawable.ic_player_fullscreen)
         }
+        renderPlayerControls(
+            snapshot = VideoPlaybackRuntime.getSnapshot(),
+            title = VideoPlaybackRuntime.getCurrentMedia()?.metadata?.title ?: getString(R.string.player_title),
+            liveBadgeText = VideoPlaybackRuntime.getCurrentMedia()?.metadata?.artist ?: "",
+            fullscreen = fullscreen
+        )
         bind.root.requestApplyInsets()
         bind.mPlayerContainer.requestLayout()
         showControlsTemporarily()
     }
 
     private fun toggleControls() {
-        setControlsVisible(!controlsVisible)
-        if (controlsVisible) {
+        val visible = !bind.mPlayerControls.areControlsVisible()
+        bind.mPlayerControls.setControlsVisible(visible)
+        if (visible) {
             autoHideControls()
         }
     }
 
-    private fun setControlsVisible(visible: Boolean) {
-        controlsVisible = visible
-        animateControls(bind.mTopScrim, visible)
-        animateControls(bind.mBottomScrim, visible)
-        animateControls(bind.mTopControls, visible)
-        animateControls(bind.mBottomControls, visible)
-    }
-
     private fun showControlsTemporarily() {
-        setControlsVisible(true)
+        bind.mPlayerControls.setControlsVisible(true)
         autoHideControls()
     }
 
     private fun autoHideControls() {
         uiHandler.removeCallbacks(hideControlsRunnable)
-        if (!isTrackingSeekBar) {
+        if (!bind.mPlayerControls.isTrackingSeekBar()) {
             uiHandler.postDelayed(hideControlsRunnable, 3000L)
         }
     }
 
-    private fun updatePlayPauseLabel() {
-        val iconRes =
-            if (player.isPlaying) R.drawable.ic_player_pause else R.drawable.ic_player_play
-        bind.mPlayPauseIcon.setImageResource(iconRes)
-        bind.mPlayPauseIcon.contentDescription =
-            getString(if (player.isPlaying) R.string.player_pause else R.string.player_play)
-    }
-
-    private fun updateProgressUi() {
-        val duration = player.duration.takeIf { it != C.TIME_UNSET && it > 0 } ?: 0L
-        val position = player.currentPosition.coerceAtLeast(0L)
-        bind.mProgressLabel.text = "${formatDuration(position)}/${formatDuration(duration)}"
-        if (!isTrackingSeekBar) {
-            bind.mSeekBar.progress =
-                if (duration > 0) ((position * 1000L) / duration).toInt() else 0
-        }
-    }
-
-    private fun formatDuration(durationMs: Long): String {
-        val totalSeconds = durationMs / 1000L
-        val hours = totalSeconds / 3600
-        val minutes = (totalSeconds % 3600) / 60
-        val seconds = totalSeconds % 60
-        return if (hours > 0) {
-            String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+    private fun bindPlaybackSnapshot(snapshot: PlaybackSnapshot) {
+        renderPlayerControls(snapshot = snapshot)
+        if (snapshot.state == PlaybackState.PLAYING) {
+            autoHideControls()
         }
     }
 
     override fun onStart() {
         super.onStart()
         uiHandler.post(progressRunnable)
+        bindPlaybackSnapshot(VideoPlaybackRuntime.getSnapshot())
     }
 
     override fun onStop() {
         uiHandler.removeCallbacks(progressRunnable)
         uiHandler.removeCallbacks(hideControlsRunnable)
+        if (VideoPlaybackRuntime.isPlaying()) {
+            VideoPlaybackRuntime.pause()
+        }
         super.onStop()
     }
 
-    private fun animateControls(target: View, visible: Boolean) {
-        target.animate().cancel()
-        if (visible) {
-            if (target.visibility != View.VISIBLE) {
-                target.alpha = 0f
-                target.visibility = View.VISIBLE
-            }
-            target.animate()
-                .alpha(1f)
-                .setDuration(180L)
-                .start()
-        } else {
-            target.animate()
-                .alpha(0f)
-                .setDuration(180L)
-                .withEndAction {
-                    target.visibility = View.GONE
-                }
-                .start()
-        }
-    }
-
     override fun onDestroy() {
+        VideoPlaybackRuntime.removeListener(playbackListener)
         bind.mPlayerView.player = null
-        player.release()
         super.onDestroy()
     }
 
@@ -371,7 +345,9 @@ class CctvPlayerActivity : AppCompatActivity() {
             title.text = channel.name
             subTitle.text = "${channel.group} · ${channel.sourceLabel}"
             badge.text = channel.group.take(4)
-            val selected = channel.streamUrl == selectedChannelUrl
+            val selected = channel.streamUrl == VideoPlaybackRuntime.getCurrentMedia()
+                ?.resolveDefaultSource()
+                ?.url
             tag.visibility = if (selected) View.VISIBLE else View.GONE
             title.setTypeface(null, if (selected) Typeface.BOLD else Typeface.NORMAL)
             card.setBackgroundResource(
@@ -384,5 +360,43 @@ class CctvPlayerActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun TvChannel.toPlayableMedia(): PlayableMedia {
+        return PlayableMedia(
+            mediaId = streamUrl,
+            mediaType = MediaType.VIDEO,
+            metadata = PlayerMediaMetadata(
+                title = name,
+                artist = group,
+                subtitle = sourceLabel
+            ),
+            playSources = listOf(
+                PlaySource(
+                    sourceId = "default",
+                    url = streamUrl
+                )
+            ),
+            defaultSourceId = "default"
+        )
+    }
+
+    private fun renderPlayerControls(
+        snapshot: PlaybackSnapshot,
+        title: String = VideoPlaybackRuntime.getCurrentMedia()?.metadata?.title ?: getString(R.string.player_title),
+        liveBadgeText: String = VideoPlaybackRuntime.getCurrentMedia()?.metadata?.artist ?: "",
+        fullscreen: Boolean = isFullscreen
+    ) {
+        bind.mPlayerControls.render(
+            VideoPlayerControl.State(
+                title = title,
+                liveBadgeText = liveBadgeText,
+                clockText = clockFormatter.format(Date()),
+                isFullscreen = fullscreen,
+                playbackState = snapshot.state,
+                positionMs = snapshot.currentPositionMs,
+                durationMs = snapshot.durationMs
+            )
+        )
     }
 }

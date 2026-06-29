@@ -36,8 +36,13 @@ object VideoPlaybackRuntime {
     fun seekTo(positionMs: Long) = core.seekTo(positionMs)
     fun updatePlaybackMode(mode: PlaybackMode) = core.updatePlaybackMode(mode)
     fun getCurrentMedia() = core.getCurrentMedia()
+    fun getCurrentIndex() = core.getCurrentIndex()
+    fun getQueue() = core.getQueue()
     fun getSnapshot(): PlaybackSnapshot = core.getSnapshot()
     fun addListener(listener: PlaybackSessionListener) = core.addListener(listener)
     fun removeListener(listener: PlaybackSessionListener) = core.removeListener(listener)
     fun getEngine(): Media3PlayerEngine = core.getEngine()
+    fun isPlaying() = core.isPlaying()
+    fun isPaused() = core.isPaused()
+    fun isBuffering() = core.isBuffering()
 }
