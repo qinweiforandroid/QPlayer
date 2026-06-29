@@ -1,36 +1,29 @@
 package com.qw.player.demo
 
+import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import com.qw.framework.ui.tools.ContainerClazz
-import com.qw.framework.ui.tools.FragmentListActivity
-import com.qw.player.demo.audio.PlayListFragment
-import com.qw.player.demo.audio.PodPlayerFragment
-import com.qw.player.demo.video.VideoPodPlayerFragment
-import java.util.*
+import com.qw.player.demo.audio.AudioPlayerFragment
+import com.qw.player.demo.video.VideoPlayerFragment
 
 class MainActivity : AppCompatActivity() {
-    private val handler = Handler(Looper.myLooper()!!)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        handler.postDelayed({ goNext() }, 500)
+        findViewById<Button>(R.id.playListButton).setOnClickListener {
+            openDemo("AudioPlayer", AudioPlayerFragment::class.java.name)
+        }
+        findViewById<Button>(R.id.videoDemoButton).setOnClickListener {
+            openDemo("VideoPlayer", VideoPlayerFragment::class.java.name)
+        }
     }
 
-    private fun goNext() {
-        val list = ArrayList<ContainerClazz>()
-        list.add(ContainerClazz("MediaPlayer", PodPlayerFragment::class.java))
-        list.add(ContainerClazz("PlayList", PlayListFragment::class.java))
-        list.add(ContainerClazz("VideoPodPlayer", VideoPodPlayerFragment::class.java))
-        FragmentListActivity.startActivity(this, list, false)
-        finish()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacksAndMessages(null)
+    private fun openDemo(title: String, fragmentClassName: String) {
+        startActivity(
+            Intent(this, FragmentHostActivity::class.java)
+                .putExtra(FragmentHostActivity.EXTRA_TITLE, title)
+                .putExtra(FragmentHostActivity.EXTRA_FRAGMENT_CLASS_NAME, fragmentClassName)
+        )
     }
 }

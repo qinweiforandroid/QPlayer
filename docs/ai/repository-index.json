@@ -1,0 +1,95 @@
+{
+  "project": {
+    "name": "QPlayer",
+    "type": "Android audio-video player",
+    "language": ["Kotlin", "Java"],
+    "build_system": "Gradle",
+    "root_files": [
+      "settings.gradle",
+      "build.gradle",
+      "nexus.gradle",
+      "AGENTS.md",
+      "README.md"
+    ]
+  },
+  "modules": [
+    {
+      "name": "app",
+      "path": "app",
+      "module_type": "android-application",
+      "responsibility": "UI pages, audio foreground service, runtime orchestration",
+      "depends_on": [
+        "player-core",
+        "player-media3"
+      ],
+      "entry_points": [
+        "app/src/main/java/com/qw/player/demo/MyApplication.kt",
+        "app/src/main/java/com/qw/player/demo/MainActivity.kt",
+        "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackRuntime.kt",
+        "app/src/main/java/com/qw/player/demo/runtime/VideoPlaybackRuntime.kt",
+        "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackService.kt"
+      ]
+    },
+    {
+      "name": "player-core",
+      "path": "player-core",
+      "module_type": "android-library",
+      "responsibility": "Playback protocol, media model, source resolution, session abstraction",
+      "depends_on": [],
+      "packages": [
+        "com.qw.player.core.common",
+        "com.qw.player.core.media",
+        "com.qw.player.core.source",
+        "com.qw.player.core.engine",
+        "com.qw.player.core.session"
+      ],
+      "key_types": [
+        "media/PlayableMedia",
+        "source/MediaSourceResolver",
+        "engine/PlayerEngine",
+        "session/PlaybackSession",
+        "session/DefaultPlaybackSession"
+      ]
+    },
+    {
+      "name": "player-media3",
+      "path": "player-media3",
+      "module_type": "android-library",
+      "responsibility": "Media3-backed playback engine implementation",
+      "depends_on": ["player-core"],
+      "key_types": [
+        "Media3PlayerEngine"
+      ]
+    }
+  ],
+  "runtime_defaults": {
+    "audio_runtime": "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackRuntime.kt",
+    "video_runtime": "app/src/main/java/com/qw/player/demo/runtime/VideoPlaybackRuntime.kt",
+    "audio_service": "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackService.kt",
+    "audio_controller": "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackController.kt",
+    "audio_notification": "app/src/main/java/com/qw/player/demo/runtime/PlaybackNotification.kt"
+  },
+  "key_flows": [
+    {
+      "name": "audio_playback",
+      "summary": "UI -> AudioPlaybackController -> AudioPlaybackService -> AudioPlaybackRuntime -> DefaultPlaybackSession -> Media3PlayerEngine"
+    },
+    {
+      "name": "video_playback",
+      "summary": "Video page -> VideoPlaybackRuntime -> DefaultPlaybackSession -> Media3PlayerEngine"
+    },
+    {
+      "name": "source_resolution",
+      "summary": "DefaultPlaybackSession -> MediaSourceResolver -> ResolvedMedia -> Media3PlayerEngine"
+    }
+  ],
+  "recommended_reading_order": [
+    "AGENTS.md",
+    "docs/ai/architecture.md",
+    "docs/ai/module-index.md",
+    "player-core/src/main/java/com/qw/player/core/engine/PlayerEngine.kt",
+    "player-core/src/main/java/com/qw/player/core/session/DefaultPlaybackSession.kt",
+    "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackRuntime.kt",
+    "player-media3/src/main/java/com/qw/player/media3/Media3PlayerEngine.kt"
+  ]
+}

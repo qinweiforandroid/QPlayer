@@ -8,21 +8,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="media_exoplayer"
+        android:text="V2 video demo"
         android:textAppearance="?attr/textAppearanceOverline" />
-
-    <Button
-        android:id="@+id/mMediaVideoBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="custom_player_view" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="media_player"
+        android:layout_marginTop="8dp"
+        android:text="media3"
         android:textAppearance="?attr/textAppearanceOverline" />
 
     <Button
@@ -30,5 +23,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="media_player" />
+        android:text="open_v2_video" />
 </LinearLayout>

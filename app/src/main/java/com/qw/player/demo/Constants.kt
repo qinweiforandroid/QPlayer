@@ -5,7 +5,5 @@ package com.qw.player.demo
  * email: qinwei_it@163.com
  */
 object Constants {
-    const val VIDEO_URL = "http://db.bbwhcmjx.cn/mp40814lihunjiujueqi1.mp4"
-//    const val VIDEO_URL = "http://db.bbwhcmjx.cn/mp40322wochengshenhao1.mp4"
-    const val VIDEO_URL2 = "http://db.bbwhcmjx.cn/mp40914jeushilongwangdian1.mp4"
+    const val VIDEO_URL = "http://10.93.0.129:8080/code/storage/object/media/uploads/e7de5360-3ddd-42da-b53c-0c9758da395a.mp4"
 }

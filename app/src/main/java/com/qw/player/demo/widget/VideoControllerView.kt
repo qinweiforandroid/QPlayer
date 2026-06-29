@@ -26,7 +26,11 @@ class VideoControllerView : ConstraintLayout {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_video_controller_view, this)
@@ -85,14 +89,5 @@ class VideoControllerView : ConstraintLayout {
 
     fun setTitle(title: String) {
         mControllerTitleLabel.text = title
-    }
-
-    override fun setVisibility(visibility: Int) {
-        super.setVisibility(visibility)
-//        if (visibility == View.VISIBLE) {
-//            postDelayed({
-//                setVisibility(View.GONE)
-//            }, 5000)
-//        }
     }
 }

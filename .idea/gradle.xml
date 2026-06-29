@@ -4,19 +4,17 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/player_core" />
-            <option value="$PROJECT_DIR$/player_media3" />
-            <option value="$PROJECT_DIR$/player_mediaplayer" />
-            <option value="$PROJECT_DIR$/player_playlist" />
+            <option value="$PROJECT_DIR$/player-core" />
+            <option value="$PROJECT_DIR$/player-media3" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

@@ -26,14 +26,15 @@
         </activity>
 
         <activity
-            android:name=".video.VideoMedia3PlayerViewActivity"
-            android:exported="true" />
+            android:name=".FragmentHostActivity"
+            android:exported="false" />
+
         <activity
-            android:name=".video.VideoCustomPlayerViewActivity"
+            android:name=".video.VideoMedia3PlayerViewActivity"
             android:exported="true" />
 
         <service
-            android:name=".service.AudioPlayService"
+            android:name=".runtime.AudioPlaybackService"
             android:exported="false" />
     </application>
 
