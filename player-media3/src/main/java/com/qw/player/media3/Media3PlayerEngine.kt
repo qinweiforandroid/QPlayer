@@ -146,9 +146,9 @@ class Media3PlayerEngine(
 
             override fun onPlayerError(error: PlaybackException) {
                 log("onPlayerError:${error.message}")
-                val kind = classifyError(error)
-                val canRetry = (kind == ERROR_KIND_NETWORK || kind == ERROR_KIND_SOURCE) &&
-                    retryAttempt < MAX_RETRY_ATTEMPTS
+                val kind = Media3ErrorClassifier.classify(error.errorCode)
+                val canRetry = Media3ErrorClassifier.isRecoverable(kind) &&
+                    retryAttempt < Media3ErrorClassifier.MAX_RETRY_ATTEMPTS
                 val playbackError = PlaybackError(
                     code = error.errorCode,
                     message = error.message ?: "Unknown playback error",
@@ -417,8 +417,7 @@ class Media3PlayerEngine(
     private fun scheduleRetry(error: PlaybackError) {
         cancelPendingRetryCallback()
         retryAttempt++
-        val attempt = retryAttempt
-        val delayMs = RETRY_BASE_DELAY_MS shl (attempt - 1)
+        val delayMs = Media3ErrorClassifier.retryDelayMs(retryAttempt)
         val media = currentMedia
         val source = currentSource
         if (media == null || source == null) {
@@ -426,13 +425,13 @@ class Media3PlayerEngine(
             listener?.onError(error, buildSnapshot())
             return
         }
-        log("scheduleRetry attempt=$attempt delayMs=$delayMs")
+        log("scheduleRetry attempt=$retryAttempt delayMs=$delayMs")
         val runnable = Runnable {
             pendingRetry = null
             if (isReleased) {
                 return@Runnable
             }
-            log("retry attempt=$attempt executing")
+            log("retry attempt=$retryAttempt executing")
             setMedia(media, source, lastKnownPositionMs)
             prepare()
             play()
@@ -542,22 +541,6 @@ class Media3PlayerEngine(
         check(!isReleased) { "Media3PlayerEngine has already been released." }
     }
 
-    private fun classifyError(error: PlaybackException): String {
-        val code = error.errorCode
-        return when {
-            code == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
-                code == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT ||
-                code == PlaybackException.ERROR_CODE_IO_NO_PERMISSION ||
-                code == PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED -> ERROR_KIND_NETWORK
-
-            code >= 2000 && code < 3000 -> ERROR_KIND_SOURCE
-            code >= 3000 && code < 4000 -> ERROR_KIND_SOURCE
-            code >= 4000 && code < 5000 -> ERROR_KIND_DECODE
-
-            else -> ERROR_KIND_UNKNOWN
-        }
-    }
-
     private fun log(msg: String) {
         PlayLog.d("Media3PlayerEngine > $msg")
     }
@@ -567,22 +550,16 @@ class Media3PlayerEngine(
         const val EXTRA_ERROR_KIND = "errorKind"
 
         /** 网络连通类错误。 */
-        const val ERROR_KIND_NETWORK = "network"
+        const val ERROR_KIND_NETWORK = Media3ErrorClassifier.ERROR_KIND_NETWORK
 
         /** 资源 / 容器 / 清单格式错误，通常等同于“视频加载失败”。 */
-        const val ERROR_KIND_SOURCE = "source"
+        const val ERROR_KIND_SOURCE = Media3ErrorClassifier.ERROR_KIND_SOURCE
 
         /** 解码失败。 */
-        const val ERROR_KIND_DECODE = "decode"
+        const val ERROR_KIND_DECODE = Media3ErrorClassifier.ERROR_KIND_DECODE
 
         /** 无法归类的错误。 */
-        const val ERROR_KIND_UNKNOWN = "unknown"
-
-        /** 可恢复错误最多自动重试次数。 */
-        const val MAX_RETRY_ATTEMPTS = 3
-
-        /** 重试退避基准间隔，按 2^(attempt-1) 递增。 */
-        const val RETRY_BASE_DELAY_MS = 1_000L
+        const val ERROR_KIND_UNKNOWN = Media3ErrorClassifier.ERROR_KIND_UNKNOWN
 
         private const val HTTP_CONNECT_TIMEOUT_MS = 10_000
         private const val HTTP_READ_TIMEOUT_MS = 15_000
