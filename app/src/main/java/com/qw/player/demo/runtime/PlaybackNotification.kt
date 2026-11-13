@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.qw.player.core.common.PlayLog
 import com.qw.player.demo.MainActivity
 import com.qw.player.demo.R
@@ -37,7 +38,13 @@ class PlaybackNotification(
             addAction(ACTION_NEXT)
             addAction(ACTION_CLOSE)
         }
-        context.registerReceiver(receiver, filter)
+        // 这些 action 只由本 App 的通知 PendingIntent 发出，不需要对外暴露。
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun unRegisterListener() {
