@@ -27,4 +27,41 @@
     <string name="player_live_badge">LIVE</string>
     <string name="player_source_button">频道</string>
     <string name="player_clock_placeholder">--:--</string>
+    <!-- 手势提示 -->
+    <string name="gesture_forward_seconds">快进 %1$d 秒</string>
+    <string name="gesture_backward_seconds">快退 %1$d 秒</string>
+    <string name="gesture_seek_total">/ %1$s</string>
+    <string name="gesture_speed_hint">%1$s 倍速播放中，松手恢复</string>
+    <string name="gesture_channel_next">下一个频道</string>
+    <string name="gesture_channel_previous">上一个频道</string>
+
+    <!-- 点播 -->
+    <string name="vod_play_button">立即播放</string>
+    <string name="vod_episodes">选集</string>
+    <string name="vod_quality">清晰度</string>
+    <string name="vod_more">更多设置</string>
+    <string name="vod_speed">倍速</string>
+    <string name="vod_mute">静音</string>
+    <string name="vod_loop">循环播放</string>
+    <string name="vod_error_network">网络错误，请检查网络连接</string>
+    <string name="vod_error_load">视频加载失败</string>
+    <string name="vod_error_retry">重试</string>
+    <string name="vod_title">点播播放器</string>
+
+    <!-- 直播 -->
+    <string name="live_channel_list">频道列表</string>
+    <string name="live_category_cctv">央视</string>
+    <string name="live_category_satellite">卫视</string>
+    <string name="live_category_local">地方台</string>
+    <string name="live_signal_lost">信号中断，正在重连…</string>
+    <string name="live_signal_lost_attempt">信号中断，正在重连…(%1$d/%2$d)</string>
+    <string name="live_switching_line">正在切换线路…</string>
+    <string name="live_all_lines_failed">所有线路均不可用，请稍后重试</string>
+    <string name="live_line">线路</string>
+    <string name="live_epg_now">正在播出：%1$s</string>
+    <string name="live_no_epg">暂无节目信息</string>
+    <string name="live_now_playing">正在播放</string>
+    <string name="live_select_channel">选择频道</string>
+    <string name="live_channel_count">共 %1$d 个频道</string>
+    <string name="live_channel_meta">%1$d 条线路</string>
 </resources>

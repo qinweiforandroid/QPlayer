@@ -14,7 +14,7 @@ import com.qw.player.media3.Media3PlayerEngine
  *
  * 特点：
  * - 不依赖音频前台 Service
- * - 不管理音频焦点
+ * - 管理音频焦点，但焦点恢复后不自动续播
  * - 生命周期由视频页面自行驱动
  */
 @SuppressLint("StaticFieldLeak")
@@ -22,10 +22,12 @@ object VideoPlaybackRuntime {
     private val core = BasePlaybackRuntime(
         runtimeName = "VideoPlaybackRuntime",
         allowBackgroundPlayback = false,
-        manageAudioFocus = false
+        manageAudioFocus = true,
+        resumeOnFocusGain = false
     )
 
     fun initialize(context: Context, resolver: MediaSourceResolver? = null) = core.initialize(context, resolver)
+    fun reset() = core.reset()
     fun setSourceResolver(resolver: MediaSourceResolver?) = core.setSourceResolver(resolver)
     fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) = core.setQueue(queue, startIndex)
     fun play(index: Int) = core.play(index)
@@ -34,6 +36,11 @@ object VideoPlaybackRuntime {
     fun pause() = core.pause(false)
     fun stop() = core.stop()
     fun seekTo(positionMs: Long) = core.seekTo(positionMs)
+    fun setPlaybackSpeed(speed: Float) = core.setPlaybackSpeed(speed)
+    fun setVolume(volume: Float) = core.setVolume(volume)
+    fun setMuted(muted: Boolean) = core.setMuted(muted)
+    fun setLooping(looping: Boolean) = core.setLooping(looping)
+    fun switchSource(sourceId: String): Boolean = core.switchSource(sourceId)
     fun updatePlaybackMode(mode: PlaybackMode) = core.updatePlaybackMode(mode)
     fun getCurrentMedia() = core.getCurrentMedia()
     fun getCurrentIndex() = core.getCurrentIndex()

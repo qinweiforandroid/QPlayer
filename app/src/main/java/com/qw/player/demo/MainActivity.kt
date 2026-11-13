@@ -5,8 +5,9 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.qw.player.demo.audio.AudioPlayerFragment
-import com.qw.player.demo.cctv.CctvPlayerActivity
+import com.qw.player.demo.cctv.CctvChannelListActivity
 import com.qw.player.demo.video.VideoPlayerFragment
+import com.qw.player.demo.vod.VodPlayerActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +20,10 @@ class MainActivity : AppCompatActivity() {
             openDemo("VideoPlayer", VideoPlayerFragment::class.java.name)
         }
         findViewById<Button>(R.id.cctvButton).setOnClickListener {
-            startActivity(Intent(this, CctvPlayerActivity::class.java))
+            startActivity(CctvChannelListActivity.intent(this))
+        }
+        findViewById<Button>(R.id.vodButton).setOnClickListener {
+            startActivity(Intent(this, VodPlayerActivity::class.java))
         }
     }
 

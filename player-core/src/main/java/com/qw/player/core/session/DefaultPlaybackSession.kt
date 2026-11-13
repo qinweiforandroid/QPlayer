@@ -35,6 +35,13 @@ class DefaultPlaybackSession : PlaybackSession {
     private var latestSnapshot: PlaybackSnapshot = PlaybackSnapshot()
     private var resolveToken: Long = 0L
 
+    /**
+     * 下一次 setMedia 使用的起播位置。
+     *
+     * 用于切换清晰度 / 线路时保持当前进度，消费后立即清零。
+     */
+    private var pendingStartPositionMs: Long = 0L
+
     private val engineListener = object : PlayerEventListener {
         override fun onStateChanged(snapshot: PlaybackSnapshot) {
             latestSnapshot = snapshot
@@ -263,7 +270,7 @@ class DefaultPlaybackSession : PlaybackSession {
                         return
                     }
                     switchCurrentMedia(mergedMedia, currentIndex)
-                    engine.setMedia(mergedMedia, source)
+                    engine.setMedia(mergedMedia, source, consumePendingStartPosition())
                     engine.prepare()
                     engine.play()
                 }
@@ -288,9 +295,20 @@ class DefaultPlaybackSession : PlaybackSession {
             )
             return
         }
-        engine.setMedia(media, source)
+        engine.setMedia(media, source, consumePendingStartPosition())
         engine.prepare()
         engine.play()
+    }
+
+    /** 设置下一次播放要使用的起播位置，消费一次后自动清零。 */
+    fun setPendingStartPosition(positionMs: Long) {
+        pendingStartPositionMs = positionMs.coerceAtLeast(0L)
+    }
+
+    private fun consumePendingStartPosition(): Long {
+        val position = pendingStartPositionMs
+        pendingStartPositionMs = 0L
+        return position
     }
 
     /**

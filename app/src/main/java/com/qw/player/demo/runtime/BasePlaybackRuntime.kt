@@ -18,14 +18,15 @@ import com.qw.player.media3.Media3PlayerEngine
 internal class BasePlaybackRuntime(
     private val runtimeName: String,
     private val allowBackgroundPlayback: Boolean,
-    private val manageAudioFocus: Boolean
+    private val manageAudioFocus: Boolean,
+    private val resumeOnFocusGain: Boolean = true
 ) {
 
     private var appContext: Context? = null
     private var engine: Media3PlayerEngine? = null
     private var session: DefaultPlaybackSession? = null
     private var audioFocusRequest: AudioFocusRequestCompat? = null
-    private var resumeOnFocusGain = true
+    private var resumeOnFocusGainFlag = resumeOnFocusGain
 
     private val runtimeListeners = linkedSetOf<PlaybackSessionListener>()
 
@@ -61,7 +62,7 @@ internal class BasePlaybackRuntime(
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             AudioManager.AUDIOFOCUS_GAIN -> {
-                if (resumeOnFocusGain) {
+                if (resumeOnFocusGainFlag) {
                     session?.resume()
                 }
             }
@@ -72,7 +73,8 @@ internal class BasePlaybackRuntime(
 
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                pause(resumeWhenFocusGain = true)
+                // 视频页要求被占用即暂停且不自动恢复，这里跟随构造配置。
+                pause(resumeWhenFocusGain = resumeOnFocusGain)
             }
         }
     }
@@ -81,7 +83,7 @@ internal class BasePlaybackRuntime(
         context: Context,
         resolver: MediaSourceResolver? = null
     ) {
-        if (appContext != null) {
+        if (engine != null) {
             if (resolver != null) {
                 session?.setSourceResolver(resolver)
             }
@@ -104,6 +106,22 @@ internal class BasePlaybackRuntime(
         }
         engine = createdEngine
         session = createdSession
+    }
+
+    /**
+     * 彻底释放 engine 与 session，但保留 application context。
+     *
+     * 下次调用 [initialize] 会重建完整的 engine / session。
+     */
+    fun reset() {
+        engine?.setListener(null)
+        engine?.release()
+        session?.release()
+        engine = null
+        session = null
+        if (manageAudioFocus) {
+            abandonAudioFocus()
+        }
     }
 
     fun setSourceResolver(resolver: MediaSourceResolver?) {
@@ -133,7 +151,7 @@ internal class BasePlaybackRuntime(
     }
 
     fun pause(resumeWhenFocusGain: Boolean = false) {
-        resumeOnFocusGain = resumeWhenFocusGain
+        resumeOnFocusGainFlag = resumeWhenFocusGain
         sessionOrThrow().pause()
     }
 
@@ -146,6 +164,46 @@ internal class BasePlaybackRuntime(
 
     fun seekTo(positionMs: Long) {
         sessionOrThrow().seekTo(positionMs)
+    }
+
+    fun setPlaybackSpeed(speed: Float) {
+        engineOrThrow().setPlaybackSpeed(speed)
+    }
+
+    fun setVolume(volume: Float) {
+        engineOrThrow().setVolume(volume)
+    }
+
+    fun setMuted(muted: Boolean) {
+        engineOrThrow().setMuted(muted)
+    }
+
+    fun setLooping(looping: Boolean) {
+        engineOrThrow().setLooping(looping)
+    }
+
+    /**
+     * 切换当前播放项的 source（清晰度 / 线路），并从当前位置重新起播。
+     *
+     * 通过回写队列里的 media 副本实现，不新增 core 协议；
+     * 当前进度通过 session 的 pending start position 透传给下一次 setMedia。
+     */
+    fun switchSource(sourceId: String): Boolean {
+        val session = sessionOrThrow()
+        val index = session.getCurrentIndex()
+        val current = session.getCurrentMedia() ?: return false
+        if (current.playSources.none { it.sourceId == sourceId }) {
+            return false
+        }
+        session.setPendingStartPosition(getSnapshot().currentPositionMs)
+        val updated = current.copy(defaultSourceId = sourceId)
+        val queue = session.getQueue().toMutableList()
+        if (index in queue.indices) {
+            queue[index] = updated
+            session.setQueue(queue, index)
+        }
+        session.play(updated)
+        return true
     }
 
     fun skipToNext() {

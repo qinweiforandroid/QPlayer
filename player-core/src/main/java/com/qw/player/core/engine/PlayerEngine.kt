@@ -49,6 +49,9 @@ interface PlayerEngine {
     /** 调整播放速度。 */
     fun setPlaybackSpeed(speed: Float)
 
+    /** 设置单曲循环（直播/多P场景不启用）。 */
+    fun setLooping(looping: Boolean)
+
     /** 设置播放器输出音量，范围为 0f..1f。 */
     fun setVolume(volume: Float)
 

@@ -129,7 +129,8 @@ class Media3PlayerEngine(
                     code = error.errorCode,
                     message = error.message ?: "Unknown playback error",
                     recoverable = false,
-                    domain = "media3"
+                    domain = "media3",
+                    extras = mapOf(EXTRA_ERROR_KIND to classifyError(error))
                 )
                 currentState = PlaybackState.ERROR
                 dispatchState()
@@ -261,6 +262,12 @@ class Media3PlayerEngine(
         dispatchState()
     }
 
+    override fun setLooping(looping: Boolean) {
+        ensureNotReleased()
+        player.repeatMode = if (looping) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+        dispatchState()
+    }
+
     override fun setVolume(volume: Float) {
         ensureNotReleased()
         player.volume = volume.coerceIn(0f, 1f)
@@ -369,7 +376,40 @@ class Media3PlayerEngine(
         check(!isReleased) { "Media3PlayerEngine has already been released." }
     }
 
+    private fun classifyError(error: PlaybackException): String {
+        val code = error.errorCode
+        return when {
+            code == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
+                code == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT ||
+                code == PlaybackException.ERROR_CODE_IO_NO_PERMISSION ||
+                code == PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED -> ERROR_KIND_NETWORK
+
+            code >= 2000 && code < 3000 -> ERROR_KIND_SOURCE
+            code >= 3000 && code < 4000 -> ERROR_KIND_SOURCE
+            code >= 4000 && code < 5000 -> ERROR_KIND_DECODE
+
+            else -> ERROR_KIND_UNKNOWN
+        }
+    }
+
     private fun log(msg: String) {
         PlayLog.d("Media3PlayerEngine > $msg")
+    }
+
+    companion object {
+        /** [PlaybackError.extras] 中的错误分类 key。 */
+        const val EXTRA_ERROR_KIND = "errorKind"
+
+        /** 网络连通类错误。 */
+        const val ERROR_KIND_NETWORK = "network"
+
+        /** 资源 / 容器 / 清单格式错误，通常等同于“视频加载失败”。 */
+        const val ERROR_KIND_SOURCE = "source"
+
+        /** 解码失败。 */
+        const val ERROR_KIND_DECODE = "decode"
+
+        /** 无法归类的错误。 */
+        const val ERROR_KIND_UNKNOWN = "unknown"
     }
 }

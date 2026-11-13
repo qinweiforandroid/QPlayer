@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mChannelCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    android:background="@drawable/bg_channel_card"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_channel_grid_item"
     android:gravity="center_vertical"
-    android:minHeight="80dp"
+    android:minHeight="66dp"
     android:orientation="horizontal"
-    android:paddingStart="14dp"
-    android:paddingTop="14dp"
-    android:paddingEnd="14dp"
-    android:paddingBottom="14dp">
+    android:paddingStart="12dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="12dp"
+    android:paddingBottom="12dp">
 
     <TextView
         android:id="@+id/mChannelBadgeLabel"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
         android:background="@drawable/bg_avatar_circle"
         android:gravity="center"
-        android:text="LIVE"
         android:textColor="@android:color/white"
-        android:textSize="11sp"
+        android:textSize="17sp"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -35,31 +33,32 @@
             android:id="@+id/mChannelNameLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@color/bili_text_primary"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/mChannelMetaLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="3dp"
             android:textColor="@color/bili_text_secondary"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/mChannelSelectedLabel"
+        android:id="@+id/mLiveBadge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_bili_tag_soft"
-        android:paddingStart="10dp"
-        android:paddingTop="6dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="6dp"
-        android:text="@string/player_selected"
+        android:paddingStart="8dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="3dp"
+        android:text="@string/player_live_badge"
         android:textColor="@color/bili_pink"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
+        android:textSize="11sp"
+        android:textStyle="bold" />
 </LinearLayout>

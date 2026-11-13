@@ -38,6 +38,16 @@
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="true" />
 
+        <activity
+            android:name=".cctv.CctvChannelListActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
+            android:exported="false" />
+
+        <activity
+            android:name=".vod.VodPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
+            android:exported="false" />
+
         <service
             android:name=".runtime.AudioPlaybackService"
             android:exported="false" />
