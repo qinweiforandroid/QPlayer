@@ -54,7 +54,7 @@ class DefaultPlaybackSessionTest {
 
         fun emitError(error: PlaybackError) {
             currentSnapshot = currentSnapshot.copy(state = PlaybackState.ERROR, error = error)
-            eventListener?.onError(error, currentSnapshot)
+            eventListener?.onError(error)
         }
     }
 
@@ -94,7 +94,7 @@ class DefaultPlaybackSessionTest {
 
         val errors = mutableListOf<PlaybackError>()
         session.addListener(object : PlaybackSessionListener {
-            override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+            override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
                 errors.add(error)
             }
         })
@@ -115,7 +115,7 @@ class DefaultPlaybackSessionTest {
 
         val errors = mutableListOf<PlaybackError>()
         session.addListener(object : PlaybackSessionListener {
-            override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+            override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
                 errors.add(error)
             }
         })
@@ -136,7 +136,7 @@ class DefaultPlaybackSessionTest {
 
         val errors = mutableListOf<PlaybackError>()
         session.addListener(object : PlaybackSessionListener {
-            override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+            override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
                 errors.add(error)
             }
         })
@@ -159,7 +159,7 @@ class DefaultPlaybackSessionTest {
 
         val errors = mutableListOf<PlaybackError>()
         session.addListener(object : PlaybackSessionListener {
-            override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+            override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
                 errors.add(error)
             }
         })
@@ -191,7 +191,7 @@ class DefaultPlaybackSessionTest {
 
         val errors = mutableListOf<PlaybackError>()
         session.addListener(object : PlaybackSessionListener {
-            override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+            override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
                 errors.add(error)
             }
         })
@@ -265,7 +265,7 @@ class DefaultPlaybackSessionTest {
 
         val errors = mutableListOf<PlaybackError>()
         session.addListener(object : PlaybackSessionListener {
-            override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+            override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
                 errors.add(error)
             }
         })

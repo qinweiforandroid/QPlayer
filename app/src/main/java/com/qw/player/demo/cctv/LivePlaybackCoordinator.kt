@@ -3,7 +3,6 @@ package com.qw.player.demo.cctv
 import android.os.Handler
 import android.os.Looper
 import com.qw.player.core.engine.PlaybackError
-import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlaySource
@@ -49,23 +48,23 @@ class LivePlaybackCoordinator(
     private val reconnectRunnable = Runnable { performReconnect() }
 
     private val sessionListener = object : PlaybackSessionListener {
-        override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
+        override fun onPlaybackStateChanged(media: PlayableMedia, state: PlaybackState) {
             if (!monitoring) {
                 return
             }
-            if (snapshot.state == PlaybackState.PLAYING ||
-                snapshot.state == PlaybackState.READY ||
-                snapshot.state == PlaybackState.BUFFERING
+            if (state == PlaybackState.PLAYING ||
+                state == PlaybackState.READY ||
+                state == PlaybackState.BUFFERING
             ) {
                 // 重新出流，重置重连状态。
-                if (reconnecting && snapshot.state == PlaybackState.PLAYING) {
+                if (reconnecting && state == PlaybackState.PLAYING) {
                     resetReconnect()
                 }
             }
-            publish(snapshot.state)
+            publish(state)
         }
 
-        override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+        override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
             if (!monitoring) {
                 return
             }

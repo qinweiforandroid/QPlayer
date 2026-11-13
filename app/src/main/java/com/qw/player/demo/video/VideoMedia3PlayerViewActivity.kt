@@ -10,7 +10,6 @@ import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.engine.PlaybackError
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
-import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.media.PlayerMediaMetadata
 import com.qw.player.core.session.RepeatMode
 import com.qw.player.demo.Constants
@@ -88,11 +87,11 @@ class VideoMedia3PlayerViewActivity : AppCompatActivity() {
     }
 
     private val sessionListener = object : PlaybackSessionListener {
-        override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
-            title = snapshot.currentMediaId ?: "Media3 V2 Player"
+        override fun onPlaybackStateChanged(media: PlayableMedia, state: com.qw.player.core.engine.PlaybackState) {
+            title = media.mediaId
         }
 
-        override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+        override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
             Toast.makeText(
                 this@VideoMedia3PlayerViewActivity,
                 error.message,

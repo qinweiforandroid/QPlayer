@@ -85,7 +85,7 @@ class Media3PlayerEngine(
         // 是为了保证不同 engine 对上层输出一致的协议形状。
         timer.setOnPodPlayerTimerListener {
             if (isPrepared && !isReleased) {
-                listener?.onProgress(buildSnapshot())
+                listener?.onProgress(currentPositionMs(), currentDurationMs())
             }
         }
         player.addListener(object : Player.Listener {
@@ -120,7 +120,7 @@ class Media3PlayerEngine(
                     timer.stop()
                     stopPlayedSegment()
                     reportResult(PlaybackTelemetry.Outcome.COMPLETED)
-                    listener?.onCompletion(buildSnapshot())
+                    listener?.onCompleted()
                 }
             }
 
@@ -158,7 +158,7 @@ class Media3PlayerEngine(
             override fun onIsLoadingChanged(isLoading: Boolean) {
                 if (isLoading) {
                     beginStallIfNeeded()
-                    listener?.onBuffering(buildSnapshot())
+                    listener?.onBufferingProgress(currentBufferedPositionMs(), currentDurationMs())
                 } else {
                     endStallIfNeeded()
                 }
@@ -187,7 +187,7 @@ class Media3PlayerEngine(
                     telemetry?.onError(buildTelemetryErrorEvent(playbackError))
                     stopPlayedSegment()
                     reportResult(PlaybackTelemetry.Outcome.FAILED, playbackError)
-                    listener?.onError(playbackError, buildSnapshot())
+                    listener?.onError(playbackError)
                 }
             }
 
@@ -369,7 +369,7 @@ class Media3PlayerEngine(
 
     override fun setListener(listener: PlayerEventListener?) {
         this.listener = listener
-        listener?.onStateChanged(buildSnapshot())
+        listener?.onStateChanged(currentState)
     }
 
     override fun setTelemetry(telemetry: PlaybackTelemetry?) {
@@ -416,16 +416,15 @@ class Media3PlayerEngine(
      * 构建内部快照，确保事件回调和主动查询拿到的是同一份状态语义。
      */
     private fun buildSnapshot(): PlaybackSnapshot {
-        val duration = player.duration.takeIf { it >= 0 } ?: 0L
         return PlaybackSnapshot(
             state = currentState,
             currentMediaId = currentMedia?.mediaId,
             currentSourceId = currentSource?.sourceId,
             isPrepared = isPrepared,
             playWhenReady = playWhenReady,
-            currentPositionMs = player.currentPosition.coerceAtLeast(0L),
-            durationMs = duration,
-            bufferedPositionMs = player.bufferedPosition.coerceAtLeast(0L),
+            currentPositionMs = currentPositionMs(),
+            durationMs = currentDurationMs(),
+            bufferedPositionMs = currentBufferedPositionMs(),
             bufferedPercent = player.bufferedPercentage,
             speed = player.playbackParameters.speed,
             volume = player.volume,
@@ -435,14 +434,19 @@ class Media3PlayerEngine(
         )
     }
 
+    private fun currentPositionMs(): Long = player.currentPosition.coerceAtLeast(0L)
+
+    private fun currentDurationMs(): Long = player.duration.takeIf { it >= 0 } ?: 0L
+
+    private fun currentBufferedPositionMs(): Long = player.bufferedPosition.coerceAtLeast(0L)
+
     private fun dispatchState() {
         if (isPrepared && currentState != PlaybackState.ERROR) {
-            lastKnownPositionMs = player.currentPosition.coerceAtLeast(0L)
+            lastKnownPositionMs = currentPositionMs()
         }
-        val snapshot = buildSnapshot()
-        listener?.onStateChanged(snapshot)
-        if (snapshot.state == PlaybackState.BUFFERING) {
-            listener?.onBuffering(snapshot)
+        listener?.onStateChanged(currentState)
+        if (currentState == PlaybackState.BUFFERING) {
+            listener?.onBufferingProgress(currentBufferedPositionMs(), currentDurationMs())
         }
     }
 
@@ -460,7 +464,7 @@ class Media3PlayerEngine(
         val source = currentSource
         if (media == null || source == null) {
             retryAttempt = 0
-            listener?.onError(error, buildSnapshot())
+            listener?.onError(error)
             return
         }
         log("scheduleRetry attempt=$retryAttempt delayMs=$delayMs")

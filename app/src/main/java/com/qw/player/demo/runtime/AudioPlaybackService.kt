@@ -13,7 +13,6 @@ import com.bumptech.glide.request.transition.Transition
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.engine.PlaybackError
 import com.qw.player.core.session.PlaybackSessionListener
-import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.demo.R
 
 /**
@@ -41,19 +40,23 @@ class AudioPlaybackService : Service() {
     private val handler = Handler(Looper.getMainLooper())
 
     private val sessionListener = object : PlaybackSessionListener {
-        override fun onCurrentMediaChanged(current: PlayableMedia?, previous: PlayableMedia?) {
+        override fun onPlaybackMediaChanged(current: PlayableMedia, previous: PlayableMedia?) {
             notifyNotificationUpdated()
         }
 
-        override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
+        override fun onPlaybackMediaCleared() {
             notifyNotificationUpdated()
         }
 
-        override fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {
+        override fun onPlaybackStateChanged(media: PlayableMedia, state: com.qw.player.core.engine.PlaybackState) {
             notifyNotificationUpdated()
         }
 
-        override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+        override fun onPlaybackCompleted(media: PlayableMedia) {
+            notifyNotificationUpdated()
+        }
+
+        override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
             notifyNotificationUpdated()
         }
     }

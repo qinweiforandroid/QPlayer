@@ -91,40 +91,41 @@ class VodPlayerActivity : AppCompatActivity() {
     }
 
     private val playbackListener = object : PlaybackSessionListener {
-        override fun onCurrentMediaChanged(current: com.qw.player.core.media.PlayableMedia?, previous: com.qw.player.core.media.PlayableMedia?) {
-            current?.let { media ->
-                // 自动连播到下一P时，页面记录的集数要跟着走。
-                val index = playlist.episodes.indexOfFirst { it.id == media.mediaId }
-                if (index >= 0 && index != currentEpisodeIndex) {
-                    currentEpisodeIndex = index
-                    selectedQualityId = media.defaultSourceId
-                        ?: playlist.episodes[index].qualities.firstOrNull()?.id
-                    buildEpisodeViews()
-                    syncCover()
-                }
-                bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
-                bind.mVodTitleLabel.text = media.metadata.title
+        override fun onPlaybackMediaChanged(current: com.qw.player.core.media.PlayableMedia, previous: com.qw.player.core.media.PlayableMedia?) {
+            // 自动连播到下一P时，页面记录的集数要跟着走。
+            val index = playlist.episodes.indexOfFirst { it.id == current.mediaId }
+            if (index >= 0 && index != currentEpisodeIndex) {
+                currentEpisodeIndex = index
+                selectedQualityId = current.defaultSourceId
+                    ?: playlist.episodes[index].qualities.firstOrNull()?.id
+                buildEpisodeViews()
+                syncCover()
             }
+            bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+            bind.mVodTitleLabel.text = current.metadata.title
         }
 
-        override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
-            if (snapshot.state != PlaybackState.ERROR) {
+        override fun onPlaybackStateChanged(media: com.qw.player.core.media.PlayableMedia, state: PlaybackState) {
+            if (state != PlaybackState.ERROR) {
                 hideError()
             }
-            bind.mPlayerControls.bindPlaybackState(snapshot.state)
-            bind.mPlayerControls.bindProgress(snapshot.currentPositionMs, snapshot.durationMs)
+            bind.mPlayerControls.bindPlaybackState(state)
+            bind.mPlayerControls.bindProgress(
+                VideoPlaybackRuntime.getSnapshot().currentPositionMs,
+                VideoPlaybackRuntime.getSnapshot().durationMs
+            )
         }
 
-        override fun onProgress(snapshot: PlaybackSnapshot) {
-            bind.mPlayerControls.bindProgress(snapshot.currentPositionMs, snapshot.durationMs)
+        override fun onPlaybackProgress(media: com.qw.player.core.media.PlayableMedia, positionMs: Long, durationMs: Long) {
+            bind.mPlayerControls.bindProgress(positionMs, durationMs)
         }
 
-        override fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {
+        override fun onPlaybackCompleted(media: com.qw.player.core.media.PlayableMedia) {
             // 多P自动连播由 session 自行推进，这里只在最后一集结束时同步 UI。
-            bind.mPlayerControls.bindPlaybackState(snapshot.state)
+            bind.mPlayerControls.bindPlaybackState(VideoPlaybackRuntime.getSnapshot().state)
         }
 
-        override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
+        override fun onPlaybackError(media: com.qw.player.core.media.PlayableMedia?, error: PlaybackError) {
             showError(error)
         }
     }

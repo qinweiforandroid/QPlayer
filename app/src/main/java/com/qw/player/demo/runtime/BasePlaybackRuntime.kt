@@ -48,39 +48,35 @@ internal class BasePlaybackRuntime(
     private val runtimeListeners = linkedSetOf<PlaybackSessionListener>()
 
     private val internalSessionListener = object : PlaybackSessionListener {
-        override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
-            runtimeListeners.forEach { it.onPlaybackChanged(snapshot) }
+        override fun onPlaybackMediaChanged(current: PlayableMedia, previous: PlayableMedia?) {
+            runtimeListeners.forEach { it.onPlaybackMediaChanged(current, previous) }
         }
 
-        override fun onProgress(snapshot: PlaybackSnapshot) {
-            runtimeListeners.forEach { it.onProgress(snapshot) }
+        override fun onPlaybackMediaCleared() {
+            runtimeListeners.forEach { it.onPlaybackMediaCleared() }
         }
 
-        override fun onBuffering(snapshot: PlaybackSnapshot) {
-            runtimeListeners.forEach { it.onBuffering(snapshot) }
+        override fun onPlaybackStateChanged(media: PlayableMedia, state: PlaybackState) {
+            runtimeListeners.forEach { it.onPlaybackStateChanged(media, state) }
         }
 
-        override fun onCurrentMediaChanged(current: PlayableMedia?, previous: PlayableMedia?) {
-            runtimeListeners.forEach { it.onCurrentMediaChanged(current, previous) }
+        override fun onPlaybackProgress(media: PlayableMedia, positionMs: Long, durationMs: Long) {
+            runtimeListeners.forEach { it.onPlaybackProgress(media, positionMs, durationMs) }
         }
 
-        override fun onQueueChanged(queue: List<PlayableMedia>, currentIndex: Int) {
-            runtimeListeners.forEach { it.onQueueChanged(queue, currentIndex) }
+        override fun onPlaybackBufferingProgress(media: PlayableMedia, bufferedPositionMs: Long) {
+            runtimeListeners.forEach { it.onPlaybackBufferingProgress(media, bufferedPositionMs) }
         }
 
-        override fun onPlaybackModeChanged(mode: PlaybackMode) {
-            runtimeListeners.forEach { it.onPlaybackModeChanged(mode) }
-        }
-
-        override fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {
-            runtimeListeners.forEach { it.onPlaybackCompleted(snapshot) }
+        override fun onPlaybackCompleted(media: PlayableMedia) {
+            runtimeListeners.forEach { it.onPlaybackCompleted(media) }
         }
 
         override fun onPlaybackError(
-            error: com.qw.player.core.engine.PlaybackError,
-            snapshot: PlaybackSnapshot
+            media: PlayableMedia?,
+            error: com.qw.player.core.engine.PlaybackError
         ) {
-            runtimeListeners.forEach { it.onPlaybackError(error, snapshot) }
+            runtimeListeners.forEach { it.onPlaybackError(media, error) }
         }
     }
 

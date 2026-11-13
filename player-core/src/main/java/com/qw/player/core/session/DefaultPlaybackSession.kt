@@ -47,34 +47,42 @@ class DefaultPlaybackSession : PlaybackSession {
     private val failedSourceIds = mutableSetOf<String>()
 
     private val engineListener = object : PlayerEventListener {
-        override fun onStateChanged(snapshot: PlaybackSnapshot) {
-            latestSnapshot = snapshot
-            notifyPlaybackChanged(snapshot)
+        override fun onStateChanged(state: PlaybackState) {
+            currentMedia?.let { notifyPlaybackStateChanged(it, state) }
         }
 
-        override fun onProgress(snapshot: PlaybackSnapshot) {
-            latestSnapshot = snapshot
-            notifyProgress(snapshot)
+        override fun onProgress(positionMs: Long, durationMs: Long) {
+            currentMedia?.let { notifyPlaybackProgress(it, positionMs, durationMs) }
         }
 
-        override fun onBuffering(snapshot: PlaybackSnapshot) {
-            latestSnapshot = snapshot
-            notifyBuffering(snapshot)
+        override fun onBufferingProgress(bufferedPositionMs: Long, durationMs: Long) {
+            currentMedia?.let { notifyPlaybackBufferingProgress(it, bufferedPositionMs) }
         }
 
-        override fun onCompletion(snapshot: PlaybackSnapshot) {
-            latestSnapshot = snapshot
-            notifyPlaybackCompleted(snapshot)
+        override fun onCompleted() {
+            currentMedia?.let { notifyPlaybackCompleted(it) }
             skipToNext(auto = true)
         }
 
-        override fun onError(error: PlaybackError, snapshot: PlaybackSnapshot) {
-            latestSnapshot = snapshot
+        override fun onError(error: PlaybackError) {
+            pullSnapshot()
             if (!error.recoverable && tryFallbackToNextSource()) {
                 return
             }
-            notifyPlaybackError(error, snapshot)
+            notifyPlaybackError(currentMedia, error)
         }
+    }
+
+    /**
+     * 从 engine 拉取最新快照。
+     *
+     * 仅用于 [tryFallbackToNextSource] 这类 session 内部降级逻辑需要的
+     * sourceId / positionMs，不用于对外的 [PlaybackSessionListener] 转发。
+     */
+    private fun pullSnapshot(): PlaybackSnapshot {
+        val snapshot = engine?.getSnapshot() ?: latestSnapshot
+        latestSnapshot = snapshot
+        return snapshot
     }
 
     override fun bindEngine(engine: PlayerEngine) {
@@ -108,9 +116,8 @@ class DefaultPlaybackSession : PlaybackSession {
                 currentMedia = null
             }
         }
-        notifyQueueChanged()
         if (previousMedia != currentMedia) {
-            notifyCurrentMediaChanged(currentMedia, previousMedia)
+            notifyMediaTransition(currentMedia, previousMedia)
         }
     }
 
@@ -128,7 +135,6 @@ class DefaultPlaybackSession : PlaybackSession {
 
     override fun updatePlaybackMode(mode: PlaybackMode) {
         playbackMode = mode
-        listeners.forEach { it.onPlaybackModeChanged(mode) }
     }
 
     override fun getPlaybackMode(): PlaybackMode {
@@ -374,48 +380,41 @@ class DefaultPlaybackSession : PlaybackSession {
         currentMedia = media
         currentIndex = newIndex
         if (previous != media) {
-            notifyCurrentMediaChanged(media, previous)
+            notifyMediaTransition(media, previous)
         }
-        notifyQueueChanged()
     }
 
-    private fun notifyQueueChanged() {
-        val queueSnapshot = queue.toList()
-        listeners.forEach { it.onQueueChanged(queueSnapshot, currentIndex) }
+    /** 根据 [current] 是否为空，分流到“切换到具体媒体”或“清空当前项”两种信号。 */
+    private fun notifyMediaTransition(current: PlayableMedia?, previous: PlayableMedia?) {
+        if (current != null) {
+            listeners.forEach { it.onPlaybackMediaChanged(current, previous) }
+        } else {
+            listeners.forEach { it.onPlaybackMediaCleared() }
+        }
     }
 
-    private fun notifyCurrentMediaChanged(current: PlayableMedia?, previous: PlayableMedia?) {
-        listeners.forEach { it.onCurrentMediaChanged(current, previous) }
+    private fun notifyPlaybackStateChanged(media: PlayableMedia, state: PlaybackState) {
+        listeners.forEach { it.onPlaybackStateChanged(media, state) }
     }
 
-    private fun notifyPlaybackChanged(snapshot: PlaybackSnapshot) {
-        listeners.forEach { it.onPlaybackChanged(snapshot) }
+    private fun notifyPlaybackProgress(media: PlayableMedia, positionMs: Long, durationMs: Long) {
+        listeners.forEach { it.onPlaybackProgress(media, positionMs, durationMs) }
     }
 
-    private fun notifyProgress(snapshot: PlaybackSnapshot) {
-        listeners.forEach { it.onProgress(snapshot) }
+    private fun notifyPlaybackBufferingProgress(media: PlayableMedia, bufferedPositionMs: Long) {
+        listeners.forEach { it.onPlaybackBufferingProgress(media, bufferedPositionMs) }
     }
 
-    private fun notifyBuffering(snapshot: PlaybackSnapshot) {
-        listeners.forEach { it.onBuffering(snapshot) }
+    private fun notifyPlaybackCompleted(media: PlayableMedia) {
+        listeners.forEach { it.onPlaybackCompleted(media) }
     }
 
-    private fun notifyPlaybackCompleted(snapshot: PlaybackSnapshot) {
-        listeners.forEach { it.onPlaybackCompleted(snapshot) }
-    }
-
-    private fun notifyPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
-        listeners.forEach { it.onPlaybackError(error, snapshot) }
+    private fun notifyPlaybackError(media: PlayableMedia?, error: PlaybackError) {
+        listeners.forEach { it.onPlaybackError(media, error) }
     }
 
     private fun notifySessionError(error: PlaybackError) {
-        val snapshot = latestSnapshot.copy(
-            state = PlaybackState.ERROR,
-            currentMediaId = currentMedia?.mediaId ?: latestSnapshot.currentMediaId,
-            error = error
-        )
-        latestSnapshot = snapshot
-        notifyPlaybackError(error, snapshot)
+        notifyPlaybackError(currentMedia, error)
     }
 
     private fun engineOrError(): PlayerEngine? {

@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.qw.player.core.engine.PlaybackError
-import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlayableMedia
@@ -137,7 +136,7 @@ class AudioPlayerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        notifySessionUpdated(AudioPlaybackRuntime.getSnapshot())
+        notifySessionUpdated(AudioPlaybackRuntime.getSnapshot().state)
         refreshCurrentMediaInfo(AudioPlaybackRuntime.getCurrentMedia())
     }
 
@@ -197,48 +196,40 @@ class AudioPlayerFragment : Fragment() {
     }
 
     private val sessionListener = object : PlaybackSessionListener {
-        override fun onQueueChanged(queue: List<PlayableMedia>, currentIndex: Int) {
-            playListAdapter.notifyDataSetChanged()
-        }
-
-        override fun onCurrentMediaChanged(current: PlayableMedia?, previous: PlayableMedia?) {
+        override fun onPlaybackMediaChanged(current: PlayableMedia, previous: PlayableMedia?) {
             refreshCurrentMediaInfo(current)
         }
 
-        override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
-            notifySessionUpdated(snapshot)
+        override fun onPlaybackStateChanged(media: PlayableMedia, state: PlaybackState) {
+            notifySessionUpdated(state)
+            playListAdapter.notifyDataSetChanged()
         }
 
-        override fun onProgress(snapshot: PlaybackSnapshot) {
-            bind.mMusicView.setMax(snapshot.durationMs.toInt().coerceAtLeast(0))
-            bind.mMusicView.setProgress(snapshot.currentPositionMs.toInt().coerceAtLeast(0))
-            bind.mMusicView.applyProgressText(snapshot.currentPositionMs, snapshot.durationMs)
+        override fun onPlaybackProgress(media: PlayableMedia, positionMs: Long, durationMs: Long) {
+            bind.mMusicView.setMax(durationMs.toInt().coerceAtLeast(0))
+            bind.mMusicView.setProgress(positionMs.toInt().coerceAtLeast(0))
+            bind.mMusicView.applyProgressText(positionMs, durationMs)
         }
 
-        override fun onBuffering(snapshot: PlaybackSnapshot) {
-            bind.mMusicView.setSecondaryProgress(snapshot.bufferedPositionMs.toInt().coerceAtLeast(0))
+        override fun onPlaybackBufferingProgress(media: PlayableMedia, bufferedPositionMs: Long) {
+            bind.mMusicView.setSecondaryProgress(bufferedPositionMs.toInt().coerceAtLeast(0))
         }
 
-        override fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {
-            notifySessionUpdated(snapshot)
-        }
-
-        override fun onPlaybackError(error: PlaybackError, snapshot: PlaybackSnapshot) {
-            notifySessionUpdated(snapshot)
+        override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
             Toast.makeText(requireContext(), error.message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun notifySessionUpdated(snapshot: PlaybackSnapshot) {
+    private fun notifySessionUpdated(state: PlaybackState) {
         if (!isAdded) {
             return
         }
-        when (snapshot.state) {
+        when (state) {
             PlaybackState.PLAYING -> bind.mMusicView.playing()
             else -> bind.mMusicView.paused()
         }
         bind.mMusicView.loading(
-            snapshot.state == PlaybackState.BUFFERING || snapshot.state == PlaybackState.PREPARING
+            state == PlaybackState.BUFFERING || state == PlaybackState.PREPARING
         )
     }
 
