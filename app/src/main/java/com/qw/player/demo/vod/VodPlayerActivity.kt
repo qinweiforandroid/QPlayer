@@ -62,6 +62,7 @@ class VodPlayerActivity : AppCompatActivity() {
     private var gestureBrightnessBase = -1f
     private var gestureVolumeBase = -1f
     private var speedBeforeLongPress = 1f
+    private var longPressSpeedActive = false
 
     private val autoHideRunnable = Runnable {
         if (!bind.mPlayerControls.isTrackingSeekBar() && !bind.mPlayerControls.arePanelsVisible()) {
@@ -137,23 +138,27 @@ class VodPlayerActivity : AppCompatActivity() {
             }
         }
 
-        override fun onDoubleTapLeft() {
-            seekBy(-FAST_SEEK_STEP_MS, forward = false)
-        }
-
-        override fun onDoubleTapRight() {
-            seekBy(FAST_SEEK_STEP_MS, forward = true)
+        override fun onDoubleTap() {
+            togglePlayPause()
         }
 
         override fun onLongPressStart() {
+            // 只在播放中才允许长按倍速快进，暂停/缓冲/加载中长按不生效。
+            if (!VideoPlaybackRuntime.isPlaying()) {
+                return
+            }
+            longPressSpeedActive = true
             speedBeforeLongPress = currentSpeed
             applySpeed(LONG_PRESS_SPEED)
             bind.mGestureHints.showSpeed(LONG_PRESS_SPEED)
         }
 
         override fun onLongPressEnd() {
+            if (!longPressSpeedActive) {
+                return
+            }
+            longPressSpeedActive = false
             applySpeed(speedBeforeLongPress)
-            bind.mGestureHints.hideSpeed()
         }
 
         override fun onSeekStart() {
@@ -408,17 +413,6 @@ class VodPlayerActivity : AppCompatActivity() {
         scheduleAutoHide()
     }
 
-    private fun seekBy(deltaMs: Long, forward: Boolean) {
-        val snapshot = VideoPlaybackRuntime.getSnapshot()
-        if (snapshot.durationMs <= 0L) {
-            return
-        }
-        val target = (snapshot.currentPositionMs + deltaMs).coerceIn(0L, snapshot.durationMs)
-        VideoPlaybackRuntime.seekTo(target)
-        bind.mPlayerControls.bindProgress(target, snapshot.durationMs)
-        bind.mGestureHints.showSeekStep((FAST_SEEK_STEP_MS / 1000).toInt(), forward)
-    }
-
     private fun applySpeed(speed: Float) {
         currentSpeed = speed
         VideoPlaybackRuntime.setPlaybackSpeed(speed)
@@ -504,7 +498,9 @@ class VodPlayerActivity : AppCompatActivity() {
             }
             bind.mDetailContainer.visibility = View.GONE
         } else {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            // 退出全屏固定回竖屏：不用 UNSPECIFIED，避免设备物理姿态是横向时
+            // 传感器判定仍停在横屏。
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
             WindowCompat.setDecorFitsSystemWindows(window, true)
             WindowInsetsControllerCompat(window, bind.root)
@@ -516,6 +512,7 @@ class VodPlayerActivity : AppCompatActivity() {
         }
         bind.mPlayerContainer.requestLayout()
         bind.mPlayerControls.bindFullscreen(fullscreen)
+        androidx.core.view.ViewCompat.requestApplyInsets(bind.mPlayerControls)
         renderControls()
     }
 
@@ -617,7 +614,6 @@ class VodPlayerActivity : AppCompatActivity() {
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     companion object {
-        private const val FAST_SEEK_STEP_MS = 10_000L
         private const val LONG_PRESS_SPEED = 2f
         private const val AUTO_HIDE_DELAY_MS = 3_000L
         private const val PROGRESS_INTERVAL_MS = 500L

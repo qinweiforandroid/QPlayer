@@ -72,66 +72,64 @@
             android:src="@drawable/ic_player_more" />
     </LinearLayout>
 
+    <!-- 底部单行：播放暂停 / 进度条 / 时间 / 全屏 -->
     <LinearLayout
         android:id="@+id/mBottomControls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="14dp"
-        android:paddingEnd="14dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
         android:paddingBottom="10dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/mPlayPauseBtn"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:background="@drawable/bg_bili_control_button"
-                android:contentDescription="@string/player_play"
-                android:padding="7dp"
-                android:src="@drawable/ic_player_play" />
-
-            <TextView
-                android:id="@+id/mTimeLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="00:00 / 00:00"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <ImageView
-                android:id="@+id/mFullscreenBtn"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:background="@drawable/bg_bili_control_button"
-                android:contentDescription="@string/player_fullscreen"
-                android:padding="8dp"
-                android:src="@drawable/ic_player_fullscreen" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/mPlayPauseBtn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_bili_control_button"
+            android:contentDescription="@string/player_play"
+            android:padding="7dp"
+            android:src="@drawable/ic_player_play" />
 
         <SeekBar
             android:id="@+id/mSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
             android:max="1000"
-            android:minHeight="20dp"
+            android:maxHeight="3dp"
+            android:minHeight="3dp"
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
-            android:progressTint="@color/bili_pink"
-            android:thumbTint="@color/bili_pink" />
+            android:progressDrawable="@drawable/player_seekbar_progress"
+            android:splitTrack="false"
+            android:thumb="@drawable/player_seekbar_thumb"
+            android:thumbOffset="0dp" />
+
+        <TextView
+            android:id="@+id/mTimeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:minWidth="78dp"
+            android:text="00:00/00:00"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/mFullscreenBtn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_bili_control_button"
+            android:contentDescription="@string/player_fullscreen"
+            android:padding="8dp"
+            android:src="@drawable/ic_player_fullscreen" />
     </LinearLayout>
 
     <!-- 清晰度面板 -->

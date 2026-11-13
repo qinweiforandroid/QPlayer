@@ -28,8 +28,6 @@
     <string name="player_source_button">频道</string>
     <string name="player_clock_placeholder">--:--</string>
     <!-- 手势提示 -->
-    <string name="gesture_forward_seconds">快进 %1$d 秒</string>
-    <string name="gesture_backward_seconds">快退 %1$d 秒</string>
     <string name="gesture_seek_total">/ %1$s</string>
     <string name="gesture_speed_hint">%1$s 倍速播放中，松手恢复</string>
     <string name="gesture_channel_next">下一个频道</string>

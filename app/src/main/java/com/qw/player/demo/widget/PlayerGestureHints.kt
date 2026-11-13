@@ -26,9 +26,6 @@ class PlayerGestureHints @JvmOverloads constructor(
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private val doubleTapHint: View
-    private val doubleTapIcon: ImageView
-    private val doubleTapLabel: TextView
     private val seekPreview: View
     private val seekTargetLabel: TextView
     private val seekTotalLabel: TextView
@@ -39,15 +36,11 @@ class PlayerGestureHints @JvmOverloads constructor(
     private val speedHint: TextView
     private val channelSwitchHint: TextView
 
-    private val hideDoubleTapRunnable = Runnable { doubleTapHint.visibility = View.GONE }
     private val hideSpeedRunnable = Runnable { speedHint.visibility = View.GONE }
     private val hideChannelRunnable = Runnable { channelSwitchHint.visibility = View.GONE }
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_player_gesture_hints, this, true)
-        doubleTapHint = findViewById(R.id.mDoubleTapHint)
-        doubleTapIcon = findViewById(R.id.mDoubleTapIcon)
-        doubleTapLabel = findViewById(R.id.mDoubleTapLabel)
         seekPreview = findViewById(R.id.mSeekPreview)
         seekTargetLabel = findViewById(R.id.mSeekTargetLabel)
         seekTotalLabel = findViewById(R.id.mSeekTotalLabel)
@@ -62,22 +55,6 @@ class PlayerGestureHints @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: android.view.MotionEvent): Boolean = false
-
-    /** 双击快进/快退提示。[forward] 为 true 时显示快进。 */
-    fun showSeekStep(seconds: Int, forward: Boolean) {
-        doubleTapIcon.setImageResource(
-            if (forward) R.drawable.ic_gesture_forward else R.drawable.ic_gesture_backward
-        )
-        doubleTapLabel.text = context.getString(
-            if (forward) R.string.gesture_forward_seconds else R.string.gesture_backward_seconds,
-            seconds
-        )
-        doubleTapHint.visibility = View.VISIBLE
-        doubleTapHint.alpha = 0f
-        doubleTapHint.animate().alpha(1f).setDuration(120L).start()
-        handler.removeCallbacks(hideDoubleTapRunnable)
-        handler.postDelayed(hideDoubleTapRunnable, 700L)
-    }
 
     /** 开始拖动进度。 */
     fun showSeekPreview(targetMs: Long, totalMs: Long) {
@@ -109,16 +86,12 @@ class PlayerGestureHints @JvmOverloads constructor(
         levelBubble.visibility = View.GONE
     }
 
-    /** 长按倍速提示。 */
+    /** 长按倍速提示：固定显示 2 秒后自动消失，和实际长按时长解耦。 */
     fun showSpeed(speed: Float) {
         speedHint.text = context.getString(R.string.gesture_speed_hint, formatSpeed(speed))
         speedHint.visibility = View.VISIBLE
         handler.removeCallbacks(hideSpeedRunnable)
-    }
-
-    fun hideSpeed() {
-        handler.removeCallbacks(hideSpeedRunnable)
-        speedHint.visibility = View.GONE
+        handler.postDelayed(hideSpeedRunnable, SPEED_HINT_DURATION_MS)
     }
 
     /** 直播切台提示。 */
@@ -132,7 +105,6 @@ class PlayerGestureHints @JvmOverloads constructor(
 
     fun clearAll() {
         handler.removeCallbacksAndMessages(null)
-        doubleTapHint.visibility = View.GONE
         seekPreview.visibility = View.GONE
         levelBubble.visibility = View.GONE
         speedHint.visibility = View.GONE
@@ -168,6 +140,8 @@ class PlayerGestureHints @JvmOverloads constructor(
     }
 
     companion object {
+        private const val SPEED_HINT_DURATION_MS = 2_000L
+
         fun formatSpeed(speed: Float): String {
             return if (speed == speed.toInt().toFloat()) {
                 "${speed.toInt()}.0x"

@@ -3,39 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 双击快进/快退 中央提示 -->
-    <LinearLayout
-        android:id="@+id/mDoubleTapHint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@drawable/bg_gesture_bubble"
-        android:gravity="center"
-        android:minWidth="132dp"
-        android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="16dp"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/mDoubleTapIcon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_gesture_forward" />
-
-        <TextView
-            android:id="@+id/mDoubleTapLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
     <!-- 拖动进度时的目标时间预览 -->
     <LinearLayout
         android:id="@+id/mSeekPreview"

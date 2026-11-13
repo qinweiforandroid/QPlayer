@@ -10,6 +10,8 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.demo.R
 import java.util.Locale
@@ -117,7 +119,7 @@ class VodPlayerControlView @JvmOverloads constructor(
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(bar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    timeLabel.text = formatTime(positionFromProgress(progress)) + " / " + formatTime(durationMs)
+                    timeLabel.text = formatProgressText(positionFromProgress(progress), durationMs)
                 }
             }
 
@@ -144,6 +146,23 @@ class VodPlayerControlView @JvmOverloads constructor(
 
         buildSpeedOptions()
         setControlsVisible(false)
+
+        val topControlsBasePaddingTop = topControls.paddingTop
+        val topScrimBaseHeight = topScrim.layoutParams.height
+        ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+            // 非全屏时系统状态栏仍占位，顶部控制栏需要让开，否则返回/标题/清晰度按钮会被压在状态栏下面点不到。
+            val statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            topControls.setPadding(
+                topControls.paddingStart,
+                topControlsBasePaddingTop + statusBarInset,
+                topControls.paddingEnd,
+                topControls.paddingBottom
+            )
+            topScrim.layoutParams = topScrim.layoutParams.apply {
+                height = topScrimBaseHeight + statusBarInset
+            }
+            insets
+        }
     }
 
     fun setActionListener(listener: ActionListener?) {
@@ -163,7 +182,7 @@ class VodPlayerControlView @JvmOverloads constructor(
     fun bindProgress(positionMs: Long, durationMs: Long) {
         this.durationMs = durationMs.coerceAtLeast(0L)
         if (!trackingSeekBar) {
-            timeLabel.text = formatTime(positionMs) + " / " + formatTime(this.durationMs)
+            timeLabel.text = formatProgressText(positionMs, this.durationMs)
             seekBar.progress = if (this.durationMs > 0L) {
                 (positionMs.coerceIn(0L, this.durationMs) * SEEK_BAR_MAX / this.durationMs).toInt()
             } else {
@@ -336,6 +355,11 @@ class VodPlayerControlView @JvmOverloads constructor(
             } else {
                 String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
             }
+        }
+
+        /** 无空格的紧凑格式，避免底栏在窄屏上换行。 */
+        fun formatProgressText(positionMs: Long, durationMs: Long): String {
+            return formatTime(positionMs) + "/" + formatTime(durationMs)
         }
     }
 }

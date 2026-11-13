@@ -42,9 +42,8 @@ class PlayerGestureLayout @JvmOverloads constructor(
     interface Listener {
         fun onSingleTap()
 
-        fun onDoubleTapLeft() {}
-
-        fun onDoubleTapRight() {}
+        /** 双击画面：点播用于切换播放/暂停。 */
+        fun onDoubleTap() {}
 
         fun onLongPressStart() {}
 
@@ -60,7 +59,6 @@ class PlayerGestureLayout @JvmOverloads constructor(
 
         fun onVolumeChange(fraction: Float) {}
         fun onVerticalDragEnd() {}
-
         fun onChannelSwipe(next: Boolean) {}
     }
 
@@ -78,6 +76,9 @@ class PlayerGestureLayout @JvmOverloads constructor(
 
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     private val swipeThreshold = resources.displayMetrics.density * CHANNEL_SWIPE_THRESHOLD_DP
+
+    /** 纵向手势从 0 拉到 100% 所需的位移，固定物理距离，不随容器高度变化。 */
+    private val verticalSpan = resources.displayMetrics.density * VERTICAL_DRAG_SPAN_DP
 
     private var drag = Drag.NONE
     private var dragging = false
@@ -104,11 +105,7 @@ class PlayerGestureLayout @JvmOverloads constructor(
                 if (mode != Mode.VOD || dragging) {
                     return false
                 }
-                if (e.x < width / 2f) {
-                    listener?.onDoubleTapLeft()
-                } else {
-                    listener?.onDoubleTapRight()
-                }
+                listener?.onDoubleTap()
                 return true
             }
 
@@ -200,16 +197,14 @@ class PlayerGestureLayout @JvmOverloads constructor(
                 listener?.onSeekPreview(seekTargetMs)
             }
 
-            Drag.BRIGHTNESS -> {
-                val fraction = (downY - event.y) / height.toFloat()
-                listener?.onBrightnessChange(fraction)
-                downY = event.y
-            }
-
-            Drag.VOLUME -> {
-                val fraction = (downY - event.y) / height.toFloat()
-                listener?.onVolumeChange(fraction)
-                downY = event.y
+            Drag.BRIGHTNESS, Drag.VOLUME -> {
+                // 相对按下点的累计位移，换算跨度固定，保证小窗和全屏手感一致。
+                val fraction = (downY - event.y) / verticalSpan
+                if (drag == Drag.BRIGHTNESS) {
+                    listener?.onBrightnessChange(fraction)
+                } else {
+                    listener?.onVolumeChange(fraction)
+                }
             }
 
             Drag.CHANNEL,
@@ -250,5 +245,8 @@ class PlayerGestureLayout @JvmOverloads constructor(
 
     companion object {
         private const val CHANNEL_SWIPE_THRESHOLD_DP = 60
+
+        /** 纵向手势从 0 拉到 100% 所需的位移，单位 dp。 */
+        private const val VERTICAL_DRAG_SPAN_DP = 240
     }
 }
