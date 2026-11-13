@@ -1,7 +1,11 @@
 package com.qw.player.demo.runtime
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
+import androidx.core.content.ContextCompat
 import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
@@ -26,7 +30,19 @@ internal class BasePlaybackRuntime(
     private var engine: Media3PlayerEngine? = null
     private var session: DefaultPlaybackSession? = null
     private var audioFocusRequest: AudioFocusRequestCompat? = null
+    private var wifiLock: android.net.wifi.WifiManager.WifiLock? = null
+    private var noisyReceiverRegistered = false
+    private var wifiLockHeld = false
     private var resumeOnFocusGainFlag = resumeOnFocusGain
+
+    private val noisyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
+                // 拔耳机 / 蓝牙断开：立即暂停，且不因焦点恢复自动续播。
+                pause(resumeWhenFocusGain = false)
+            }
+        }
+    }
 
     private val runtimeListeners = linkedSetOf<PlaybackSessionListener>()
 
@@ -106,6 +122,7 @@ internal class BasePlaybackRuntime(
         }
         engine = createdEngine
         session = createdSession
+        registerNoisyReceiver()
     }
 
     /**
@@ -119,9 +136,64 @@ internal class BasePlaybackRuntime(
         session?.release()
         engine = null
         session = null
+        unregisterNoisyReceiver()
+        releaseWifiLock()
         if (manageAudioFocus) {
             abandonAudioFocus()
         }
+    }
+
+    private fun registerNoisyReceiver() {
+        if (noisyReceiverRegistered) {
+            return
+        }
+        val context = appContext ?: return
+        ContextCompat.registerReceiver(
+            context,
+            noisyReceiver,
+            IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        noisyReceiverRegistered = true
+    }
+
+    private fun unregisterNoisyReceiver() {
+        if (!noisyReceiverRegistered) {
+            return
+        }
+        appContext?.let { runCatching { it.unregisterReceiver(noisyReceiver) } }
+        noisyReceiverRegistered = false
+    }
+
+    /**
+     * 后台音频流媒体占住 WifiLock，避免熄屏后 WiFi 进入省电模式导致缓冲中断。
+     *
+     * 只有允许后台播放的 runtime（音频）才持有；视频页不需要。
+     */
+    private fun acquireWifiLock() {
+        if (!allowBackgroundPlayback || wifiLockHeld) {
+            return
+        }
+        val context = appContext ?: return
+        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as? android.net.wifi.WifiManager
+            ?: return
+        val lock = wifiManager.createWifiLock(
+            android.net.wifi.WifiManager.WIFI_MODE_FULL_HIGH_PERF,
+            "$runtimeName:playback"
+        )
+        lock.setReferenceCounted(false)
+        wifiLock = lock
+        lock.acquire()
+        wifiLockHeld = true
+    }
+
+    private fun releaseWifiLock() {
+        if (!wifiLockHeld) {
+            return
+        }
+        runCatching { wifiLock?.release() }
+        wifiLock = null
+        wifiLockHeld = false
     }
 
     fun setSourceResolver(resolver: MediaSourceResolver?) {
@@ -134,18 +206,21 @@ internal class BasePlaybackRuntime(
 
     fun play(index: Int) {
         if (!manageAudioFocus || requestAudioFocus()) {
+            acquireWifiLock()
             sessionOrThrow().play(index)
         }
     }
 
     fun play(mediaId: String) {
         if (!manageAudioFocus || requestAudioFocus()) {
+            acquireWifiLock()
             sessionOrThrow().play(mediaId)
         }
     }
 
     fun resume() {
         if (!manageAudioFocus || requestAudioFocus()) {
+            acquireWifiLock()
             sessionOrThrow().resume()
         }
     }
@@ -153,10 +228,12 @@ internal class BasePlaybackRuntime(
     fun pause(resumeWhenFocusGain: Boolean = false) {
         resumeOnFocusGainFlag = resumeWhenFocusGain
         sessionOrThrow().pause()
+        releaseWifiLock()
     }
 
     fun stop() {
         sessionOrThrow().stop()
+        releaseWifiLock()
         if (manageAudioFocus) {
             abandonAudioFocus()
         }

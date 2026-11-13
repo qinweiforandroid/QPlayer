@@ -357,6 +357,10 @@ class CctvPlayerActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        // 页面回到前台：重建被系统销毁的 Surface 绑定。
+        if (bind.mPlayerView.player == null) {
+            bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+        }
         coordinator.resumeMonitoring()
         uiHandler.post(epgRunnable)
         renderControls()
@@ -370,6 +374,7 @@ class CctvPlayerActivity : AppCompatActivity() {
         if (VideoPlaybackRuntime.isPlaying() || VideoPlaybackRuntime.isBuffering()) {
             VideoPlaybackRuntime.pause()
         }
+        bind.mPlayerView.player = null
         super.onStop()
     }
 

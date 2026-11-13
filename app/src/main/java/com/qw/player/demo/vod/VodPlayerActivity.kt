@@ -569,6 +569,10 @@ class VodPlayerActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        // 页面回到前台：重新把 PlayerView 绑到 engine，重建 video surface。
+        if (bind.mPlayerView.player == null) {
+            bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+        }
         startProgressLoop()
         syncGestureContext(VideoPlaybackRuntime.getSnapshot())
     }
@@ -589,6 +593,8 @@ class VodPlayerActivity : AppCompatActivity() {
             VideoPlaybackRuntime.pause()
             pendingAutoPlayOnResume = false
         }
+        // 页面不可见后 Surface 可能被系统销毁，解绑避免 engine 持有悬空 surface。
+        bind.mPlayerView.player = null
         super.onStop()
     }
 
