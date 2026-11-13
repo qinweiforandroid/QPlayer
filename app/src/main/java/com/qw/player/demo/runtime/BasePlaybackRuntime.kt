@@ -52,6 +52,14 @@ internal class BasePlaybackRuntime(
             runtimeListeners.forEach { it.onPlaybackChanged(snapshot) }
         }
 
+        override fun onProgress(snapshot: PlaybackSnapshot) {
+            runtimeListeners.forEach { it.onProgress(snapshot) }
+        }
+
+        override fun onBuffering(snapshot: PlaybackSnapshot) {
+            runtimeListeners.forEach { it.onBuffering(snapshot) }
+        }
+
         override fun onCurrentMediaChanged(current: PlayableMedia?, previous: PlayableMedia?) {
             runtimeListeners.forEach { it.onCurrentMediaChanged(current, previous) }
         }

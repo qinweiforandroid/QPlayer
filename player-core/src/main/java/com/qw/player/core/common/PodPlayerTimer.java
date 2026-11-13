@@ -1,5 +1,8 @@
 package com.qw.player.core.common;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -9,6 +12,7 @@ public class PodPlayerTimer {
     private ScheduledExecutorService mExecutor;
     private Runnable mTimerTask;
     private OnPlayerTimerListener listener;
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     public void start() {
         start(REFRESH_INTERVAL_MS);
@@ -23,10 +27,11 @@ public class PodPlayerTimer {
             return;
         }
         mExecutor = Executors.newSingleThreadScheduledExecutor();
+        Runnable runnable = () -> listener.onExecute();
         mTimerTask = () -> {
-            listener.onExecute();
+            handler.post(runnable);
         };
-        mExecutor.scheduleAtFixedRate(
+        mExecutor.scheduleWithFixedDelay(
                 mTimerTask,
                 0,
                 interval_ms,

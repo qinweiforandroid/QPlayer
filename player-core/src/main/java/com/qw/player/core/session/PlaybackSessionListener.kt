@@ -20,8 +20,23 @@ interface PlaybackSessionListener {
     /** 重复 / 随机播放策略变化时回调。 */
     fun onPlaybackModeChanged(mode: PlaybackMode) {}
 
-    /** 当前会话所对应的 engine 快照变化时回调。 */
+    /** 当前会话所对应的 engine 快照变化时回调（播放状态切换，例如 PLAYING/PAUSED/ERROR）。 */
     fun onPlaybackChanged(snapshot: PlaybackSnapshot) {}
+
+    /**
+     * 缓冲开始时回调（网络卡顿、预加载等），与播放状态切换是两类不同的信号，
+     * 可能在不改变 [onPlaybackChanged] 状态的情况下单独触发。
+     * 只关心整体播放状态的消费者（通知栏、埋点等）不需要重写这个方法。
+     */
+    fun onBuffering(snapshot: PlaybackSnapshot) {}
+
+    /**
+     * 播放进度定时更新时回调（默认 1 秒一次）。
+     *
+     * 只关心状态变化、不需要逐秒刷新的消费者（通知栏、埋点等）不要重写这个方法，
+     * 避免被进度 tick 刷屏。
+     */
+    fun onProgress(snapshot: PlaybackSnapshot) {}
 
     /** 当前 item 在会话内播放完成时回调。 */
     fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {}

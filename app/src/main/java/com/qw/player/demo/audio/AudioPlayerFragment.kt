@@ -12,12 +12,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.qw.player.core.engine.PlaybackError
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlayableMedia
+import com.qw.player.core.media.PlaySource
 import com.qw.player.core.media.PlayerMediaMetadata
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
@@ -53,27 +53,25 @@ class AudioPlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         bind.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         bind.recyclerView.adapter = playListAdapter
-        bind.mMusicView.setOnMusicPlayStateClickListener(
-            View.OnClickListener {
-                when (AudioPlaybackRuntime.getSnapshot().state) {
-                    PlaybackState.PLAYING,
-                    PlaybackState.BUFFERING,
-                    PlaybackState.PREPARING -> AudioPlaybackController.pause(requireContext())
+        bind.mMusicView.setOnMusicPlayStateClickListener {
+            when (AudioPlaybackRuntime.getSnapshot().state) {
+                PlaybackState.PLAYING,
+                PlaybackState.BUFFERING,
+                PlaybackState.PREPARING -> AudioPlaybackController.pause(requireContext())
 
-                    PlaybackState.PAUSED,
-                    PlaybackState.READY -> AudioPlaybackController.resume(requireContext())
+                PlaybackState.PAUSED,
+                PlaybackState.READY -> AudioPlaybackController.resume(requireContext())
 
-                    else -> AudioPlaybackController.play(
-                        requireContext(),
-                        if (AudioPlaybackRuntime.getCurrentIndex() >= 0) {
-                            AudioPlaybackRuntime.getCurrentIndex()
-                        } else {
-                            0
-                        }
-                    )
-                }
+                else -> AudioPlaybackController.play(
+                    requireContext(),
+                    if (AudioPlaybackRuntime.getCurrentIndex() >= 0) {
+                        AudioPlaybackRuntime.getCurrentIndex()
+                    } else {
+                        0
+                    }
+                )
             }
-        )
+        }
         bind.mMusicView.setOnSeekChangedListener(object : MusicView.OnSeekChangedListener {
             override fun onSeekChanged(seekBar: SeekBar) {
                 AudioPlaybackRuntime.seekTo(seekBar.progress.toLong())
@@ -140,6 +138,7 @@ class AudioPlayerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         notifySessionUpdated(AudioPlaybackRuntime.getSnapshot())
+        refreshCurrentMediaInfo(AudioPlaybackRuntime.getCurrentMedia())
     }
 
     override fun onDestroyView() {
@@ -183,9 +182,6 @@ class AudioPlayerFragment : Fragment() {
             itemBinding.mMusicStateImg.setOnClickListener {
                 AudioPlaybackController.play(requireContext(), bindingAdapterPosition)
             }
-            Glide.with(itemView)
-                .load(media.metadata.coverUrl)
-                .into(itemBinding.mMusicCoverImg)
             itemBinding.mMusicTitleLabel.text = media.metadata.title
             itemBinding.mMusicAuthorLabel.text = media.metadata.artist
             val isCurrent = AudioPlaybackRuntime.getCurrentIndex() == position
@@ -205,8 +201,22 @@ class AudioPlayerFragment : Fragment() {
             playListAdapter.notifyDataSetChanged()
         }
 
+        override fun onCurrentMediaChanged(current: PlayableMedia?, previous: PlayableMedia?) {
+            refreshCurrentMediaInfo(current)
+        }
+
         override fun onPlaybackChanged(snapshot: PlaybackSnapshot) {
             notifySessionUpdated(snapshot)
+        }
+
+        override fun onProgress(snapshot: PlaybackSnapshot) {
+            bind.mMusicView.setMax(snapshot.durationMs.toInt().coerceAtLeast(0))
+            bind.mMusicView.setProgress(snapshot.currentPositionMs.toInt().coerceAtLeast(0))
+            bind.mMusicView.applyProgressText(snapshot.currentPositionMs, snapshot.durationMs)
+        }
+
+        override fun onBuffering(snapshot: PlaybackSnapshot) {
+            bind.mMusicView.setSecondaryProgress(snapshot.bufferedPositionMs.toInt().coerceAtLeast(0))
         }
 
         override fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {
@@ -223,7 +233,6 @@ class AudioPlayerFragment : Fragment() {
         if (!isAdded) {
             return
         }
-        playListAdapter.notifyDataSetChanged()
         when (snapshot.state) {
             PlaybackState.PLAYING -> bind.mMusicView.playing()
             else -> bind.mMusicView.paused()
@@ -231,19 +240,21 @@ class AudioPlayerFragment : Fragment() {
         bind.mMusicView.loading(
             snapshot.state == PlaybackState.BUFFERING || snapshot.state == PlaybackState.PREPARING
         )
-        bind.mMusicView.setMax(snapshot.durationMs.toInt().coerceAtLeast(0))
-        bind.mMusicView.setProgress(snapshot.currentPositionMs.toInt().coerceAtLeast(0))
-        bind.mMusicView.setSecondaryProgress(snapshot.bufferedPositionMs.toInt().coerceAtLeast(0))
-        bind.mMusicView.applyProgressText(snapshot.currentPositionMs, snapshot.durationMs)
+    }
 
-        val current = AudioPlaybackRuntime.getCurrentMedia()
-        if (current != null) {
-            bind.mMusicView.setCover(current.metadata.coverUrl)
-                .setName(current.metadata.title)
-                .setSinger(current.metadata.artist)
-                .setUrl(current.resolveDefaultSource()?.url ?: "")
-                .notifyDataChanged()
+    /**
+     * 封面 / 标题 / 歌手 / 播放地址只在当前曲目切换时才需要刷新，
+     * 不应该跟着每秒一次的进度回调一起重复触发（尤其是封面的 Glide 加载）。
+     */
+    private fun refreshCurrentMediaInfo(current: PlayableMedia?) {
+        if (!isAdded || current == null) {
+            return
         }
+        bind.mMusicView.setCover(current.metadata.coverUrl)
+            .setName(current.metadata.title)
+            .setSinger(current.metadata.artist)
+            .setUrl(current.resolveDefaultSource()?.url ?: "")
+            .notifyDataChanged()
     }
 
     private fun createDemoQueue(): List<PlayableMedia> {
@@ -256,7 +267,14 @@ class AudioPlayerFragment : Fragment() {
                     subtitle = "列表播放示例",
                     artist = "QPlayer",
                     coverUrl = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=558639239,778636013&fm=26&gp=0.jpg"
-                )
+                ),
+                playSources = listOf(
+                    PlaySource(
+                        sourceId = "default",
+                        url = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+                    )
+                ),
+                defaultSourceId = "default"
             ),
             PlayableMedia(
                 mediaId = "v2-list-2",
@@ -266,7 +284,14 @@ class AudioPlayerFragment : Fragment() {
                     subtitle = "自动切歌示例",
                     artist = "QPlayer",
                     coverUrl = "https://dss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1166503026,41947489&fm=26&gp=0.jpg"
-                )
+                ),
+                playSources = listOf(
+                    PlaySource(
+                        sourceId = "default",
+                        url = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+                    )
+                ),
+                defaultSourceId = "default"
             ),
             PlayableMedia(
                 mediaId = "v2-list-3",
@@ -276,7 +301,14 @@ class AudioPlayerFragment : Fragment() {
                     subtitle = "随机 / 循环示例",
                     artist = "QPlayer",
                     coverUrl = "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1475331839,2066156315&fm=26&gp=0.jpg"
-                )
+                ),
+                playSources = listOf(
+                    PlaySource(
+                        sourceId = "default",
+                        url = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+                    )
+                ),
+                defaultSourceId = "default"
             )
         )
     }

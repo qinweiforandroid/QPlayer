@@ -1,9 +1,5 @@
 package com.qw.player.core.engine
 
-import com.qw.player.core.engine.PlaybackError
-import com.qw.player.core.engine.PlaybackState
-import com.qw.player.core.engine.VideoSize
-
 /**
  * 播放器运行时快照。
  *

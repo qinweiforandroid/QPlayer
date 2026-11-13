@@ -1,5 +1,6 @@
 package com.qw.player.core.session
 
+import com.qw.player.core.common.PlayLog
 import com.qw.player.core.engine.PlaybackError
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
@@ -53,12 +54,12 @@ class DefaultPlaybackSession : PlaybackSession {
 
         override fun onProgress(snapshot: PlaybackSnapshot) {
             latestSnapshot = snapshot
-            notifyPlaybackChanged(snapshot)
+            notifyProgress(snapshot)
         }
 
         override fun onBuffering(snapshot: PlaybackSnapshot) {
             latestSnapshot = snapshot
-            notifyPlaybackChanged(snapshot)
+            notifyBuffering(snapshot)
         }
 
         override fun onCompletion(snapshot: PlaybackSnapshot) {
@@ -389,6 +390,14 @@ class DefaultPlaybackSession : PlaybackSession {
 
     private fun notifyPlaybackChanged(snapshot: PlaybackSnapshot) {
         listeners.forEach { it.onPlaybackChanged(snapshot) }
+    }
+
+    private fun notifyProgress(snapshot: PlaybackSnapshot) {
+        listeners.forEach { it.onProgress(snapshot) }
+    }
+
+    private fun notifyBuffering(snapshot: PlaybackSnapshot) {
+        listeners.forEach { it.onBuffering(snapshot) }
     }
 
     private fun notifyPlaybackCompleted(snapshot: PlaybackSnapshot) {

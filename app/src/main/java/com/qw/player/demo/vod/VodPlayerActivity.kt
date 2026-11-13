@@ -115,6 +115,10 @@ class VodPlayerActivity : AppCompatActivity() {
             bind.mPlayerControls.bindProgress(snapshot.currentPositionMs, snapshot.durationMs)
         }
 
+        override fun onProgress(snapshot: PlaybackSnapshot) {
+            bind.mPlayerControls.bindProgress(snapshot.currentPositionMs, snapshot.durationMs)
+        }
+
         override fun onPlaybackCompleted(snapshot: PlaybackSnapshot) {
             // 多P自动连播由 session 自行推进，这里只在最后一集结束时同步 UI。
             bind.mPlayerControls.bindPlaybackState(snapshot.state)
