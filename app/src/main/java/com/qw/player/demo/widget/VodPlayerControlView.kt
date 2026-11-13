@@ -8,10 +8,11 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
-import android.widget.Switch
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.demo.R
 import java.util.Locale
@@ -62,15 +63,15 @@ class VodPlayerControlView @JvmOverloads constructor(
     private val titleLabel: TextView
     private val qualityBtn: TextView
     private val moreBtn: View
-    private val playPauseBtn: ImageView
+    private val playPauseBtn: MaterialButton
     private val timeLabel: TextView
-    private val fullscreenBtn: ImageView
+    private val fullscreenBtn: MaterialButton
     private val seekBar: SeekBar
     private val qualityPanel: LinearLayout
     private val morePanel: View
     private val speedGroup: LinearLayout
-    private val muteSwitch: Switch
-    private val loopSwitch: Switch
+    private val muteSwitch: MaterialSwitch
+    private val loopSwitch: MaterialSwitch
     private val muteIcon: ImageView
 
     private var actionListener: ActionListener? = null
@@ -195,14 +196,14 @@ class VodPlayerControlView @JvmOverloads constructor(
         val playing = state == PlaybackState.PLAYING ||
             state == PlaybackState.BUFFERING ||
             state == PlaybackState.PREPARING
-        playPauseBtn.setImageResource(if (playing) R.drawable.ic_player_pause else R.drawable.ic_player_play)
+        playPauseBtn.setIconResource(if (playing) R.drawable.ic_player_pause else R.drawable.ic_player_play)
         playPauseBtn.contentDescription = context.getString(
             if (playing) R.string.player_pause else R.string.player_play
         )
     }
 
     fun bindFullscreen(fullscreen: Boolean) {
-        fullscreenBtn.setImageResource(
+        fullscreenBtn.setIconResource(
             if (fullscreen) R.drawable.ic_player_fullscreen_exit else R.drawable.ic_player_fullscreen
         )
     }

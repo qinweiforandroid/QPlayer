@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -27,14 +28,14 @@
         android:paddingEnd="14dp"
         android:paddingBottom="12dp">
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mBackBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="38dp"
             android:layout_height="38dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/player_back"
-            android:padding="9dp"
-            android:src="@drawable/ic_player_back" />
+            app:icon="@drawable/ic_player_back"
+            app:iconSize="20dp" />
 
         <TextView
             android:id="@+id/mTitleLabel"
@@ -49,27 +50,22 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mQualityBtn"
+            style="@style/Widget.QPlayer.Button.PlayerText"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
-            android:background="@drawable/bg_bili_control_button"
-            android:gravity="center"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:text="@string/vod_quality"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
+            android:text="@string/vod_quality" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mMoreBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/vod_more"
-            android:padding="9dp"
-            android:src="@drawable/ic_player_more" />
+            app:icon="@drawable/ic_player_more"
+            app:iconSize="20dp" />
     </LinearLayout>
 
     <!-- 底部单行：播放暂停 / 进度条 / 时间 / 全屏 -->
@@ -85,14 +81,14 @@
         android:paddingEnd="12dp"
         android:paddingBottom="10dp">
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mPlayPauseBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/player_play"
-            android:padding="7dp"
-            android:src="@drawable/ic_player_play" />
+            app:icon="@drawable/ic_player_play"
+            app:iconSize="18dp" />
 
         <SeekBar
             android:id="@+id/mSeekBar"
@@ -121,15 +117,15 @@
             android:textSize="12sp"
             android:textStyle="bold" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mFullscreenBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="6dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/player_fullscreen"
-            android:padding="8dp"
-            android:src="@drawable/ic_player_fullscreen" />
+            app:icon="@drawable/ic_player_fullscreen"
+            app:iconSize="18dp" />
     </LinearLayout>
 
     <!-- 清晰度面板 -->
@@ -203,7 +199,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/mMuteSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -232,7 +228,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
-            <Switch
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/mLoopSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

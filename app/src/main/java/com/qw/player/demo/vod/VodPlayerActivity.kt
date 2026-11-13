@@ -506,7 +506,7 @@ class VodPlayerActivity : AppCompatActivity() {
             WindowInsetsControllerCompat(window, bind.root)
                 .show(WindowInsetsCompat.Type.systemBars())
             bind.mPlayerContainer.layoutParams = bind.mPlayerContainer.layoutParams.apply {
-                height = resources.getDimensionPixelSize(R.dimen.player_bili_height)
+                height = resources.getDimensionPixelSize(R.dimen.player_video_height)
             }
             bind.mDetailContainer.visibility = View.VISIBLE
         }

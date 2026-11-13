@@ -5,9 +5,9 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.google.android.material.button.MaterialButton
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.demo.R
 
@@ -56,11 +56,11 @@ class LivePlayerControlView @JvmOverloads constructor(
     private val channelListBtn: View
     private val channelNameLabel: TextView
     private val epgLabel: TextView
-    private val playPauseBtn: ImageView
+    private val playPauseBtn: MaterialButton
     private val lineBtn: TextView
-    private val volumeBtn: ImageView
-    private val brightnessBtn: ImageView
-    private val fullscreenBtn: ImageView
+    private val volumeBtn: MaterialButton
+    private val brightnessBtn: MaterialButton
+    private val fullscreenBtn: MaterialButton
     private val linePanel: LinearLayout
 
     private var actionListener: ActionListener? = null
@@ -127,20 +127,20 @@ class LivePlayerControlView @JvmOverloads constructor(
         val playing = state == PlaybackState.PLAYING ||
             state == PlaybackState.BUFFERING ||
             state == PlaybackState.PREPARING
-        playPauseBtn.setImageResource(if (playing) R.drawable.ic_player_pause else R.drawable.ic_player_play)
+        playPauseBtn.setIconResource(if (playing) R.drawable.ic_player_pause else R.drawable.ic_player_play)
         playPauseBtn.contentDescription = context.getString(
             if (playing) R.string.player_pause else R.string.player_play
         )
     }
 
     fun bindFullscreen(fullscreen: Boolean) {
-        fullscreenBtn.setImageResource(
+        fullscreenBtn.setIconResource(
             if (fullscreen) R.drawable.ic_player_fullscreen_exit else R.drawable.ic_player_fullscreen
         )
     }
 
     fun bindVolume(muted: Boolean) {
-        volumeBtn.setImageResource(if (muted) R.drawable.ic_player_muted else R.drawable.ic_player_volume)
+        volumeBtn.setIconResource(if (muted) R.drawable.ic_player_muted else R.drawable.ic_player_volume)
     }
 
     fun setControlsVisible(visible: Boolean) {

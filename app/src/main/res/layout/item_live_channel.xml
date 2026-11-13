@@ -52,7 +52,7 @@
         android:id="@+id/mLiveBadge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_bili_tag_soft"
+        android:background="@drawable/bg_tag_soft"
         android:paddingStart="8dp"
         android:paddingTop="3dp"
         android:paddingEnd="8dp"

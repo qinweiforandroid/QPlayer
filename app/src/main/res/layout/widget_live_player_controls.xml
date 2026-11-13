@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -27,14 +28,14 @@
         android:paddingEnd="14dp"
         android:paddingBottom="12dp">
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mBackBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="38dp"
             android:layout_height="38dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/player_back"
-            android:padding="9dp"
-            android:src="@drawable/ic_player_back" />
+            app:icon="@drawable/ic_player_back"
+            app:iconSize="20dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -65,14 +66,14 @@
                 android:visibility="gone" />
         </LinearLayout>
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mChannelListBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="38dp"
             android:layout_height="38dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/live_channel_list"
-            android:padding="9dp"
-            android:src="@drawable/ic_player_list" />
+            app:icon="@drawable/ic_player_list"
+            app:iconSize="20dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -87,61 +88,56 @@
         android:paddingEnd="14dp"
         android:paddingBottom="14dp">
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mPlayPauseBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="34dp"
             android:layout_height="34dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/player_play"
-            android:padding="7dp"
-            android:src="@drawable/ic_player_play" />
+            app:icon="@drawable/ic_player_play"
+            app:iconSize="18dp" />
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mLineBtn"
+            style="@style/Widget.QPlayer.Button.PlayerText"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:layout_marginStart="10dp"
-            android:background="@drawable/bg_bili_control_button"
-            android:gravity="center"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:text="@string/live_line"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
+            android:text="@string/live_line" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mVolumeBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="34dp"
             android:layout_height="34dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/vod_mute"
-            android:padding="8dp"
-            android:src="@drawable/ic_player_volume" />
+            app:icon="@drawable/ic_player_volume"
+            app:iconSize="18dp" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mBrightnessBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="34dp"
             android:layout_height="34dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@null"
-            android:padding="8dp"
-            android:src="@drawable/ic_player_brightness" />
+            app:icon="@drawable/ic_player_brightness"
+            app:iconSize="18dp" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mFullscreenBtn"
+            style="@style/Widget.QPlayer.Button.PlayerIcon"
             android:layout_width="34dp"
             android:layout_height="34dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_bili_control_button"
             android:contentDescription="@string/player_fullscreen"
-            android:padding="8dp"
-            android:src="@drawable/ic_player_fullscreen" />
+            app:icon="@drawable/ic_player_fullscreen"
+            app:iconSize="18dp" />
     </LinearLayout>
 
     <LinearLayout

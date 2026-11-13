@@ -14,7 +14,7 @@
         <com.qw.player.demo.widget.PlayerGestureLayout
             android:id="@+id/mPlayerContainer"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/player_bili_height"
+            android:layout_height="@dimen/player_video_height"
             android:background="@android:color/black"
             android:keepScreenOn="true">
 
@@ -47,10 +47,12 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <ProgressBar
+                <com.google.android.material.progressindicator.CircularProgressIndicator
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:indeterminateTint="@android:color/white" />
+                    android:indeterminate="true"
+                    app:indicatorColor="@android:color/white"
+                    app:trackThickness="3dp" />
 
                 <TextView
                     android:id="@+id/mReconnectLabel"
@@ -90,20 +92,14 @@
                 android:textColor="@color/qp_text_secondary"
                 android:textSize="13sp" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/mSwitchChannelBtn"
+                style="@style/Widget.Material3Expressive.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:background="@drawable/bg_bili_follow"
-                android:paddingStart="20dp"
-                android:paddingTop="9dp"
-                android:paddingEnd="20dp"
-                android:paddingBottom="9dp"
                 android:text="@string/live_select_channel"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                app:backgroundTint="@color/qp_accent" />
         </LinearLayout>
     </LinearLayout>
 

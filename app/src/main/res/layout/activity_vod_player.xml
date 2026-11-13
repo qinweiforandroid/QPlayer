@@ -9,7 +9,7 @@
     <com.qw.player.demo.widget.PlayerGestureLayout
         android:id="@+id/mPlayerContainer"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/player_bili_height"
+        android:layout_height="@dimen/player_video_height"
         android:background="@android:color/black"
         android:keepScreenOn="true">
 
@@ -78,20 +78,14 @@
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/mRetryBtn"
+                style="@style/Widget.Material3Expressive.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_bili_follow"
-                android:paddingStart="28dp"
-                android:paddingTop="9dp"
-                android:paddingEnd="28dp"
-                android:paddingBottom="9dp"
                 android:text="@string/vod_error_retry"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                app:backgroundTint="@color/qp_accent" />
         </LinearLayout>
     </com.qw.player.demo.widget.PlayerGestureLayout>
 
