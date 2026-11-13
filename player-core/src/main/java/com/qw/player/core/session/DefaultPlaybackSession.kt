@@ -42,6 +42,9 @@ class DefaultPlaybackSession : PlaybackSession {
      */
     private var pendingStartPositionMs: Long = 0L
 
+    /** 当前媒体内已经尝试过（并失败）的 source id，媒体切换时清空。 */
+    private val failedSourceIds = mutableSetOf<String>()
+
     private val engineListener = object : PlayerEventListener {
         override fun onStateChanged(snapshot: PlaybackSnapshot) {
             latestSnapshot = snapshot
@@ -66,6 +69,9 @@ class DefaultPlaybackSession : PlaybackSession {
 
         override fun onError(error: PlaybackError, snapshot: PlaybackSnapshot) {
             latestSnapshot = snapshot
+            if (!error.recoverable && tryFallbackToNextSource()) {
+                return
+            }
             notifyPlaybackError(error, snapshot)
         }
     }
@@ -249,6 +255,7 @@ class DefaultPlaybackSession : PlaybackSession {
      * 2. 没有 resolver 时，退化为直接使用 media 自带 source
      */
     private fun resolveAndPlay(media: PlayableMedia) {
+        failedSourceIds.clear()
         val engine = engineOrError() ?: return
         val requestId = ++resolveToken
         val resolver = this.resolver
@@ -265,6 +272,15 @@ class DefaultPlaybackSession : PlaybackSession {
                             PlaybackError(
                                 code = -1,
                                 message = "Resolver 未返回可用 source"
+                            )
+                        )
+                        return
+                    }
+                    if (source.isExpired(System.currentTimeMillis())) {
+                        notifySessionError(
+                            PlaybackError(
+                                code = -1,
+                                message = "Resolver 返回的 source 已过期: ${source.sourceId}"
                             )
                         )
                         return
@@ -295,6 +311,15 @@ class DefaultPlaybackSession : PlaybackSession {
             )
             return
         }
+        if (source.isExpired(System.currentTimeMillis())) {
+            notifySessionError(
+                PlaybackError(
+                    code = -1,
+                    message = "当前 source 已过期: ${source.sourceId}"
+                )
+            )
+            return
+        }
         engine.setMedia(media, source, consumePendingStartPosition())
         engine.prepare()
         engine.play()
@@ -309,6 +334,24 @@ class DefaultPlaybackSession : PlaybackSession {
         val position = pendingStartPositionMs
         pendingStartPositionMs = 0L
         return position
+    }
+
+    /**
+     * 当前 source 不可恢复失败后，尝试同一媒体下的下一条未失败过的 source。
+     *
+     * 返回 true 表示已经发起了降级播放，调用方不应再把这次错误上抛给外部监听者。
+     */
+    private fun tryFallbackToNextSource(): Boolean {
+        val media = currentMedia ?: return false
+        val engine = this.engine ?: return false
+        val snapshot = latestSnapshot
+        snapshot.currentSourceId?.let { failedSourceIds.add(it) }
+        val nextSource = media.playSources.firstOrNull { it.sourceId !in failedSourceIds } ?: return false
+        val resumePositionMs = snapshot.currentPositionMs.coerceAtLeast(0L)
+        engine.setMedia(media, nextSource, resumePositionMs)
+        engine.prepare()
+        engine.play()
+        return true
     }
 
     /**

@@ -10,8 +10,10 @@ QPlayer 当前是“一套核心协议 + 一套 Media3 内核 + 两套 runtime�
 UI Layer
 └── app
     ├── AudioPlayerFragment
-    ├── PlayListFragment
-    ├── VideoMedia3PlayerViewActivity
+    ├── VideoPlayerFragment
+    ├── VodPlayerActivity
+    ├── CctvChannelListActivity
+    ├── CctvPlayerActivity
     ├── AudioPlaybackService
     ├── PlaybackNotification
     ├── AudioPlaybackRuntime

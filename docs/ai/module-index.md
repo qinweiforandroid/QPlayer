@@ -5,7 +5,8 @@
 职责：
 
 - 音频播放页
-- 列表播放页
+- 点播播放页
+- 直播频道列表与播放页
 - 视频播放页
 - 音频前台 Service
 - 音频 / 视频双 runtime
@@ -15,8 +16,10 @@
 - `app/src/main/java/com/qw/player/demo/MyApplication.kt`
 - `app/src/main/java/com/qw/player/demo/MainActivity.kt`
 - `app/src/main/java/com/qw/player/demo/audio/AudioPlayerFragment.kt`
-- `app/src/main/java/com/qw/player/demo/audio/PlayListFragment.kt`
-- `app/src/main/java/com/qw/player/demo/video/VideoMedia3PlayerViewActivity.kt`
+- `app/src/main/java/com/qw/player/demo/video/VideoPlayerFragment.kt`
+- `app/src/main/java/com/qw/player/demo/vod/VodPlayerActivity.kt`
+- `app/src/main/java/com/qw/player/demo/cctv/CctvChannelListActivity.kt`
+- `app/src/main/java/com/qw/player/demo/cctv/CctvPlayerActivity.kt`
 - `app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackRuntime.kt`
 - `app/src/main/java/com/qw/player/demo/runtime/VideoPlaybackRuntime.kt`
 - `app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackService.kt`

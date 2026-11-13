@@ -27,7 +27,10 @@
         "app/src/main/java/com/qw/player/demo/MainActivity.kt",
         "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackRuntime.kt",
         "app/src/main/java/com/qw/player/demo/runtime/VideoPlaybackRuntime.kt",
-        "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackService.kt"
+        "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackService.kt",
+        "app/src/main/java/com/qw/player/demo/vod/VodPlayerActivity.kt",
+        "app/src/main/java/com/qw/player/demo/cctv/CctvChannelListActivity.kt",
+        "app/src/main/java/com/qw/player/demo/cctv/CctvPlayerActivity.kt"
       ]
     },
     {

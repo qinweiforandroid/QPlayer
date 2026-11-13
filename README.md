@@ -11,7 +11,8 @@ QPlayer 是一个基于 Android 的音视频播放器工程，当前主架构已
   - 基于 Media3 的播放内核实现
 - `app`
   - 音频播放页
-  - 音频列表播放页
+  - 点播播放页
+  - 直播频道列表 / 播放页
   - 视频播放页
   - 音频前台 Service
   - 音频 / 视频双 runtime
@@ -147,8 +148,10 @@ QPlayer/
 - App 启动入口: `app/src/main/java/com/qw/player/demo/MyApplication.kt`
 - Demo 首页: `app/src/main/java/com/qw/player/demo/MainActivity.kt`
 - 音频播放页: `app/src/main/java/com/qw/player/demo/audio/AudioPlayerFragment.kt`
-- 列表播放页: `app/src/main/java/com/qw/player/demo/audio/PlayListFragment.kt`
-- 视频播放页: `app/src/main/java/com/qw/player/demo/video/VideoMedia3PlayerViewActivity.kt`
+- 视频播放页: `app/src/main/java/com/qw/player/demo/video/VideoPlayerFragment.kt`
+- 点播播放页: `app/src/main/java/com/qw/player/demo/vod/VodPlayerActivity.kt`
+- 直播频道列表: `app/src/main/java/com/qw/player/demo/cctv/CctvChannelListActivity.kt`
+- 直播播放页: `app/src/main/java/com/qw/player/demo/cctv/CctvPlayerActivity.kt`
 - 音频 runtime: `app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackRuntime.kt`
 - 视频 runtime: `app/src/main/java/com/qw/player/demo/runtime/VideoPlaybackRuntime.kt`
 - 音频 Service: `app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackService.kt`

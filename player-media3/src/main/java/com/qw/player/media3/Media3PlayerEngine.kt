@@ -1,15 +1,30 @@
 package com.qw.player.media3
 
 import android.content.Context
+import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
+import androidx.media3.database.StandaloneDatabaseProvider
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.source.MediaSource
 import com.qw.player.core.common.PlayLog
+import com.qw.player.core.media.ClipRange
+import com.qw.player.core.media.DrmConfiguration
 import com.qw.player.core.media.PlaySource
 import com.qw.player.core.media.PlayableMedia
+import com.qw.player.core.media.SubtitleTrack
 import com.qw.player.core.engine.PlaybackError
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
@@ -21,6 +36,7 @@ import com.qw.player.core.engine.PlayerVideoOutput
 import com.qw.player.core.common.PodPlayerTimer
 import com.qw.player.core.engine.VideoScaleMode
 import com.qw.player.core.engine.VideoSize
+import java.io.File
 
 /**
  * 基于 Media3 的 [PlayerEngine] 实现。
@@ -35,6 +51,7 @@ class Media3PlayerEngine(
     private val appContext = context.applicationContext
     private val player: ExoPlayer = ExoPlayer.Builder(appContext).build()
     private val timer = PodPlayerTimer()
+    private val retryHandler = Handler(Looper.getMainLooper())
 
     private var config: PlayerConfig = PlayerConfig()
     private var listener: PlayerEventListener? = null
@@ -48,6 +65,9 @@ class Media3PlayerEngine(
     private var currentState: PlaybackState = PlaybackState.IDLE
     private var hasRenderedFirstFrame = false
     private var volumeBeforeMuted = 1f
+    private var retryAttempt = 0
+    private var pendingRetry: Runnable? = null
+    private var lastKnownPositionMs = 0L
     private var muted = false
 
     init {
@@ -69,6 +89,7 @@ class Media3PlayerEngine(
                     Player.STATE_BUFFERING -> PlaybackState.BUFFERING
                     Player.STATE_READY -> {
                         isPrepared = true
+                        retryAttempt = 0
                         if (player.isPlaying) {
                             PlaybackState.PLAYING
                         } else {
@@ -125,16 +146,26 @@ class Media3PlayerEngine(
 
             override fun onPlayerError(error: PlaybackException) {
                 log("onPlayerError:${error.message}")
-                lastError = PlaybackError(
+                val kind = classifyError(error)
+                val canRetry = (kind == ERROR_KIND_NETWORK || kind == ERROR_KIND_SOURCE) &&
+                    retryAttempt < MAX_RETRY_ATTEMPTS
+                val playbackError = PlaybackError(
                     code = error.errorCode,
                     message = error.message ?: "Unknown playback error",
-                    recoverable = false,
+                    recoverable = canRetry,
                     domain = "media3",
-                    extras = mapOf(EXTRA_ERROR_KIND to classifyError(error))
+                    extras = mapOf(EXTRA_ERROR_KIND to kind)
                 )
+                lastError = playbackError
                 currentState = PlaybackState.ERROR
                 dispatchState()
-                listener?.onError(lastError!!, buildSnapshot())
+
+                if (canRetry) {
+                    scheduleRetry(playbackError)
+                } else {
+                    retryAttempt = 0
+                    listener?.onError(playbackError, buildSnapshot())
+                }
             }
 
             override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
@@ -165,6 +196,10 @@ class Media3PlayerEngine(
 
     override fun setMedia(media: PlayableMedia, source: PlaySource, startPositionMs: Long) {
         ensureNotReleased()
+        cancelPendingRetryCallback()
+        if (media.mediaId != currentMedia?.mediaId || source.sourceId != currentSource?.sourceId) {
+            retryAttempt = 0
+        }
         currentMedia = media
         currentSource = source
         lastError = null
@@ -172,34 +207,28 @@ class Media3PlayerEngine(
         hasRenderedFirstFrame = false
         currentState = PlaybackState.INITIALIZED
 
-        // 当前先只接入最核心的 uri/mediaId 路径。
-        // headers、DRM、字幕、裁剪播放等能力后续再和业务 resolver 一起补齐。
-        val mediaItemBuilder = MediaItem.Builder()
-            .setUri(source.url)
-            .setMediaId(media.mediaId)
+        val mediaSource = buildMediaSource(media, source)
 
         player.stop()
         player.clearMediaItems()
-        player.setMediaItem(mediaItemBuilder.build(), startPositionMs)
+        player.setMediaSource(mediaSource, startPositionMs)
         currentState = PlaybackState.IDLE
         dispatchState()
     }
 
     override fun preload(media: PlayableMedia, source: PlaySource) {
         ensureNotReleased()
+        cancelPendingRetryCallback()
         currentMedia = media
         currentSource = source
         isPrepared = false
         hasRenderedFirstFrame = false
         lastError = null
 
-        val item = MediaItem.Builder()
-            .setUri(source.url)
-            .setMediaId(media.mediaId)
-            .build()
+        val mediaSource = buildMediaSource(media, source)
         player.stop()
         player.clearMediaItems()
-        player.setMediaItem(item, 0L)
+        player.setMediaSource(mediaSource, 0L)
         currentState = PlaybackState.PREPARING
         player.prepare()
         player.playWhenReady = false
@@ -235,6 +264,9 @@ class Media3PlayerEngine(
 
     override fun stop(reset: Boolean) {
         ensureNotReleased()
+        if (reset) {
+            cancelPendingRetry()
+        }
         playWhenReady = false
         timer.stop()
         player.stop()
@@ -316,10 +348,10 @@ class Media3PlayerEngine(
             supportsSpeedControl = true,
             supportsPreload = true,
             supportsBackgroundPlayback = true,
-            supportsHeaders = false,
-            supportsDrm = false,
-            supportsSubtitles = false,
-            supportsClipping = false,
+            supportsHeaders = true,
+            supportsDrm = true,
+            supportsSubtitles = true,
+            supportsClipping = true,
             minSpeed = 0.5f,
             maxSpeed = 3.0f
         )
@@ -329,6 +361,7 @@ class Media3PlayerEngine(
         if (isReleased) {
             return
         }
+        cancelPendingRetry()
         timer.stop()
         player.release()
         isReleased = true
@@ -365,10 +398,143 @@ class Media3PlayerEngine(
     }
 
     private fun dispatchState() {
+        if (isPrepared && currentState != PlaybackState.ERROR) {
+            lastKnownPositionMs = player.currentPosition.coerceAtLeast(0L)
+        }
         val snapshot = buildSnapshot()
         listener?.onStateChanged(snapshot)
         if (snapshot.state == PlaybackState.BUFFERING) {
             listener?.onBuffering(snapshot)
+        }
+    }
+
+    /**
+     * 对可恢复错误做指数退避重试：对当前挂载的 media/source 重新 setMedia + prepare + play。
+     *
+     * 重试次数耗尽、或在重试排队期间切换了新 media（[cancelPendingRetry] 会被调用），
+     * 都不会再触发这次排队的重试，避免旧重试打到新媒体上。
+     */
+    private fun scheduleRetry(error: PlaybackError) {
+        cancelPendingRetryCallback()
+        retryAttempt++
+        val attempt = retryAttempt
+        val delayMs = RETRY_BASE_DELAY_MS shl (attempt - 1)
+        val media = currentMedia
+        val source = currentSource
+        if (media == null || source == null) {
+            retryAttempt = 0
+            listener?.onError(error, buildSnapshot())
+            return
+        }
+        log("scheduleRetry attempt=$attempt delayMs=$delayMs")
+        val runnable = Runnable {
+            pendingRetry = null
+            if (isReleased) {
+                return@Runnable
+            }
+            log("retry attempt=$attempt executing")
+            setMedia(media, source, lastKnownPositionMs)
+            prepare()
+            play()
+        }
+        pendingRetry = runnable
+        retryHandler.postDelayed(runnable, delayMs)
+    }
+
+    private fun cancelPendingRetryCallback() {
+        pendingRetry?.let { retryHandler.removeCallbacks(it) }
+        pendingRetry = null
+    }
+
+    private fun cancelPendingRetry() {
+        cancelPendingRetryCallback()
+        retryAttempt = 0
+    }
+
+    private fun buildMediaSource(media: PlayableMedia, source: PlaySource): MediaSource {
+        val factory = DefaultMediaSourceFactory(
+            buildDataSourceFactory(source.headers, source.userAgent, source.cacheable)
+        )
+        return factory.createMediaSource(buildMediaItem(media, source))
+    }
+
+    private fun buildMediaItem(media: PlayableMedia, source: PlaySource): MediaItem {
+        val builder = MediaItem.Builder()
+            .setUri(source.url)
+            .setMediaId(media.mediaId)
+
+        source.mimeType?.let { builder.setMimeType(it) }
+        source.clipRange?.let { builder.setClippingConfiguration(it.toClippingConfiguration()) }
+        source.drm?.let { builder.setDrmConfiguration(it.toDrmConfiguration()) }
+
+        val subtitleConfigurations = source.subtitles.map { it.toSubtitleConfiguration() }
+        if (subtitleConfigurations.isNotEmpty()) {
+            builder.setSubtitleConfigurations(subtitleConfigurations)
+        }
+        return builder.build()
+    }
+
+    private fun buildDataSourceFactory(
+        headers: Map<String, String>,
+        userAgent: String?,
+        cacheable: Boolean
+    ): DataSource.Factory {
+        val httpFactory = DefaultHttpDataSource.Factory()
+            .setConnectTimeoutMs(HTTP_CONNECT_TIMEOUT_MS)
+            .setReadTimeoutMs(HTTP_READ_TIMEOUT_MS)
+            .setAllowCrossProtocolRedirects(true)
+        if (headers.isNotEmpty()) {
+            httpFactory.setDefaultRequestProperties(headers)
+        }
+        userAgent?.let { httpFactory.setUserAgent(it) }
+
+        val baseFactory = DefaultDataSource.Factory(appContext, httpFactory)
+        val cache = if (cacheable) getSharedCache(appContext) else null
+        return if (cache != null) {
+            CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(baseFactory)
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+        } else {
+            baseFactory
+        }
+    }
+
+    private fun ClipRange.toClippingConfiguration(): MediaItem.ClippingConfiguration {
+        val builder = MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionMs(startPositionMs)
+        endPositionMs?.let { builder.setEndPositionMs(it) }
+        return builder.build()
+    }
+
+    private fun DrmConfiguration.toDrmConfiguration(): MediaItem.DrmConfiguration {
+        val builder = MediaItem.DrmConfiguration.Builder(uuidForScheme(scheme))
+            .setLicenseUri(licenseUrl)
+            .setMultiSession(multiSession)
+        if (requestHeaders.isNotEmpty()) {
+            builder.setLicenseRequestHeaders(requestHeaders)
+        }
+        return builder.build()
+    }
+
+    private fun SubtitleTrack.toSubtitleConfiguration(): MediaItem.SubtitleConfiguration {
+        val builder = MediaItem.SubtitleConfiguration.Builder(Uri.parse(url))
+            .setId(id)
+            .setLabel(label)
+            .setSelectionFlags(
+                if (isDefault) C.SELECTION_FLAG_DEFAULT else C.SELECTION_FLAG_AUTOSELECT
+            )
+        mimeType?.let { builder.setMimeType(it) }
+        language?.let { builder.setLanguage(it) }
+        return builder.build()
+    }
+
+    private fun uuidForScheme(scheme: String): java.util.UUID {
+        return when (scheme.lowercase()) {
+            "widevine" -> C.WIDEVINE_UUID
+            "playready" -> C.PLAYREADY_UUID
+            "clearkey" -> C.CLEARKEY_UUID
+            else -> C.WIDEVINE_UUID
         }
     }
 
@@ -411,5 +577,35 @@ class Media3PlayerEngine(
 
         /** 无法归类的错误。 */
         const val ERROR_KIND_UNKNOWN = "unknown"
+
+        /** 可恢复错误最多自动重试次数。 */
+        const val MAX_RETRY_ATTEMPTS = 3
+
+        /** 重试退避基准间隔，按 2^(attempt-1) 递增。 */
+        const val RETRY_BASE_DELAY_MS = 1_000L
+
+        private const val HTTP_CONNECT_TIMEOUT_MS = 10_000
+        private const val HTTP_READ_TIMEOUT_MS = 15_000
+        private const val CACHE_MAX_BYTES = 256L * 1024 * 1024
+
+        @Volatile
+        private var sharedCache: SimpleCache? = null
+
+        /** 进程内共享的磁盘缓存，避免多个 engine 实例重复占用缓存目录。 */
+        private fun getSharedCache(context: Context): SimpleCache? {
+            sharedCache?.let { return it }
+            return synchronized(this) {
+                sharedCache ?: runCatching {
+                    val cacheDir = File(context.cacheDir, "media3_cache")
+                    SimpleCache(
+                        cacheDir,
+                        LeastRecentlyUsedCacheEvictor(CACHE_MAX_BYTES),
+                        StandaloneDatabaseProvider(context)
+                    )
+                }.onFailure {
+                    PlayLog.d("Media3PlayerEngine > cache init failed: ${it.message}")
+                }.getOrNull().also { sharedCache = it }
+            }
+        }
     }
 }

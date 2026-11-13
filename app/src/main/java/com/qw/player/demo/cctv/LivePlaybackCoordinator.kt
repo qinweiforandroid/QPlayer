@@ -89,6 +89,7 @@ class LivePlaybackCoordinator(
     fun stop() {
         monitoring = false
         handler.removeCallbacks(reconnectRunnable)
+        handler.removeCallbacks(reconnectWatchdog)
         VideoPlaybackRuntime.removeListener(sessionListener)
         currentChannel = null
         reconnecting = false
@@ -106,12 +107,15 @@ class LivePlaybackCoordinator(
         reconnectAttempt = 0
         reconnecting = false
         allLinesFailed = false
+        handler.removeCallbacks(reconnectRunnable)
+        handler.removeCallbacks(reconnectWatchdog)
         playCurrentLine()
     }
 
     fun suspendMonitoring() {
         monitoring = false
         handler.removeCallbacks(reconnectRunnable)
+        handler.removeCallbacks(reconnectWatchdog)
     }
 
     fun resumeMonitoring() {
@@ -230,7 +234,7 @@ class LivePlaybackCoordinator(
 /** 频道 -> 播放协议。线路映射为 playSources。 */
 fun TvChannel.toPlayableMedia(selectedLineId: String? = null): PlayableMedia {
     val sources = lines.map { line ->
-        PlaySource(sourceId = line.id, url = line.url)
+        PlaySource(sourceId = line.id, url = line.url, cacheable = false)
     }
     return PlayableMedia(
         mediaId = id,

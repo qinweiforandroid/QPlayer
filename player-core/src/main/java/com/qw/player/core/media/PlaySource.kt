@@ -23,5 +23,13 @@ data class PlaySource(
     val subtitles: List<SubtitleTrack> = emptyList(),
     val clipRange: ClipRange? = null,
     val expiresAtMs: Long? = null,
+    /** 是否允许 engine 对这条 source 做本地缓存；直播流应设为 false。 */
+    val cacheable: Boolean = true,
     val tag: Any? = null
-)
+) {
+    /** 判断这条 source 是否已过有效期；没有配置 [expiresAtMs] 时视为不过期。 */
+    fun isExpired(nowMs: Long): Boolean {
+        val expiresAt = expiresAtMs ?: return false
+        return nowMs >= expiresAt
+    }
+}
