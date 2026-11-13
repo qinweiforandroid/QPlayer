@@ -42,6 +42,7 @@
 - `source`
 - `engine`
 - `session`
+- `telemetry`
 
 关键文件：
 
@@ -49,16 +50,19 @@
 - `player-core/src/main/java/com/qw/player/core/media/PlayableMedia.kt`
 - `player-core/src/main/java/com/qw/player/core/source/MediaSourceResolver.kt`
 - `player-core/src/main/java/com/qw/player/core/session/DefaultPlaybackSession.kt`
+- `player-core/src/main/java/com/qw/player/core/telemetry/PlaybackTelemetry.kt`
 
 ## `player-media3`
 
 职责：
 
 - Media3 内核实现
+- 错误分类与重试策略
 
 关键文件：
 
 - `player-media3/src/main/java/com/qw/player/media3/Media3PlayerEngine.kt`
+- `player-media3/src/main/java/com/qw/player/media3/Media3ErrorClassifier.kt`
 
 ## 最重要的三个入口
 

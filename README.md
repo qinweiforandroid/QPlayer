@@ -25,7 +25,8 @@ QPlayer 是一个基于 Android 的音视频播放器工程，当前主架构已
 2. [docs/ai/architecture.md](docs/ai/architecture.md)
 3. [docs/ai/module-index.md](docs/ai/module-index.md)
 4. [docs/ai/call-flow.md](docs/ai/call-flow.md)
-5. [docs/ai/repository-index.json](docs/ai/repository-index.json)
+5. [docs/ai/playback-resilience.md](docs/ai/playback-resilience.md)
+6. [docs/ai/repository-index.json](docs/ai/repository-index.json)
 
 ## 仓库结构
 

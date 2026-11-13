@@ -44,14 +44,16 @@
         "com.qw.player.core.media",
         "com.qw.player.core.source",
         "com.qw.player.core.engine",
-        "com.qw.player.core.session"
+        "com.qw.player.core.session",
+        "com.qw.player.core.telemetry"
       ],
       "key_types": [
         "media/PlayableMedia",
         "source/MediaSourceResolver",
         "engine/PlayerEngine",
         "session/PlaybackSession",
-        "session/DefaultPlaybackSession"
+        "session/DefaultPlaybackSession",
+        "telemetry/PlaybackTelemetry"
       ]
     },
     {
@@ -61,7 +63,8 @@
       "responsibility": "Media3-backed playback engine implementation",
       "depends_on": ["player-core"],
       "key_types": [
-        "Media3PlayerEngine"
+        "Media3PlayerEngine",
+        "Media3ErrorClassifier"
       ]
     }
   ],
@@ -84,12 +87,21 @@
     {
       "name": "source_resolution",
       "summary": "DefaultPlaybackSession -> MediaSourceResolver -> ResolvedMedia -> Media3PlayerEngine"
+    },
+    {
+      "name": "error_recovery",
+      "summary": "Media3PlayerEngine (同 source 指数退避重试) -> DefaultPlaybackSession (换 source 降级) -> UI"
+    },
+    {
+      "name": "telemetry",
+      "summary": "Media3PlayerEngine -> PlaybackTelemetry (首帧/卡顿/错误/播放结果)，由 app 层注入具体实现"
     }
   ],
   "recommended_reading_order": [
     "AGENTS.md",
     "docs/ai/architecture.md",
     "docs/ai/module-index.md",
+    "docs/ai/playback-resilience.md",
     "player-core/src/main/java/com/qw/player/core/engine/PlayerEngine.kt",
     "player-core/src/main/java/com/qw/player/core/session/DefaultPlaybackSession.kt",
     "app/src/main/java/com/qw/player/demo/runtime/AudioPlaybackRuntime.kt",

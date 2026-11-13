@@ -30,6 +30,18 @@
 3. `DefaultPlaybackSession` 根据 `PlaybackMode` 决定下一个 index
 4. 再次进入播放链路
 
+## 3.1 错误重试与 source 降级链路
+
+1. `Media3PlayerEngine` 收到 `onPlayerError`
+2. `Media3ErrorClassifier.classify` 归类为 `network` / `source` / `decode` / `unknown`
+3. 可恢复（network / source）且未超过 3 次 → `scheduleRetry`，
+   按 1s / 2s / 4s 退避后对**同一条 source** 重新 `setMedia + prepare + play`
+4. 重试耗尽或不可恢复 → 把 `recoverable = false` 的错误抛给 `DefaultPlaybackSession`
+5. `DefaultPlaybackSession` 换同媒体的下一条 `PlaySource` 重新解析并播放
+6. 全部 source 都失败 → 才通过 `PlaybackSessionListener.onPlaybackError` 上报 UI
+
+详见 [playback-resilience.md](playback-resilience.md)。
+
 ## 4. 视频播放链路
 
 1. 进入 `VideoMedia3PlayerViewActivity`

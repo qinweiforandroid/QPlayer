@@ -49,6 +49,10 @@ Media Layer
     ├── SubtitleTrack
     └── ClipRange
 
+Telemetry Layer
+└── player-core/telemetry
+    └── PlaybackTelemetry
+
 Common Layer
 └── player-core/common
     ├── PlayLog
