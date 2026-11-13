@@ -10,6 +10,7 @@ import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.qw.player.core.session.DefaultPlaybackSession
+import com.qw.player.core.telemetry.PlaybackTelemetry
 import com.qw.player.core.source.MediaSourceResolver
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
@@ -317,6 +318,15 @@ internal class BasePlaybackRuntime(
 
     fun addListener(listener: PlaybackSessionListener) {
         runtimeListeners.add(listener)
+    }
+
+    /**
+     * 注入可观测性上报实现，传 null 关闭上报。
+     *
+     * 具体后端（友盟 / 自建）由业务层实现 [PlaybackTelemetry]，runtime 只负责转交。
+     */
+    fun setTelemetry(telemetry: PlaybackTelemetry?) {
+        engine?.setTelemetry(telemetry)
     }
 
     fun removeListener(listener: PlaybackSessionListener) {

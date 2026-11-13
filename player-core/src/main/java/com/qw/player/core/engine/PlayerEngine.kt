@@ -64,6 +64,13 @@ interface PlayerEngine {
     /** 设置 engine 级唯一事件监听器。 */
     fun setListener(listener: PlayerEventListener?)
 
+    /**
+     * 设置可观测性上报实现。
+     *
+     * 传 null 表示关闭上报；默认实现不产出任何事件。
+     */
+    fun setTelemetry(telemetry: com.qw.player.core.telemetry.PlaybackTelemetry?) {}
+
     /** 返回当前已知的最新运行时快照。 */
     fun getSnapshot(): PlaybackSnapshot
 

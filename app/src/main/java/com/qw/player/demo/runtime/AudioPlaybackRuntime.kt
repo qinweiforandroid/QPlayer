@@ -41,6 +41,7 @@ object AudioPlaybackRuntime {
     fun getCurrentIndex() = core.getCurrentIndex()
     fun getQueue() = core.getQueue()
     fun getSnapshot(): PlaybackSnapshot = core.getSnapshot()
+    fun setTelemetry(telemetry: com.qw.player.core.telemetry.PlaybackTelemetry?) = core.setTelemetry(telemetry)
     fun addListener(listener: PlaybackSessionListener) = core.addListener(listener)
     fun removeListener(listener: PlaybackSessionListener) = core.removeListener(listener)
     fun getEngine(): Media3PlayerEngine = core.getEngine()

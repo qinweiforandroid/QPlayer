@@ -33,6 +33,7 @@ import com.qw.player.core.engine.PlayerConfig
 import com.qw.player.core.engine.PlayerEngine
 import com.qw.player.core.engine.PlayerEventListener
 import com.qw.player.core.engine.PlayerVideoOutput
+import com.qw.player.core.telemetry.PlaybackTelemetry
 import com.qw.player.core.common.PodPlayerTimer
 import com.qw.player.core.engine.VideoScaleMode
 import com.qw.player.core.engine.VideoSize
@@ -70,6 +71,15 @@ class Media3PlayerEngine(
     private var lastKnownPositionMs = 0L
     private var muted = false
 
+    private var telemetry: PlaybackTelemetry? = null
+    private var mediaAttachStartedAtMs = 0L
+    private var firstFrameReported = false
+    private var stallStartedAtMs = 0L
+    private var stallReported = false
+    private var playedAccumulatedMs = 0L
+    private var playedSegmentStartedAtMs = 0L
+    private var resultReported = false
+
     init {
         // 这里用轮询进度而不是直接暴露底层实现细节，
         // 是为了保证不同 engine 对上层输出一致的协议形状。
@@ -103,10 +113,13 @@ class Media3PlayerEngine(
                 dispatchState()
                 if (state == Player.STATE_READY && player.isPlaying && !hasRenderedFirstFrame) {
                     hasRenderedFirstFrame = true
+                    reportFirstFrame()
                     listener?.onRenderedFirstFrame()
                 }
                 if (state == Player.STATE_ENDED) {
                     timer.stop()
+                    stopPlayedSegment()
+                    reportResult(PlaybackTelemetry.Outcome.COMPLETED)
                     listener?.onCompletion(buildSnapshot())
                 }
             }
@@ -128,19 +141,26 @@ class Media3PlayerEngine(
                 }
                 if (isPlaying) {
                     timer.start(config.progressUpdateIntervalMs)
+                    startPlayedSegment()
+                    endStallIfNeeded()
                     if (!hasRenderedFirstFrame) {
                         hasRenderedFirstFrame = true
+                        reportFirstFrame()
                         listener?.onRenderedFirstFrame()
                     }
                 } else {
                     timer.stop()
+                    stopPlayedSegment()
                 }
                 dispatchState()
             }
 
             override fun onIsLoadingChanged(isLoading: Boolean) {
                 if (isLoading) {
+                    beginStallIfNeeded()
                     listener?.onBuffering(buildSnapshot())
+                } else {
+                    endStallIfNeeded()
                 }
             }
 
@@ -164,6 +184,9 @@ class Media3PlayerEngine(
                     scheduleRetry(playbackError)
                 } else {
                     retryAttempt = 0
+                    telemetry?.onError(buildTelemetryErrorEvent(playbackError))
+                    stopPlayedSegment()
+                    reportResult(PlaybackTelemetry.Outcome.FAILED, playbackError)
                     listener?.onError(playbackError, buildSnapshot())
                 }
             }
@@ -197,7 +220,9 @@ class Media3PlayerEngine(
     override fun setMedia(media: PlayableMedia, source: PlaySource, startPositionMs: Long) {
         ensureNotReleased()
         cancelPendingRetryCallback()
-        if (media.mediaId != currentMedia?.mediaId || source.sourceId != currentSource?.sourceId) {
+        val isNewSession = media.mediaId != currentMedia?.mediaId ||
+            source.sourceId != currentSource?.sourceId
+        if (isNewSession) {
             retryAttempt = 0
         }
         currentMedia = media
@@ -206,6 +231,12 @@ class Media3PlayerEngine(
         isPrepared = false
         hasRenderedFirstFrame = false
         currentState = PlaybackState.INITIALIZED
+        // 重试会对同一条 source 重新 setMedia，不能把已累计的播放时长与首帧计时清零。
+        if (isNewSession) {
+            beginTelemetrySession()
+        } else {
+            hasRenderedFirstFrame = false
+        }
 
         val mediaSource = buildMediaSource(media, source)
 
@@ -269,6 +300,9 @@ class Media3PlayerEngine(
         }
         playWhenReady = false
         timer.stop()
+        // 用户主动停止：把这段播放计入结果事件，避免播放时长统计漏掉。
+        stopPlayedSegment()
+        reportResult(PlaybackTelemetry.Outcome.STOPPED)
         player.stop()
         currentState = PlaybackState.IDLE
         if (reset) {
@@ -336,6 +370,10 @@ class Media3PlayerEngine(
     override fun setListener(listener: PlayerEventListener?) {
         this.listener = listener
         listener?.onStateChanged(buildSnapshot())
+    }
+
+    override fun setTelemetry(telemetry: PlaybackTelemetry?) {
+        this.telemetry = telemetry
     }
 
     override fun getSnapshot(): PlaybackSnapshot {
@@ -545,6 +583,101 @@ class Media3PlayerEngine(
         PlayLog.d("Media3PlayerEngine > $msg")
     }
 
+    private fun beginTelemetrySession() {
+        mediaAttachStartedAtMs = System.currentTimeMillis()
+        firstFrameReported = false
+        stallStartedAtMs = 0L
+        stallReported = false
+        stopPlayedSegment()
+        playedAccumulatedMs = 0L
+        resultReported = false
+    }
+
+    private fun telemetryContext(): PlaybackTelemetry.Context {
+        return PlaybackTelemetry.Context(
+            mediaId = currentMedia?.mediaId,
+            sourceId = currentSource?.sourceId,
+            mediaDurationMs = player.duration.takeIf { it >= 0 } ?: 0L
+        )
+    }
+
+    private fun reportFirstFrame() {
+        if (firstFrameReported || telemetry == null) {
+            return
+        }
+        firstFrameReported = true
+        telemetry?.onFirstFrame(
+            PlaybackTelemetry.FirstFrameEvent(
+                context = telemetryContext(),
+                timeToFirstFrameMs = System.currentTimeMillis() - mediaAttachStartedAtMs
+            )
+        )
+    }
+
+    private fun beginStallIfNeeded() {
+        if (stallStartedAtMs != 0L) {
+            return
+        }
+        stallStartedAtMs = System.currentTimeMillis()
+        stallReported = false
+    }
+
+    private fun endStallIfNeeded() {
+        val startedAt = stallStartedAtMs
+        if (startedAt == 0L) {
+            return
+        }
+        val durationMs = System.currentTimeMillis() - startedAt
+        stallStartedAtMs = 0L
+        // 极短的 loading 抖动不上报，只关心真正影响观看的卡顿。
+        if (stallReported || durationMs < MIN_STALL_REPORT_MS) {
+            return
+        }
+        stallReported = true
+        telemetry?.onStall(
+            PlaybackTelemetry.StallEvent(
+                context = telemetryContext(),
+                positionMs = player.currentPosition.coerceAtLeast(0L),
+                stallDurationMs = durationMs
+            )
+        )
+    }
+
+    private fun startPlayedSegment() {
+        if (playedSegmentStartedAtMs == 0L) {
+            playedSegmentStartedAtMs = System.currentTimeMillis()
+        }
+    }
+
+    private fun stopPlayedSegment() {
+        val startedAt = playedSegmentStartedAtMs
+        if (startedAt == 0L) {
+            return
+        }
+        playedAccumulatedMs += System.currentTimeMillis() - startedAt
+        playedSegmentStartedAtMs = 0L
+    }
+
+    private fun reportResult(outcome: PlaybackTelemetry.Outcome, error: PlaybackError? = null) {
+        val sink = telemetry ?: return
+        if (resultReported) {
+            return
+        }
+        resultReported = true
+        sink.onPlaybackResult(
+            PlaybackTelemetry.PlaybackResultEvent(
+                context = telemetryContext(),
+                outcome = outcome,
+                playedDurationMs = playedAccumulatedMs,
+                error = error
+            )
+        )
+    }
+
+    private fun buildTelemetryErrorEvent(error: PlaybackError): PlaybackTelemetry.ErrorEvent {
+        return PlaybackTelemetry.ErrorEvent(context = telemetryContext(), error = error)
+    }
+
     companion object {
         /** [PlaybackError.extras] 中的错误分类 key。 */
         const val EXTRA_ERROR_KIND = "errorKind"
@@ -560,6 +693,9 @@ class Media3PlayerEngine(
 
         /** 无法归类的错误。 */
         const val ERROR_KIND_UNKNOWN = Media3ErrorClassifier.ERROR_KIND_UNKNOWN
+
+        /** 短于该时长的 loading 视为正常抖动，不计入卡顿。 */
+        private const val MIN_STALL_REPORT_MS = 500L
 
         private const val HTTP_CONNECT_TIMEOUT_MS = 10_000
         private const val HTTP_READ_TIMEOUT_MS = 15_000
