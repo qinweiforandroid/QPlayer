@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">QPlayer</string>
+    <!-- 示例首页 -->
+    <string name="demo_home_title">QPlayer</string>
+    <string name="demo_home_subtitle">播放内核示例 · 音频 / 视频 / 点播 / 直播</string>
+    <string name="demo_section_players">播放器示例</string>
+    <string name="demo_audio_title">音频播放</string>
+    <string name="demo_audio_desc">播放列表 · 切歌 · 播放模式 · 后台通知</string>
+    <string name="demo_video_title">视频播放</string>
+    <string name="demo_video_desc">Media3 内核 · 全屏播放</string>
+    <string name="demo_vod_title">点播播放器</string>
+    <string name="demo_vod_desc">手势控制 · 清晰度 · 倍速 · 选集</string>
+    <string name="demo_cctv_title">直播 / 频道</string>
+    <string name="demo_cctv_desc">频道列表 · 线路降级 · 断流重连</string>
     <string name="player_title">CCTV / 卫视播放器示例</string>
     <string name="player_channel_source">频道列表：下拉优先拉取远程 M3U，失败时回退到内置示例源</string>
     <string name="player_status_loading">正在加载频道列表…</string>
@@ -32,6 +44,16 @@
     <string name="gesture_speed_hint">%1$s 倍速播放中，松手恢复</string>
     <string name="gesture_channel_next">下一个频道</string>
     <string name="gesture_channel_previous">上一个频道</string>
+
+    <!-- 音频 -->
+    <string name="audio_title">正在播放</string>
+    <string name="audio_queue_title">播放列表</string>
+    <string name="audio_play_mode">播放模式</string>
+    <string name="audio_mode_single">单曲循环</string>
+    <string name="audio_mode_list">列表循环</string>
+    <string name="audio_mode_random">随机播放</string>
+    <string name="audio_previous">上一首</string>
+    <string name="audio_next">下一首</string>
 
     <!-- 点播 -->
     <string name="vod_play_button">立即播放</string>

@@ -5,12 +5,14 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.qw.player.demo.R
+import java.util.Locale
 
 /**
  * Created by qinwei on 4/18/21 8:50 PM
@@ -19,10 +21,14 @@ import com.qw.player.demo.R
 class MusicView : ConstraintLayout {
 
     private var mMusicIconImg: ImageView
-    private var mMusicPlayStateImg: ImageView
+    private var mMusicPlayStateImg: MaterialButton
+    private var mMusicPrevBtn: MaterialButton
+    private var mMusicNextBtn: MaterialButton
+    private var mMusicPositionLabel: TextView
+    private var mMusicDurationLabel: TextView
     private var mMusicNameLabel: TextView
     private var mMusicSingerLabel: TextView
-    private var mMusicLoadingProgressBar: ProgressBar
+    private var mMusicLoadingProgressBar: CircularProgressIndicator
     private var mMusicSeekBar: SeekBar
     private var listener: OnSeekChangedListener? = null
     private var mMusicVO = MusicVO()
@@ -41,6 +47,10 @@ class MusicView : ConstraintLayout {
         LayoutInflater.from(context).inflate(R.layout.widget_music, this)
         mMusicIconImg = findViewById(R.id.mMusicIconImg)
         mMusicPlayStateImg = findViewById(R.id.mMusicPlayStateImg)
+        mMusicPrevBtn = findViewById(R.id.mMusicPrevBtn)
+        mMusicNextBtn = findViewById(R.id.mMusicNextBtn)
+        mMusicPositionLabel = findViewById(R.id.mMusicPositionLabel)
+        mMusicDurationLabel = findViewById(R.id.mMusicDurationLabel)
         mMusicNameLabel = findViewById(R.id.mMusicNameLabel)
         mMusicSingerLabel = findViewById(R.id.mMusicSingerLabel)
         mMusicLoadingProgressBar = findViewById(R.id.mMusicLoadingProgressBar)
@@ -95,11 +105,13 @@ class MusicView : ConstraintLayout {
     }
 
     fun paused() {
-        mMusicPlayStateImg.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+        mMusicPlayStateImg.setIconResource(R.drawable.ic_baseline_play_arrow_24)
+        mMusicPlayStateImg.contentDescription = context.getString(R.string.player_play)
     }
 
     fun playing() {
-        mMusicPlayStateImg.setImageResource(R.drawable.ic_baseline_pause_24)
+        mMusicPlayStateImg.setIconResource(R.drawable.ic_baseline_pause_24)
+        mMusicPlayStateImg.contentDescription = context.getString(R.string.player_pause)
     }
 
     fun loading(isLoading: Boolean) {
@@ -114,6 +126,26 @@ class MusicView : ConstraintLayout {
         mMusicPlayStateImg.setOnClickListener(listener)
     }
 
+    fun setPrevClickListener(listener: View.OnClickListener) {
+        mMusicPrevBtn.setOnClickListener(listener)
+    }
+
+    fun setNextClickListener(listener: View.OnClickListener) {
+        mMusicNextBtn.setOnClickListener(listener)
+    }
+
+    fun applyProgressText(positionMs: Long, durationMs: Long) {
+        mMusicPositionLabel.text = formatTime(positionMs)
+        mMusicDurationLabel.text = formatTime(durationMs)
+    }
+
+    private fun formatTime(ms: Long): String {
+        val total = ms.coerceAtLeast(0L) / 1000L
+        val minutes = total / 60
+        val seconds = total % 60
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+    }
+
     fun setOnSeekChangedListener(listener: OnSeekChangedListener) {
         this.listener = listener
     }
@@ -123,7 +155,9 @@ class MusicView : ConstraintLayout {
     }
 
     fun setProgress(progress: Int) {
-        mMusicSeekBar.progress = progress
+        if (!isTrackingTouch) {
+            mMusicSeekBar.progress = progress
+        }
     }
 
     fun setSecondaryProgress(secondaryProgress: Int) {

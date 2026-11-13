@@ -247,7 +247,7 @@ class VodPlayerControlView @JvmOverloads constructor(
             val item = TextView(context).apply {
                 text = option.label
                 setTextColor(context.getColor(
-                    if (option.sourceId == selectedId) R.color.bili_pink else android.R.color.white
+                    if (option.sourceId == selectedId) R.color.qp_accent else android.R.color.white
                 ))
                 textSize = 13f
                 val h = (36 * resources.displayMetrics.density).toInt()

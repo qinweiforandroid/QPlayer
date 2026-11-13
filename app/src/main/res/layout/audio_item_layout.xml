@@ -4,56 +4,63 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:duplicateParentState="true">
+    android:background="?attr/selectableItemBackground"
+    android:duplicateParentState="true"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="10dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/mMusicCoverImg"
-        android:layout_width="62dp"
-        android:layout_height="62dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="14dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.QPlayer.CoverSmall"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/mMusicTitleLabel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginLeft="12dp"
+        android:layout_marginStart="14dp"
         android:ellipsize="end"
-        android:gravity="center_vertical"
         android:maxLines="1"
-        android:paddingRight="32dp"
-        android:text="拯救歌荒"
         android:textAppearance="?attr/textAppearanceTitleMedium"
-        android:textSize="18sp"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintBottom_toTopOf="@id/mMusicAuthorLabel"
-        app:layout_constraintEnd_toStartOf="@+id/mMusicStateImg"
-        app:layout_constraintStart_toEndOf="@+id/mMusicCoverImg"
-        app:layout_constraintTop_toTopOf="@+id/mMusicCoverImg" />
+        app:layout_constraintEnd_toStartOf="@id/mMusicStateImg"
+        app:layout_constraintStart_toEndOf="@id/mMusicCoverImg"
+        app:layout_constraintTop_toTopOf="@id/mMusicCoverImg"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="拯救歌荒" />
 
     <TextView
         android:id="@+id/mMusicAuthorLabel"
-        android:layout_width="182dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="8dp"
-        android:text="周杰伦"
-        android:textAppearance="?attr/textAppearanceTitleSmall"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/mMusicTitleLabel"
-        app:layout_constraintTop_toBottomOf="@+id/mMusicTitleLabel" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintBottom_toBottomOf="@id/mMusicCoverImg"
+        app:layout_constraintEnd_toEndOf="@id/mMusicTitleLabel"
+        app:layout_constraintStart_toStartOf="@id/mMusicTitleLabel"
+        app:layout_constraintTop_toBottomOf="@id/mMusicTitleLabel"
+        tools:text="周杰伦" />
 
-
-    <ImageView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/mMusicStateImg"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginRight="16dp"
-        android:src="@drawable/ic_baseline_pause_24"
-        app:layout_constraintBottom_toBottomOf="@+id/mMusicCoverImg"
+        style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/player_play"
+        app:icon="@drawable/ic_baseline_play_arrow_24"
+        app:iconPadding="0dp"
+        app:iconSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/mMusicCoverImg" />
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

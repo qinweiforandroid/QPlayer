@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/bili_text_primary"
+            android:textColor="@color/qp_text_primary"
             android:textSize="15sp"
             android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textColor="@color/bili_text_secondary"
+            android:textColor="@color/qp_text_secondary"
             android:textSize="12sp" />
     </LinearLayout>
 
@@ -58,7 +58,7 @@
         android:paddingEnd="8dp"
         android:paddingBottom="3dp"
         android:text="@string/player_live_badge"
-        android:textColor="@color/bili_pink"
+        android:textColor="@color/qp_accent"
         android:textSize="11sp"
         android:textStyle="bold" />
 </LinearLayout>

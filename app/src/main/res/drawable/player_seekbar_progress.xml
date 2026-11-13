@@ -23,7 +23,7 @@
         <clip>
             <shape android:shape="rectangle">
                 <corners android:radius="1.5dp" />
-                <solid android:color="@color/bili_pink" />
+                <solid android:color="@color/qp_accent" />
                 <size android:height="3dp" />
             </shape>
         </clip>

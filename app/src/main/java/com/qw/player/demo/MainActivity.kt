@@ -2,27 +2,29 @@ package com.qw.player.demo
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.qw.player.demo.audio.AudioPlayerFragment
 import com.qw.player.demo.cctv.CctvChannelListActivity
+import com.qw.player.demo.databinding.ActivityMainBinding
 import com.qw.player.demo.video.VideoPlayerFragment
 import com.qw.player.demo.vod.VodPlayerActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        findViewById<Button>(R.id.playListButton).setOnClickListener {
+        val bind = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(bind.root)
+
+        bind.audioCard.setOnClickListener {
             openDemo("AudioPlayer", AudioPlayerFragment::class.java.name)
         }
-        findViewById<Button>(R.id.videoDemoButton).setOnClickListener {
+        bind.videoCard.setOnClickListener {
             openDemo("VideoPlayer", VideoPlayerFragment::class.java.name)
         }
-        findViewById<Button>(R.id.cctvButton).setOnClickListener {
+        bind.cctvCard.setOnClickListener {
             startActivity(CctvChannelListActivity.intent(this))
         }
-        findViewById<Button>(R.id.vodButton).setOnClickListener {
+        bind.vodCard.setOnClickListener {
             startActivity(Intent(this, VodPlayerActivity::class.java))
         }
     }

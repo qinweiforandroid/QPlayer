@@ -79,7 +79,16 @@ class AudioPlayerFragment : Fragment() {
                 AudioPlaybackRuntime.seekTo(seekBar.progress.toLong())
             }
         })
-        bind.mMusicPlayModeRG.setOnCheckedChangeListener { _, checkedId ->
+        bind.mMusicView.setPrevClickListener {
+            AudioPlaybackController.skipToPrevious(requireContext())
+        }
+        bind.mMusicView.setNextClickListener {
+            AudioPlaybackController.skipToNext(requireContext())
+        }
+        bind.mMusicPlayModeRG.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) {
+                return@addOnButtonCheckedListener
+            }
             when (checkedId) {
                 R.id.mMusicPlayModeSingLoopRB -> {
                     AudioPlaybackRuntime.updatePlaybackMode(
@@ -181,7 +190,7 @@ class AudioPlayerFragment : Fragment() {
             itemBinding.mMusicAuthorLabel.text = media.metadata.artist
             val isCurrent = AudioPlaybackRuntime.getCurrentIndex() == position
             val state = AudioPlaybackRuntime.getSnapshot().state
-            itemBinding.mMusicStateImg.setImageResource(
+            itemBinding.mMusicStateImg.setIconResource(
                 if (isCurrent && (state == PlaybackState.PLAYING || state == PlaybackState.BUFFERING)) {
                     R.drawable.ic_baseline_pause_24
                 } else {
@@ -193,8 +202,6 @@ class AudioPlayerFragment : Fragment() {
 
     private val sessionListener = object : PlaybackSessionListener {
         override fun onQueueChanged(queue: List<PlayableMedia>, currentIndex: Int) {
-            modules.clear()
-            modules.addAll(queue)
             playListAdapter.notifyDataSetChanged()
         }
 
@@ -227,6 +234,7 @@ class AudioPlayerFragment : Fragment() {
         bind.mMusicView.setMax(snapshot.durationMs.toInt().coerceAtLeast(0))
         bind.mMusicView.setProgress(snapshot.currentPositionMs.toInt().coerceAtLeast(0))
         bind.mMusicView.setSecondaryProgress(snapshot.bufferedPositionMs.toInt().coerceAtLeast(0))
+        bind.mMusicView.applyProgressText(snapshot.currentPositionMs, snapshot.durationMs)
 
         val current = AudioPlaybackRuntime.getCurrentMedia()
         if (current != null) {

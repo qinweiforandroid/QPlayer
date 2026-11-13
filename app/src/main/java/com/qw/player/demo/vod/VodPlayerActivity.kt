@@ -347,7 +347,7 @@ class VodPlayerActivity : AppCompatActivity() {
                 textSize = 13f
                 gravity = android.view.Gravity.CENTER
                 setTextColor(getColor(
-                    if (index == currentEpisodeIndex) R.color.bili_pink else R.color.bili_text_primary
+                    if (index == currentEpisodeIndex) R.color.qp_accent else R.color.qp_text_primary
                 ))
                 layoutParams = LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,

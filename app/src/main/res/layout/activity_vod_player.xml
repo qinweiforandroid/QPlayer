@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bili_page_bg"
+    android:background="@color/qp_page_bg"
     android:orientation="vertical">
 
     <com.qw.player.demo.widget.PlayerGestureLayout
@@ -100,7 +100,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/bili_page_bg"
+        android:background="@color/qp_page_bg"
         android:fillViewport="true">
 
         <LinearLayout
@@ -116,7 +116,7 @@
                 android:id="@+id/mVodTitleLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/bili_text_primary"
+                android:textColor="@color/qp_text_primary"
                 android:textSize="19sp"
                 android:textStyle="bold" />
 
@@ -125,7 +125,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="@color/bili_text_secondary"
+                android:textColor="@color/qp_text_secondary"
                 android:textSize="13sp" />
 
             <TextView
@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="@string/vod_episodes"
-                android:textColor="@color/bili_text_primary"
+                android:textColor="@color/qp_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 

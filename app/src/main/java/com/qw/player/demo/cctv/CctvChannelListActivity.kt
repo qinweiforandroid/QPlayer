@@ -60,7 +60,7 @@ class CctvChannelListActivity : AppCompatActivity() {
                 )
                 setTextColor(
                     getColor(
-                        if (category == currentCategory) android.R.color.white else R.color.bili_text_primary
+                        if (category == currentCategory) android.R.color.white else R.color.qp_text_primary
                     )
                 )
                 setOnClickListener {

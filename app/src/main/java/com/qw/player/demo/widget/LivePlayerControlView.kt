@@ -174,7 +174,7 @@ class LivePlayerControlView @JvmOverloads constructor(
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 setTextColor(
                     context.getColor(
-                        if (option.id == selectedId) R.color.bili_pink else android.R.color.white
+                        if (option.id == selectedId) R.color.qp_accent else android.R.color.white
                     )
                 )
                 val h = dp(36)

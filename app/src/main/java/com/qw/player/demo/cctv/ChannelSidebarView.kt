@@ -94,7 +94,7 @@ class ChannelSidebarView @JvmOverloads constructor(
                 )
                 setTextColor(
                     context.getColor(
-                        if (category == currentCategory) android.R.color.white else R.color.bili_text_primary
+                        if (category == currentCategory) android.R.color.white else R.color.qp_text_primary
                     )
                 )
                 setOnClickListener {
@@ -144,7 +144,7 @@ class ChannelSidebarView @JvmOverloads constructor(
             nameLabel.text = channel.name
             badge.text = channel.badgeText
             nameLabel.setTextColor(
-                context.getColor(if (selected) R.color.bili_pink else R.color.white)
+                context.getColor(if (selected) R.color.qp_accent else R.color.white)
             )
             itemView.setBackgroundResource(
                 if (selected) R.drawable.bg_quality_option_selected else R.drawable.bg_quality_option

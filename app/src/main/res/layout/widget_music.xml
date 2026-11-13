@@ -6,58 +6,140 @@
     android:layout_height="wrap_content"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/mMusicIconImg"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.QPlayer.CoverLarge"
+        tools:src="@tools:sample/avatars" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/mMusicLoadingProgressBar"
-        style="?android:attr/progressBarStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:indicatorColor="?attr/colorOnPrimaryContainer"
+        app:indicatorSize="28dp"
         app:layout_constraintBottom_toBottomOf="@id/mMusicIconImg"
-        app:layout_constraintLeft_toLeftOf="@id/mMusicIconImg"
-        app:layout_constraintRight_toRightOf="@id/mMusicIconImg"
-        app:layout_constraintTop_toTopOf="@id/mMusicIconImg" />
-
-    <ImageView
-        android:id="@+id/mMusicPlayStateImg"
-        android:layout_width="40dp"
-        android:layout_height="0dp"
-        android:src="@drawable/ic_baseline_play_arrow_24"
-        app:layout_constraintBottom_toBottomOf="@id/mMusicIconImg"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/mMusicIconImg" />
+        app:layout_constraintEnd_toEndOf="@id/mMusicIconImg"
+        app:layout_constraintStart_toStartOf="@id/mMusicIconImg"
+        app:layout_constraintTop_toTopOf="@id/mMusicIconImg"
+        app:trackThickness="3dp" />
 
     <TextView
         android:id="@+id/mMusicNameLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
-        android:text="菊花台"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        app:layout_constraintLeft_toRightOf="@id/mMusicIconImg"
-        app:layout_constraintTop_toTopOf="@id/mMusicIconImg" />
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceTitleLarge"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        app:layout_constraintBottom_toTopOf="@id/mMusicSingerLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/mMusicIconImg"
+        app:layout_constraintTop_toTopOf="@id/mMusicIconImg"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="菊花台" />
 
     <TextView
         android:id="@+id/mMusicSingerLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="周杰伦"
-        android:textAppearance="?attr/textAppearanceOverline"
-        app:layout_constraintLeft_toLeftOf="@id/mMusicNameLabel"
-        app:layout_constraintTop_toBottomOf="@id/mMusicNameLabel" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        app:layout_constraintBottom_toBottomOf="@id/mMusicIconImg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/mMusicIconImg"
+        app:layout_constraintTop_toBottomOf="@id/mMusicNameLabel"
+        tools:text="周杰伦" />
 
     <SeekBar
         android:id="@+id/mMusicSeekBar"
         android:layout_width="0dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="16dp"
+        android:maxHeight="4dp"
+        android:minHeight="4dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:progressDrawable="@drawable/player_seekbar_progress_light"
+        android:splitTrack="false"
+        android:thumb="@drawable/player_seekbar_thumb_light"
+        android:thumbOffset="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mMusicIconImg" />
+
+    <TextView
+        android:id="@+id/mMusicPositionLabel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/mMusicIconImg"
-        app:layout_constraintEnd_toStartOf="@+id/mMusicPlayStateImg"
-        app:layout_constraintStart_toEndOf="@+id/mMusicIconImg" />
+        android:layout_marginTop="2dp"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mMusicSeekBar"
+        tools:text="00:00" />
+
+    <TextView
+        android:id="@+id/mMusicDurationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mMusicSeekBar"
+        tools:text="03:45" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mMusicPrevBtn"
+        style="@style/Widget.Material3Expressive.Button.IconButton.Standard"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/audio_previous"
+        app:icon="@drawable/ic_baseline_skip_previous_24"
+        app:iconTint="?attr/colorOnPrimaryContainer"
+        app:layout_constraintBottom_toBottomOf="@id/mMusicNextBtn"
+        app:layout_constraintEnd_toStartOf="@id/mMusicPlayStateImg"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/mMusicPlayStateImg" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mMusicPlayStateImg"
+        style="@style/Widget.Material3Expressive.Button.IconButton.Filled"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="10dp"
+        android:contentDescription="@string/player_play"
+        app:backgroundTint="?attr/colorOnPrimaryContainer"
+        app:icon="@drawable/ic_baseline_play_arrow_24"
+        app:iconPadding="0dp"
+        app:iconSize="26dp"
+        app:iconTint="?attr/colorPrimaryContainer"
+        app:layout_constraintEnd_toStartOf="@id/mMusicNextBtn"
+        app:layout_constraintStart_toEndOf="@id/mMusicPrevBtn"
+        app:layout_constraintTop_toBottomOf="@id/mMusicPositionLabel" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mMusicNextBtn"
+        style="@style/Widget.Material3Expressive.Button.IconButton.Standard"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/audio_next"
+        app:icon="@drawable/ic_baseline_skip_next_24"
+        app:iconTint="?attr/colorOnPrimaryContainer"
+        app:layout_constraintBottom_toBottomOf="@id/mMusicPlayStateImg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/mMusicPlayStateImg"
+        app:layout_constraintTop_toTopOf="@id/mMusicPlayStateImg" />
 </merge>

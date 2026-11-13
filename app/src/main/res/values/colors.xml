@@ -1,19 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- M3 Expressive 靛蓝调色板（light） -->
+    <color name="m3_primary">#FF4655C4</color>
+    <color name="m3_on_primary">#FFFFFFFF</color>
+    <color name="m3_primary_container">#FFDFE0FF</color>
+    <color name="m3_on_primary_container">#FF000F5C</color>
+
+    <color name="m3_secondary">#FF5C5D72</color>
+    <color name="m3_on_secondary">#FFFFFFFF</color>
+    <color name="m3_secondary_container">#FFE1E0F9</color>
+    <color name="m3_on_secondary_container">#FF191A2C</color>
+
+    <color name="m3_tertiary">#FF78536B</color>
+    <color name="m3_on_tertiary">#FFFFFFFF</color>
+    <color name="m3_tertiary_container">#FFFFD8EE</color>
+    <color name="m3_on_tertiary_container">#FF2E1126</color>
+
+    <color name="m3_error">#FFBA1A1A</color>
+    <color name="m3_on_error">#FFFFFFFF</color>
+    <color name="m3_error_container">#FFFFDAD6</color>
+    <color name="m3_on_error_container">#FF410002</color>
+
+    <color name="m3_background">#FFFBF8FF</color>
+    <color name="m3_on_background">#FF1B1B21</color>
+    <color name="m3_surface">#FFFBF8FF</color>
+    <color name="m3_on_surface">#FF1B1B21</color>
+    <color name="m3_surface_variant">#FFE3E1EC</color>
+    <color name="m3_on_surface_variant">#FF46464F</color>
+    <color name="m3_outline">#FF777680</color>
+    <color name="m3_outline_variant">#FFC7C5D0</color>
+
+    <color name="m3_surface_container_lowest">#FFFFFFFF</color>
+    <color name="m3_surface_container_low">#FFF5F2FA</color>
+    <color name="m3_surface_container">#FFEFEDF4</color>
+    <color name="m3_surface_container_high">#FFE9E7EF</color>
+    <color name="m3_surface_container_highest">#FFE4E1E9</color>
+
+    <!-- 业务语义 token：布局与代码统一引用这一层 -->
+    <color name="qp_accent">@color/m3_primary</color>
+    <color name="qp_on_accent">@color/m3_on_primary</color>
+    <color name="qp_accent_soft">@color/m3_primary_container</color>
+    <color name="qp_on_accent_soft">@color/m3_on_primary_container</color>
+
+    <color name="qp_text_primary">@color/m3_on_surface</color>
+    <color name="qp_text_secondary">@color/m3_on_surface_variant</color>
+
+    <color name="qp_page_bg">@color/m3_background</color>
+    <color name="qp_surface">@color/m3_surface</color>
+    <color name="qp_surface_container">@color/m3_surface_container</color>
+    <color name="qp_surface_container_high">@color/m3_surface_container_high</color>
+    <color name="qp_line">@color/m3_outline_variant</color>
+
+    <!-- 播放器覆盖层：始终是暗底，不随日夜切换 -->
+    <color name="qp_overlay">#66000000</color>
+    <color name="qp_overlay_soft">#33000000</color>
+    <color name="qp_scrim_top">#99000000</color>
+    <color name="qp_scrim_bottom">#B3000000</color>
+    <color name="qp_player_panel">#E61C1B21</color>
+    <color name="qp_player_panel_line">#33FFFFFF</color>
+    <color name="qp_player_control_bg">#3DFFFFFF</color>
+    <color name="qp_player_accent">#FFBEC2FF</color>
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="bili_pink">#FB7299</color>
-    <color name="bili_pink_soft">#FFF1F5</color>
-    <color name="bili_text_primary">#18191C</color>
-    <color name="bili_text_secondary">#61666D</color>
-    <color name="bili_line">#E3E5E7</color>
-    <color name="bili_page_bg">#F6F7F8</color>
-    <color name="bili_surface">#FFFFFFFF</color>
-    <color name="bili_overlay">#66000000</color>
-    <color name="bili_overlay_soft">#33000000</color>
 </resources>
