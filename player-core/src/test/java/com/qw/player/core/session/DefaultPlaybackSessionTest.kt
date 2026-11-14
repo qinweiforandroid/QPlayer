@@ -11,8 +11,6 @@ import com.qw.player.core.engine.PlayerVideoOutput
 import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlaySource
 import com.qw.player.core.media.PlayableMedia
-import com.qw.player.core.media.ResolvedMedia
-import com.qw.player.core.source.MediaSourceResolver
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -42,7 +40,7 @@ class DefaultPlaybackSessionTest {
         override fun pause() {}
         override fun stop(reset: Boolean) {}
         override fun seekTo(positionMs: Long) {}
-        override fun setPlaybackSpeed(speed: Float) {}
+        override fun setSpeed(speed: Float) {}
         override fun setLooping(looping: Boolean) {}
         override fun setVolume(volume: Float) {}
         override fun setMuted(muted: Boolean) {}
@@ -71,11 +69,11 @@ class DefaultPlaybackSessionTest {
         PlaySource(sourceId = id, url = "https://example.com/$id.mp3", expiresAtMs = expiresAtMs)
 
     @Test
-    fun `plays default source when no resolver`() {
+    fun `plays default source from media`() {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
-        session.setQueue(listOf(media("m1", source("a"), source("b"))), 0)
+        session.setMediaList(listOf(media("m1", source("a"), source("b"))), 0)
 
         session.play(0)
 
@@ -89,7 +87,7 @@ class DefaultPlaybackSessionTest {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
-        session.setQueue(listOf(media("m1", source("a"), source("b"))), 0)
+        session.setMediaList(listOf(media("m1", source("a"), source("b"))), 0)
         session.play(0)
 
         val errors = mutableListOf<PlaybackError>()
@@ -110,7 +108,7 @@ class DefaultPlaybackSessionTest {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
-        session.setQueue(listOf(media("m1", source("a"))), 0)
+        session.setMediaList(listOf(media("m1", source("a"))), 0)
         session.play(0)
 
         val errors = mutableListOf<PlaybackError>()
@@ -131,7 +129,7 @@ class DefaultPlaybackSessionTest {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
-        session.setQueue(listOf(media("m1", source("a"), source("b"))), 0)
+        session.setMediaList(listOf(media("m1", source("a"), source("b"))), 0)
         session.play(0)
 
         val errors = mutableListOf<PlaybackError>()
@@ -152,7 +150,7 @@ class DefaultPlaybackSessionTest {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
-        session.setQueue(
+        session.setMediaList(
             listOf(media("m1", source("a", expiresAtMs = System.currentTimeMillis() - 1000))),
             0
         )
@@ -172,43 +170,12 @@ class DefaultPlaybackSessionTest {
     }
 
     @Test
-    fun `resolver result replaces sources and expired result is rejected`() {
-        val engine = FakeEngine()
-        val session = DefaultPlaybackSession()
-        session.bindEngine(engine)
-        session.setSourceResolver(object : MediaSourceResolver {
-            override fun resolve(media: PlayableMedia, callback: MediaSourceResolver.Callback) {
-                callback.onSuccess(
-                    ResolvedMedia(
-                        mediaId = media.mediaId,
-                        playSources = listOf(source("signed", expiresAtMs = System.currentTimeMillis() - 1)),
-                        defaultSourceId = "signed"
-                    )
-                )
-            }
-        })
-        session.setQueue(listOf(media("m1", source("plain"))), 0)
-
-        val errors = mutableListOf<PlaybackError>()
-        session.addListener(object : PlaybackSessionListener {
-            override fun onPlaybackError(media: PlayableMedia?, error: PlaybackError) {
-                errors.add(error)
-            }
-        })
-
-        session.play(0)
-
-        assertTrue(engine.setMediaCalls.isEmpty())
-        assertEquals(1, errors.size)
-    }
-
-    @Test
     fun `skip to next stops at end when repeat is off`() {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
         session.updatePlaybackMode(PlaybackMode(repeatMode = RepeatMode.OFF))
-        session.setQueue(listOf(media("m1", source("a")), media("m2", source("b"))), 1)
+        session.setMediaList(listOf(media("m1", source("a")), media("m2", source("b"))), 1)
 
         session.skipToNext()
         assertEquals("最后一项且不循环时不应切歌", 0, engine.setMediaCalls.size)
@@ -223,7 +190,7 @@ class DefaultPlaybackSessionTest {
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
         session.updatePlaybackMode(PlaybackMode(repeatMode = RepeatMode.ALL))
-        session.setQueue(listOf(media("m1", source("a")), media("m2", source("b"))), 1)
+        session.setMediaList(listOf(media("m1", source("a")), media("m2", source("b"))), 1)
 
         session.skipToNext()
 
@@ -236,7 +203,7 @@ class DefaultPlaybackSessionTest {
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
         session.updatePlaybackMode(PlaybackMode(repeatMode = RepeatMode.ONE))
-        session.setQueue(listOf(media("m1", source("a")), media("m2", source("b"))), 0)
+        session.setMediaList(listOf(media("m1", source("a")), media("m2", source("b"))), 0)
 
         session.skipToNext(auto = true)
 
@@ -248,7 +215,7 @@ class DefaultPlaybackSessionTest {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
-        session.setQueue(listOf(media("m1", source("a")), media("m2", source("b"))), 0)
+        session.setMediaList(listOf(media("m1", source("a")), media("m2", source("b"))), 0)
 
         session.setPendingStartPosition(42_000L)
         session.play(0)
@@ -278,11 +245,34 @@ class DefaultPlaybackSessionTest {
     }
 
     @Test
+    fun `fallback stays within same quality group before switching quality`() {
+        val engine = FakeEngine()
+        val session = DefaultPlaybackSession()
+        session.bindEngine(engine)
+        val hd1 = PlaySource(sourceId = "hd1", url = "https://example.com/hd1.mp3", qualityId = "1080p")
+        val hd2 = PlaySource(sourceId = "hd2", url = "https://example.com/hd2.mp3", qualityId = "1080p")
+        val sd = PlaySource(sourceId = "sd", url = "https://example.com/sd.mp3", qualityId = "480p")
+        session.setMediaList(
+            listOf(media("m1", hd1, hd2, sd)),
+            0
+        )
+        session.play(0)
+
+        engine.emitError(PlaybackError(code = 2001, message = "boom", recoverable = false))
+
+        assertEquals(
+            "同清晰度下的线路挂了，应该先换同清晰度的另一条线路，而不是直接降级清晰度",
+            listOf("m1" to "hd1", "m1" to "hd2"),
+            engine.setMediaCalls
+        )
+    }
+
+    @Test
     fun `switching media resets failed source tracking`() {
         val engine = FakeEngine()
         val session = DefaultPlaybackSession()
         session.bindEngine(engine)
-        session.setQueue(
+        session.setMediaList(
             listOf(media("m1", source("a"), source("b")), media("m2", source("a"), source("b"))),
             0
         )

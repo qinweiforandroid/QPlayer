@@ -1,7 +1,5 @@
 package com.qw.player.core.session
 
-import com.qw.player.core.session.RepeatMode
-
 /**
  * 队列级别的播放策略。
  *

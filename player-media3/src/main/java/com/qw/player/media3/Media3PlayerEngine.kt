@@ -45,9 +45,7 @@ import java.io.File
  * 这个类直接服务于 V2 协议，
  * 用于承接完整音频 / 视频产品的统一播放内核能力。
  */
-class Media3PlayerEngine(
-    context: Context
-) : PlayerEngine {
+class Media3PlayerEngine(context: Context) : PlayerEngine {
 
     private val appContext = context.applicationContext
     private val player: ExoPlayer = ExoPlayer.Builder(appContext).build()
@@ -168,7 +166,7 @@ class Media3PlayerEngine(
                 log("onPlayerError:${error.message}")
                 val kind = Media3ErrorClassifier.classify(error.errorCode)
                 val canRetry = Media3ErrorClassifier.isRecoverable(kind) &&
-                    retryAttempt < Media3ErrorClassifier.MAX_RETRY_ATTEMPTS
+                        retryAttempt < Media3ErrorClassifier.MAX_RETRY_ATTEMPTS
                 val playbackError = PlaybackError(
                     code = error.errorCode,
                     message = error.message ?: "Unknown playback error",
@@ -221,7 +219,7 @@ class Media3PlayerEngine(
         ensureNotReleased()
         cancelPendingRetryCallback()
         val isNewSession = media.mediaId != currentMedia?.mediaId ||
-            source.sourceId != currentSource?.sourceId
+                source.sourceId != currentSource?.sourceId
         if (isNewSession) {
             retryAttempt = 0
         }
@@ -322,7 +320,7 @@ class Media3PlayerEngine(
         dispatchState()
     }
 
-    override fun setPlaybackSpeed(speed: Float) {
+    override fun setSpeed(speed: Float) {
         ensureNotReleased()
         player.setPlaybackParameters(PlaybackParameters(speed))
         dispatchState()

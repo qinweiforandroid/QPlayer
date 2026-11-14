@@ -1,14 +1,11 @@
 package com.qw.player.core.session
 
-import com.qw.player.core.common.PlayLog
 import com.qw.player.core.engine.PlaybackError
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.engine.PlayerEngine
 import com.qw.player.core.engine.PlayerEventListener
 import com.qw.player.core.media.PlayableMedia
-import com.qw.player.core.media.ResolvedMedia
-import com.qw.player.core.source.MediaSourceResolver
 import kotlin.random.Random
 
 /**
@@ -17,24 +14,24 @@ import kotlin.random.Random
  * 这是一层纯协议语义上的 session，核心职责包括：
  * - 管理播放队列
  * - 决定当前播放项
- * - 调用 [MediaSourceResolver] 解析 source
  * - 驱动 [PlayerEngine] 执行真实播放
  * - 处理自动下一首、随机播放、重复播放等会话级逻辑
  *
- * 这里直接围绕 V2 协议建模。
+ * 这里直接围绕 V2 协议建模。调用方需要保证传入的 [PlayableMedia] 已经带有可直接播放的 source；
+ * 如果有 id → 真实地址的异步解析需求，应在 session 外部完成。
  */
-class DefaultPlaybackSession : PlaybackSession {
+class DefaultPlaybackSession(
+    private val sourceSelector: SourceSelector = DefaultSourceSelector()
+) : PlaybackSession {
 
-    private val queue = mutableListOf<PlayableMedia>()
+    private val medias = mutableListOf<PlayableMedia>()
     private val listeners = linkedSetOf<PlaybackSessionListener>()
 
     private var engine: PlayerEngine? = null
-    private var resolver: MediaSourceResolver? = null
     private var playbackMode: PlaybackMode = PlaybackMode()
-    private var currentIndex: Int = -1
-    private var currentMedia: PlayableMedia? = null
+    private var curIndex: Int = -1
+    private var curMedia: PlayableMedia? = null
     private var latestSnapshot: PlaybackSnapshot = PlaybackSnapshot()
-    private var resolveToken: Long = 0L
 
     /**
      * 下一次 setMedia 使用的起播位置。
@@ -48,19 +45,27 @@ class DefaultPlaybackSession : PlaybackSession {
 
     private val engineListener = object : PlayerEventListener {
         override fun onStateChanged(state: PlaybackState) {
-            currentMedia?.let { notifyPlaybackStateChanged(it, state) }
+            curMedia?.let { media ->
+                listeners.forEach { it.onPlaybackStateChanged(media, state) }
+            }
         }
 
         override fun onProgress(positionMs: Long, durationMs: Long) {
-            currentMedia?.let { notifyPlaybackProgress(it, positionMs, durationMs) }
+            curMedia?.let { media ->
+                listeners.forEach { it.onPlaybackProgress(media, positionMs, durationMs) }
+            }
         }
 
         override fun onBufferingProgress(bufferedPositionMs: Long, durationMs: Long) {
-            currentMedia?.let { notifyPlaybackBufferingProgress(it, bufferedPositionMs) }
+            curMedia?.let { media ->
+                listeners.forEach { it.onPlaybackBufferingProgress(media, bufferedPositionMs) }
+            }
         }
 
         override fun onCompleted() {
-            currentMedia?.let { notifyPlaybackCompleted(it) }
+            curMedia?.let { media ->
+                listeners.forEach { it.onPlaybackCompleted(media) }
+            }
             skipToNext(auto = true)
         }
 
@@ -69,8 +74,15 @@ class DefaultPlaybackSession : PlaybackSession {
             if (!error.recoverable && tryFallbackToNextSource()) {
                 return
             }
-            notifyPlaybackError(currentMedia, error)
+            notifyPlaybackError(curMedia, error)
         }
+    }
+
+    override fun bindEngine(engine: PlayerEngine) {
+        this.engine?.setListener(null)
+        this.engine = engine
+        engine.setListener(engineListener)
+        latestSnapshot = engine.getSnapshot()
     }
 
     /**
@@ -85,52 +97,41 @@ class DefaultPlaybackSession : PlaybackSession {
         return snapshot
     }
 
-    override fun bindEngine(engine: PlayerEngine) {
-        this.engine?.setListener(null)
-        this.engine = engine
-        engine.setListener(engineListener)
-        latestSnapshot = engine.getSnapshot()
-    }
-
-    override fun setSourceResolver(resolver: MediaSourceResolver?) {
-        this.resolver = resolver
-    }
-
-    override fun setQueue(queue: List<PlayableMedia>, startIndex: Int) {
-        val previousMedia = currentMedia
-        this.queue.clear()
-        this.queue.addAll(queue)
+    override fun setMediaList(queue: List<PlayableMedia>, startIndex: Int) {
+        val previousMedia = curMedia
+        this.medias.clear()
+        this.medias.addAll(queue)
         when {
-            startIndex in this.queue.indices -> {
-                currentIndex = startIndex
-                currentMedia = this.queue[startIndex]
+            startIndex in this.medias.indices -> {
+                curIndex = startIndex
+                curMedia = this.medias[startIndex]
             }
 
-            currentMedia != null -> {
-                currentIndex = this.queue.indexOfFirst { it.mediaId == currentMedia?.mediaId }
-                currentMedia = if (currentIndex in this.queue.indices) this.queue[currentIndex] else null
+            curMedia != null -> {
+                curIndex = this.medias.indexOfFirst { it.mediaId == curMedia?.mediaId }
+                curMedia = if (curIndex in this.medias.indices) this.medias[curIndex] else null
             }
 
             else -> {
-                currentIndex = -1
-                currentMedia = null
+                curIndex = -1
+                curMedia = null
             }
         }
-        if (previousMedia != currentMedia) {
-            notifyMediaTransition(currentMedia, previousMedia)
+        if (previousMedia != curMedia) {
+            notifyMediaTransition(curMedia, previousMedia)
         }
     }
 
-    override fun getQueue(): List<PlayableMedia> {
-        return queue.toList()
+    override fun getMediaList(): List<PlayableMedia> {
+        return medias.toList()
     }
 
     override fun getCurrentMedia(): PlayableMedia? {
-        return currentMedia
+        return curMedia
     }
 
     override fun getCurrentIndex(): Int {
-        return currentIndex
+        return curIndex
     }
 
     override fun updatePlaybackMode(mode: PlaybackMode) {
@@ -142,27 +143,22 @@ class DefaultPlaybackSession : PlaybackSession {
     }
 
     override fun play(index: Int) {
-        if (index !in queue.indices) {
-            notifySessionError(
-                PlaybackError(
-                    code = -1,
-                    message = "播放索引越界: $index"
-                )
-            )
+        if (index !in medias.indices) {
+            notifySessionError(PlaybackError(code = -1, message = "播放索引越界: $index"))
             return
         }
-        val media = queue[index]
+        val media = medias[index]
         switchCurrentMedia(media, index)
         resolveAndPlay(media)
     }
 
     override fun play(mediaId: String) {
-        val index = queue.indexOfFirst { it.mediaId == mediaId }
+        val index = medias.indexOfFirst { it.mediaId == mediaId }
         if (index >= 0) {
             play(index)
             return
         }
-        val current = currentMedia
+        val current = curMedia
         if (current?.mediaId == mediaId) {
             resolveAndPlay(current)
             return
@@ -176,7 +172,7 @@ class DefaultPlaybackSession : PlaybackSession {
     }
 
     override fun play(media: PlayableMedia) {
-        val index = queue.indexOfFirst { it.mediaId == media.mediaId }
+        val index = medias.indexOfFirst { it.mediaId == media.mediaId }
         switchCurrentMedia(media, if (index >= 0) index else -1)
         resolveAndPlay(media)
     }
@@ -193,12 +189,12 @@ class DefaultPlaybackSession : PlaybackSession {
                 engine.play()
             }
 
-            currentMedia != null -> {
-                resolveAndPlay(requireNotNull(currentMedia))
+            curMedia != null -> {
+                resolveAndPlay(requireNotNull(curMedia))
             }
 
-            queue.isNotEmpty() -> {
-                play(if (currentIndex in queue.indices) currentIndex else 0)
+            medias.isNotEmpty() -> {
+                play(if (curIndex in medias.indices) curIndex else 0)
             }
 
             else -> {
@@ -243,77 +239,29 @@ class DefaultPlaybackSession : PlaybackSession {
     }
 
     override fun release() {
-        resolveToken++
         engine?.setListener(null)
         engine = null
-        resolver = null
-        queue.clear()
-        currentIndex = -1
-        currentMedia = null
+        medias.clear()
+        curIndex = -1
+        curMedia = null
         latestSnapshot = PlaybackSnapshot()
         listeners.clear()
     }
 
     /**
-     * 解析当前媒体并驱动 engine 进入播放流程。
+     * 使用 media 自带 source 驱动 engine 进入播放流程。
      *
-     * 优先级：
-     * 1. 先走 resolver，拿到最新可用 source
-     * 2. 没有 resolver 时，退化为直接使用 media 自带 source
+     * 调用方需要保证传入的 media 已经带有可直接播放的 source。
      */
     private fun resolveAndPlay(media: PlayableMedia) {
         failedSourceIds.clear()
         val engine = engineOrError() ?: return
-        val requestId = ++resolveToken
-        val resolver = this.resolver
-        if (resolver != null) {
-            resolver.resolve(media, object : MediaSourceResolver.Callback {
-                override fun onSuccess(result: ResolvedMedia) {
-                    if (requestId != resolveToken) {
-                        return
-                    }
-                    val mergedMedia = mergeResolvedMedia(media, result)
-                    val source = mergedMedia.resolveDefaultSource()
-                    if (source == null) {
-                        notifySessionError(
-                            PlaybackError(
-                                code = -1,
-                                message = "Resolver 未返回可用 source"
-                            )
-                        )
-                        return
-                    }
-                    if (source.isExpired(System.currentTimeMillis())) {
-                        notifySessionError(
-                            PlaybackError(
-                                code = -1,
-                                message = "Resolver 返回的 source 已过期: ${source.sourceId}"
-                            )
-                        )
-                        return
-                    }
-                    switchCurrentMedia(mergedMedia, currentIndex)
-                    engine.setMedia(mergedMedia, source, consumePendingStartPosition())
-                    engine.prepare()
-                    engine.play()
-                }
-
-                override fun onFailure(error: PlaybackError) {
-                    if (requestId != resolveToken) {
-                        return
-                    }
-                    notifySessionError(error)
-                }
-            })
-            return
-        }
-
-        val source = media.resolveDefaultSource()
+        val source = sourceSelector.selectInitial(media)
         if (source == null) {
             notifySessionError(
                 PlaybackError(
                     code = -1,
-                    message = "当前媒体没有可直接播放的 source，且未提供 resolver"
+                    message = "当前媒体没有可直接播放的 source"
                 )
             )
             return
@@ -349,11 +297,13 @@ class DefaultPlaybackSession : PlaybackSession {
      * 返回 true 表示已经发起了降级播放，调用方不应再把这次错误上抛给外部监听者。
      */
     private fun tryFallbackToNextSource(): Boolean {
-        val media = currentMedia ?: return false
+        val media = curMedia ?: return false
         val engine = this.engine ?: return false
         val snapshot = latestSnapshot
-        snapshot.currentSourceId?.let { failedSourceIds.add(it) }
-        val nextSource = media.playSources.firstOrNull { it.sourceId !in failedSourceIds } ?: return false
+        val currentSourceId = snapshot.currentSourceId ?: return false
+        val currentSource = media.playSources.firstOrNull { it.sourceId == currentSourceId } ?: return false
+        failedSourceIds.add(currentSourceId)
+        val nextSource = sourceSelector.selectFallback(media, currentSource, failedSourceIds) ?: return false
         val resumePositionMs = snapshot.currentPositionMs.coerceAtLeast(0L)
         engine.setMedia(media, nextSource, resumePositionMs)
         engine.prepare()
@@ -361,24 +311,10 @@ class DefaultPlaybackSession : PlaybackSession {
         return true
     }
 
-    /**
-     * 用 resolver 返回的结果更新当前媒体对象。
-     */
-    private fun mergeResolvedMedia(
-        media: PlayableMedia,
-        result: ResolvedMedia
-    ): PlayableMedia {
-        return media.copy(
-            metadata = result.metadata ?: media.metadata,
-            playSources = result.playSources,
-            defaultSourceId = result.defaultSourceId
-        )
-    }
-
     private fun switchCurrentMedia(media: PlayableMedia?, newIndex: Int) {
-        val previous = currentMedia
-        currentMedia = media
-        currentIndex = newIndex
+        val previous = curMedia
+        curMedia = media
+        curIndex = newIndex
         if (previous != media) {
             notifyMediaTransition(media, previous)
         }
@@ -393,28 +329,12 @@ class DefaultPlaybackSession : PlaybackSession {
         }
     }
 
-    private fun notifyPlaybackStateChanged(media: PlayableMedia, state: PlaybackState) {
-        listeners.forEach { it.onPlaybackStateChanged(media, state) }
-    }
-
-    private fun notifyPlaybackProgress(media: PlayableMedia, positionMs: Long, durationMs: Long) {
-        listeners.forEach { it.onPlaybackProgress(media, positionMs, durationMs) }
-    }
-
-    private fun notifyPlaybackBufferingProgress(media: PlayableMedia, bufferedPositionMs: Long) {
-        listeners.forEach { it.onPlaybackBufferingProgress(media, bufferedPositionMs) }
-    }
-
-    private fun notifyPlaybackCompleted(media: PlayableMedia) {
-        listeners.forEach { it.onPlaybackCompleted(media) }
-    }
-
     private fun notifyPlaybackError(media: PlayableMedia?, error: PlaybackError) {
         listeners.forEach { it.onPlaybackError(media, error) }
     }
 
     private fun notifySessionError(error: PlaybackError) {
-        notifyPlaybackError(currentMedia, error)
+        notifyPlaybackError(curMedia, error)
     }
 
     private fun engineOrError(): PlayerEngine? {
@@ -440,21 +360,21 @@ class DefaultPlaybackSession : PlaybackSession {
      * - RepeatMode.ALL 允许头尾循环
      */
     private fun findNextIndex(auto: Boolean): Int? {
-        if (queue.isEmpty()) {
+        if (medias.isEmpty()) {
             return null
         }
-        if (currentIndex !in queue.indices) {
+        if (curIndex !in medias.indices) {
             return 0
         }
         if (auto && playbackMode.repeatMode == RepeatMode.ONE) {
-            return currentIndex
+            return curIndex
         }
-        if (playbackMode.shuffleEnabled && queue.size > 1) {
-            return randomIndexExcluding(currentIndex)
+        if (playbackMode.shuffleEnabled && medias.size > 1) {
+            return randomIndexExcluding(curIndex)
         }
-        val next = currentIndex + 1
+        val next = curIndex + 1
         return when {
-            next < queue.size -> next
+            next < medias.size -> next
             playbackMode.repeatMode == RepeatMode.ALL -> 0
             else -> null
         }
@@ -464,22 +384,22 @@ class DefaultPlaybackSession : PlaybackSession {
      * 计算上一首索引。
      */
     private fun findPreviousIndex(auto: Boolean): Int? {
-        if (queue.isEmpty()) {
+        if (medias.isEmpty()) {
             return null
         }
-        if (currentIndex !in queue.indices) {
+        if (curIndex !in medias.indices) {
             return 0
         }
         if (auto && playbackMode.repeatMode == RepeatMode.ONE) {
-            return currentIndex
+            return curIndex
         }
-        if (playbackMode.shuffleEnabled && queue.size > 1) {
-            return randomIndexExcluding(currentIndex)
+        if (playbackMode.shuffleEnabled && medias.size > 1) {
+            return randomIndexExcluding(curIndex)
         }
-        val previous = currentIndex - 1
+        val previous = curIndex - 1
         return when {
             previous >= 0 -> previous
-            playbackMode.repeatMode == RepeatMode.ALL -> queue.lastIndex
+            playbackMode.repeatMode == RepeatMode.ALL -> medias.lastIndex
             else -> null
         }
     }
@@ -487,7 +407,7 @@ class DefaultPlaybackSession : PlaybackSession {
     private fun randomIndexExcluding(excludedIndex: Int): Int {
         var candidate = excludedIndex
         while (candidate == excludedIndex) {
-            candidate = Random.nextInt(queue.size)
+            candidate = Random.nextInt(medias.size)
         }
         return candidate
     }

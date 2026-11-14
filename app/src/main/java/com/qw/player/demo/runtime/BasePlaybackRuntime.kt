@@ -11,7 +11,6 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.qw.player.core.session.DefaultPlaybackSession
 import com.qw.player.core.telemetry.PlaybackTelemetry
-import com.qw.player.core.source.MediaSourceResolver
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
@@ -100,14 +99,8 @@ internal class BasePlaybackRuntime(
         }
     }
 
-    fun initialize(
-        context: Context,
-        resolver: MediaSourceResolver? = null
-    ) {
+    fun initialize(context: Context) {
         if (engine != null) {
-            if (resolver != null) {
-                session?.setSourceResolver(resolver)
-            }
             return
         }
         appContext = context.applicationContext
@@ -122,7 +115,6 @@ internal class BasePlaybackRuntime(
         }
         val createdSession = DefaultPlaybackSession().apply {
             bindEngine(createdEngine)
-            setSourceResolver(resolver)
             addListener(internalSessionListener)
         }
         engine = createdEngine
@@ -201,12 +193,8 @@ internal class BasePlaybackRuntime(
         wifiLockHeld = false
     }
 
-    fun setSourceResolver(resolver: MediaSourceResolver?) {
-        sessionOrThrow().setSourceResolver(resolver)
-    }
-
     fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) {
-        sessionOrThrow().setQueue(queue, startIndex)
+        sessionOrThrow().setMediaList(queue, startIndex)
     }
 
     fun play(index: Int) {
@@ -249,7 +237,7 @@ internal class BasePlaybackRuntime(
     }
 
     fun setPlaybackSpeed(speed: Float) {
-        engineOrThrow().setPlaybackSpeed(speed)
+        engineOrThrow().setSpeed(speed)
     }
 
     fun setVolume(volume: Float) {
@@ -279,10 +267,10 @@ internal class BasePlaybackRuntime(
         }
         session.setPendingStartPosition(getSnapshot().currentPositionMs)
         val updated = current.copy(defaultSourceId = sourceId)
-        val queue = session.getQueue().toMutableList()
+        val queue = session.getMediaList().toMutableList()
         if (index in queue.indices) {
             queue[index] = updated
-            session.setQueue(queue, index)
+            session.setMediaList(queue, index)
         }
         session.play(updated)
         return true
@@ -313,7 +301,7 @@ internal class BasePlaybackRuntime(
     }
 
     fun getQueue(): List<PlayableMedia> {
-        return sessionOrThrow().getQueue()
+        return sessionOrThrow().getMediaList()
     }
 
     fun getSnapshot(): PlaybackSnapshot {

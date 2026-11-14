@@ -8,9 +8,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.qw.player.core.common.PlayLog
 import com.qw.player.demo.MainActivity
@@ -94,7 +96,12 @@ class PlaybackNotification(
 
     override fun notifyNotification(model: NotificationModel, service: Service) {
         this.play = model
-        service.startForeground(getNotificationId(), createNotificationBuilder().build())
+        ServiceCompat.startForeground(
+            service,
+            getNotificationId(),
+            createNotificationBuilder().build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+        )
     }
 
     override fun cancel() {

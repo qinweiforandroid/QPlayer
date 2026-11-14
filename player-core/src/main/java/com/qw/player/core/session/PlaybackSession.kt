@@ -3,7 +3,6 @@ package com.qw.player.core.session
 import com.qw.player.core.engine.PlayerEngine
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.media.PlayableMedia
-import com.qw.player.core.source.MediaSourceResolver
 
 /**
  * 构建在 [PlayerEngine] 之上的会话层播放协调器。
@@ -12,22 +11,20 @@ import com.qw.player.core.source.MediaSourceResolver
  * - 当前播放队列
  * - 当前索引和当前媒体
  * - 重复 / 随机播放模式
- * - source 解析与切歌编排
+ * - 切歌编排
  *
  * 它不直接负责底层解码和渲染，那部分仍然属于 [PlayerEngine]。
+ * 它也不负责业务侧的 id → 真实地址解析，调用方需要保证传入的 [PlayableMedia] 已经带有可直接播放的 source。
  */
 interface PlaybackSession {
     /** 绑定当前会话所使用的 engine。 */
     fun bindEngine(engine: PlayerEngine)
 
-    /** 注入播放前要使用的 source resolver。 */
-    fun setSourceResolver(resolver: MediaSourceResolver?)
-
     /** 替换播放队列，并可选择指定初始索引。 */
-    fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1)
+    fun setMediaList(queue: List<PlayableMedia>, startIndex: Int = -1)
 
     /** 返回当前不可变队列视图。 */
-    fun getQueue(): List<PlayableMedia>
+    fun getMediaList(): List<PlayableMedia>
 
     /** 返回当前逻辑媒体项。 */
     fun getCurrentMedia(): PlayableMedia?

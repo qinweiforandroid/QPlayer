@@ -116,7 +116,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/mMusicPlayStateImg"
-        style="@style/Widget.Material3Expressive.Button.IconButton.Filled"
+        style="@style/Widget.Material3Expressive.Button.IconButton.Standard"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginTop="10dp"

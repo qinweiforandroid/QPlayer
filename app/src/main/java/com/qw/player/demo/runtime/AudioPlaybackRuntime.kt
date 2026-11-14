@@ -2,7 +2,6 @@ package com.qw.player.demo.runtime
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.qw.player.core.source.MediaSourceResolver
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
@@ -25,8 +24,7 @@ object AudioPlaybackRuntime {
         manageAudioFocus = true
     )
 
-    fun initialize(context: Context, resolver: MediaSourceResolver? = null) = core.initialize(context, resolver)
-    fun setSourceResolver(resolver: MediaSourceResolver?) = core.setSourceResolver(resolver)
+    fun initialize(context: Context) = core.initialize(context)
     fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) = core.setQueue(queue, startIndex)
     fun play(index: Int) = core.play(index)
     fun play(mediaId: String) = core.play(mediaId)

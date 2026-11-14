@@ -1,9 +1,5 @@
 package com.qw.player.core.media
 
-import com.qw.player.core.media.ClipRange
-import com.qw.player.core.media.DrmConfiguration
-import com.qw.player.core.media.SubtitleTrack
-
 /**
  * 某个媒体对象的一条具体可播放 source。
  *
@@ -25,6 +21,8 @@ data class PlaySource(
     val expiresAtMs: Long? = null,
     /** 是否允许 engine 对这条 source 做本地缓存；直播流应设为 false。 */
     val cacheable: Boolean = true,
+    /** 标记这条 source 所属的清晰度分组；同 [qualityId] 的多条 source 视为同一清晰度的不同线路。 */
+    val qualityId: String? = null,
     val tag: Any? = null
 ) {
     /** 判断这条 source 是否已过有效期；没有配置 [expiresAtMs] 时视为不过期。 */

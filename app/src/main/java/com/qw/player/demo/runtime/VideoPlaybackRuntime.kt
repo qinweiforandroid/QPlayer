@@ -2,11 +2,11 @@ package com.qw.player.demo.runtime
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.qw.player.core.source.MediaSourceResolver
+import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
-import com.qw.player.core.engine.PlaybackSnapshot
+import com.qw.player.core.telemetry.PlaybackTelemetry
 import com.qw.player.media3.Media3PlayerEngine
 
 /**
@@ -26,10 +26,12 @@ object VideoPlaybackRuntime {
         resumeOnFocusGain = false
     )
 
-    fun initialize(context: Context, resolver: MediaSourceResolver? = null) = core.initialize(context, resolver)
+    fun initialize(context: Context) = core.initialize(context)
+
     fun reset() = core.reset()
-    fun setSourceResolver(resolver: MediaSourceResolver?) = core.setSourceResolver(resolver)
-    fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) = core.setQueue(queue, startIndex)
+    fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) =
+        core.setQueue(queue, startIndex)
+
     fun play(index: Int) = core.play(index)
     fun play(mediaId: String) = core.play(mediaId)
     fun resume() = core.resume()
@@ -46,7 +48,9 @@ object VideoPlaybackRuntime {
     fun getCurrentIndex() = core.getCurrentIndex()
     fun getQueue() = core.getQueue()
     fun getSnapshot(): PlaybackSnapshot = core.getSnapshot()
-    fun setTelemetry(telemetry: com.qw.player.core.telemetry.PlaybackTelemetry?) = core.setTelemetry(telemetry)
+    fun setTelemetry(telemetry: PlaybackTelemetry?) =
+        core.setTelemetry(telemetry)
+
     fun addListener(listener: PlaybackSessionListener) = core.addListener(listener)
     fun removeListener(listener: PlaybackSessionListener) = core.removeListener(listener)
     fun getEngine(): Media3PlayerEngine = core.getEngine()

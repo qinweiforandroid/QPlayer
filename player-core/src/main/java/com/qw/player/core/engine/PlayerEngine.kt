@@ -47,7 +47,7 @@ interface PlayerEngine {
     fun seekTo(positionMs: Long)
 
     /** 调整播放速度。 */
-    fun setPlaybackSpeed(speed: Float)
+    fun setSpeed(speed: Float)
 
     /** 设置单曲循环（直播/多P场景不启用）。 */
     fun setLooping(looping: Boolean)
