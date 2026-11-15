@@ -25,7 +25,7 @@ object AudioPlaybackRuntime {
     )
 
     fun initialize(context: Context) = core.initialize(context)
-    fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) = core.setQueue(queue, startIndex)
+    fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) = core.setMediaList(queue, startIndex)
     fun play(index: Int) = core.play(index)
     fun play(mediaId: String) = core.play(mediaId)
     fun resume() = core.resume()

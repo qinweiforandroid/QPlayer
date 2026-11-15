@@ -81,7 +81,7 @@ class LivePlaybackCoordinator(
         monitoring = true
 
         VideoPlaybackRuntime.addListener(sessionListener)
-        VideoPlaybackRuntime.setQueue(listOf(channel.toPlayableMedia()), 0)
+        VideoPlaybackRuntime.setMediaList(listOf(channel.toPlayableMedia()), 0)
         playCurrentLine()
     }
 
@@ -131,7 +131,7 @@ class LivePlaybackCoordinator(
         val line = channel.lines.getOrNull(currentLineIndex) ?: return
         allLinesFailed = false
 
-        VideoPlaybackRuntime.setQueue(listOf(channel.toPlayableMedia(line.id)), 0)
+        VideoPlaybackRuntime.setMediaList(listOf(channel.toPlayableMedia(line.id)), 0)
         VideoPlaybackRuntime.play(0)
         publish(PlaybackState.PREPARING)
     }

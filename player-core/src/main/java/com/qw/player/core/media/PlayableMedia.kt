@@ -28,4 +28,36 @@ data class PlayableMedia(
         }
         return playSources.firstOrNull { it.sourceId == defaultSourceId } ?: playSources.first()
     }
+
+    companion object {
+        private const val DEFAULT_SOURCE_ID = "default"
+
+        /**
+         * 用一个 url 快速构造视频 [PlayableMedia]，省去手写 [PlaySource]/[playSources] 的套娃结构。
+         *
+         * 不传 [mediaId] 时用 [url] 本身兜底，复杂场景（多码率降级、自定义 headers 等）仍应使用主构造函数。
+         */
+        fun fromVideoUrl(url: String, mediaId: String = url): PlayableMedia {
+            return PlayableMedia(
+                mediaId = mediaId,
+                mediaType = MediaType.VIDEO,
+                playSources = listOf(PlaySource(sourceId = DEFAULT_SOURCE_ID, url = url)),
+                defaultSourceId = DEFAULT_SOURCE_ID
+            )
+        }
+
+        /**
+         * 用一个 url 快速构造音频 [PlayableMedia]，省去手写 [PlaySource]/[playSources] 的套娃结构。
+         *
+         * 不传 [mediaId] 时用 [url] 本身兜底，复杂场景（多码率降级、自定义 headers 等）仍应使用主构造函数。
+         */
+        fun fromAudioUrl(url: String, mediaId: String = url): PlayableMedia {
+            return PlayableMedia(
+                mediaId = mediaId,
+                mediaType = MediaType.AUDIO,
+                playSources = listOf(PlaySource(sourceId = DEFAULT_SOURCE_ID, url = url)),
+                defaultSourceId = DEFAULT_SOURCE_ID
+            )
+        }
+    }
 }

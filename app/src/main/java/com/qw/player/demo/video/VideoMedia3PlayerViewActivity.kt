@@ -3,7 +3,6 @@ package com.qw.player.demo.video
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.media3.ui.AspectRatioFrameLayout
 import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlaySource
 import com.qw.player.core.media.PlayableMedia
@@ -30,17 +29,13 @@ class VideoMedia3PlayerViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         bind = VideoMedia3PlayerViewActivityBinding.inflate(layoutInflater)
         setContentView(bind.root)
-        bind.playerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
-        bind.playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM)
-        VideoPlaybackRuntime.updatePlaybackMode(
-            PlaybackMode(
-                repeatMode = RepeatMode.OFF,
-                shuffleEnabled = false
-            )
-        )
-        VideoPlaybackRuntime.setQueue(listOf(videoMedia), 0)
-        VideoPlaybackRuntime.addListener(sessionListener)
-        VideoPlaybackRuntime.play(0)
+        VideoPlaybackRuntime.apply {
+            bindPlayerView(bind.playerView)
+            updatePlaybackMode(PlaybackMode(RepeatMode.OFF, false))
+            setMediaList(listOf(videoMedia), 0)
+            addListener(sessionListener)
+            play(0)
+        }
     }
 
     override fun onPause() {
@@ -87,7 +82,10 @@ class VideoMedia3PlayerViewActivity : AppCompatActivity() {
     }
 
     private val sessionListener = object : PlaybackSessionListener {
-        override fun onPlaybackStateChanged(media: PlayableMedia, state: com.qw.player.core.engine.PlaybackState) {
+        override fun onPlaybackStateChanged(
+            media: PlayableMedia,
+            state: com.qw.player.core.engine.PlaybackState
+        ) {
             title = media.mediaId
         }
 

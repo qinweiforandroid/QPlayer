@@ -193,7 +193,7 @@ internal class BasePlaybackRuntime(
         wifiLockHeld = false
     }
 
-    fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) {
+    fun setMediaList(queue: List<PlayableMedia>, startIndex: Int = -1) {
         sessionOrThrow().setMediaList(queue, startIndex)
     }
 

@@ -2,6 +2,7 @@ package com.qw.player.demo.runtime
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.media3.ui.PlayerView
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
@@ -29,8 +30,8 @@ object VideoPlaybackRuntime {
     fun initialize(context: Context) = core.initialize(context)
 
     fun reset() = core.reset()
-    fun setQueue(queue: List<PlayableMedia>, startIndex: Int = -1) =
-        core.setQueue(queue, startIndex)
+    fun setMediaList(queue: List<PlayableMedia>, startIndex: Int = -1) =
+        core.setMediaList(queue, startIndex)
 
     fun play(index: Int) = core.play(index)
     fun play(mediaId: String) = core.play(mediaId)
@@ -57,4 +58,8 @@ object VideoPlaybackRuntime {
     fun isPlaying() = core.isPlaying()
     fun isPaused() = core.isPaused()
     fun isBuffering() = core.isBuffering()
+    fun bindPlayerView(playerView: PlayerView): VideoPlaybackRuntime {
+        playerView.player = getEngine().getExoPlayer()
+        return this
+    }
 }

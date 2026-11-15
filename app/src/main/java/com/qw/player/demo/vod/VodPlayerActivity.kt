@@ -8,7 +8,6 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -26,7 +25,6 @@ import com.qw.player.core.session.RepeatMode
 import com.qw.player.demo.R
 import com.qw.player.demo.databinding.ActivityVodPlayerBinding
 import com.qw.player.demo.runtime.VideoPlaybackRuntime
-import com.qw.player.demo.widget.PlayerGestureHints
 import com.qw.player.demo.widget.PlayerGestureLayout
 import com.qw.player.demo.widget.VodPlayerControlView
 import com.qw.player.media3.Media3PlayerEngine
@@ -305,7 +303,7 @@ class VodPlayerActivity : AppCompatActivity() {
                 defaultQualityId = selectedQualityId
             )
         }
-        VideoPlaybackRuntime.setQueue(queue, currentEpisodeIndex)
+        VideoPlaybackRuntime.setMediaList(queue, currentEpisodeIndex)
         VideoPlaybackRuntime.setMuted(isMuted)
         VideoPlaybackRuntime.setPlaybackSpeed(currentSpeed)
         VideoPlaybackRuntime.setLooping(isLooping)
