@@ -25,11 +25,14 @@ import com.qw.player.demo.R
 import com.qw.player.demo.databinding.AudioItemLayoutBinding
 import com.qw.player.demo.databinding.PlayListFragmentBinding
 import com.qw.player.demo.runtime.AudioPlaybackController
-import com.qw.player.demo.runtime.AudioPlaybackRuntime
+import com.qw.player.demo.audioRuntime
 import com.qw.player.demo.widget.MusicView
 
 class AudioPlayerFragment : Fragment() {
     private lateinit var bind: PlayListFragmentBinding
+
+    /** 音频 runtime 挂在应用作用域，跨 tab / 返回栈保持同一条 session。 */
+    private val runtime get() = requireContext().audioRuntime
     private val modules = mutableListOf<PlayableMedia>()
     private val playListAdapter = PlayListAdapter()
 
@@ -53,7 +56,7 @@ class AudioPlayerFragment : Fragment() {
         bind.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         bind.recyclerView.adapter = playListAdapter
         bind.mMusicView.setOnMusicPlayStateClickListener {
-            when (AudioPlaybackRuntime.getSnapshot().state) {
+            when (runtime.getSnapshot().state) {
                 PlaybackState.PLAYING,
                 PlaybackState.BUFFERING,
                 PlaybackState.PREPARING -> AudioPlaybackController.pause(requireContext())
@@ -63,8 +66,8 @@ class AudioPlayerFragment : Fragment() {
 
                 else -> AudioPlaybackController.play(
                     requireContext(),
-                    if (AudioPlaybackRuntime.getCurrentIndex() >= 0) {
-                        AudioPlaybackRuntime.getCurrentIndex()
+                    if (runtime.getCurrentIndex() >= 0) {
+                        runtime.getCurrentIndex()
                     } else {
                         0
                     }
@@ -73,7 +76,7 @@ class AudioPlayerFragment : Fragment() {
         }
         bind.mMusicView.setOnSeekChangedListener(object : MusicView.OnSeekChangedListener {
             override fun onSeekChanged(seekBar: SeekBar) {
-                AudioPlaybackRuntime.seekTo(seekBar.progress.toLong())
+                runtime.seekTo(seekBar.progress.toLong())
             }
         })
         bind.mMusicView.setPrevClickListener {
@@ -88,7 +91,7 @@ class AudioPlayerFragment : Fragment() {
             }
             when (checkedId) {
                 R.id.mMusicPlayModeSingLoopRB -> {
-                    AudioPlaybackRuntime.updatePlaybackMode(
+                    runtime.updatePlaybackMode(
                         PlaybackMode(
                             repeatMode = RepeatMode.ONE,
                             shuffleEnabled = false
@@ -97,7 +100,7 @@ class AudioPlayerFragment : Fragment() {
                 }
 
                 R.id.mMusicPlayModeListLoopRB -> {
-                    AudioPlaybackRuntime.updatePlaybackMode(
+                    runtime.updatePlaybackMode(
                         PlaybackMode(
                             repeatMode = RepeatMode.ALL,
                             shuffleEnabled = false
@@ -106,7 +109,7 @@ class AudioPlayerFragment : Fragment() {
                 }
 
                 R.id.mMusicPlayModeRandomRB -> {
-                    AudioPlaybackRuntime.updatePlaybackMode(
+                    runtime.updatePlaybackMode(
                         PlaybackMode(
                             repeatMode = RepeatMode.ALL,
                             shuffleEnabled = true
@@ -118,22 +121,22 @@ class AudioPlayerFragment : Fragment() {
         bind.mPlayCountdownBtn.visibility = View.GONE
         bind.mPlayCountdownInfoLabel.text = "V2 Session"
 
-        // 队列和播放状态挂在全局单例 AudioPlaybackRuntime 上，
+        // 队列和播放状态挂在应用级 AudioPlaybackRuntime 上，
         // Fragment 重建（切 tab / 返回栈）时如果已经有队列在播，不应该重新灌队列、从头播放。
-        val isFirstLoad = AudioPlaybackRuntime.getQueue().isEmpty()
+        val isFirstLoad = runtime.getQueue().isEmpty()
         if (isFirstLoad) {
-            AudioPlaybackRuntime.setQueue(createDemoQueue(), 0)
-            AudioPlaybackRuntime.updatePlaybackMode(
+            runtime.setQueue(createDemoQueue(), 0)
+            runtime.updatePlaybackMode(
                 PlaybackMode(
                     repeatMode = RepeatMode.ALL,
                     shuffleEnabled = false
                 )
             )
         }
-        AudioPlaybackRuntime.addListener(sessionListener)
+        runtime.addListener(sessionListener)
 
         modules.clear()
-        modules.addAll(AudioPlaybackRuntime.getQueue())
+        modules.addAll(runtime.getQueue())
         playListAdapter.notifyDataSetChanged()
         if (isFirstLoad) {
             bind.mMusicPlayModeRG.check(R.id.mMusicPlayModeListLoopRB)
@@ -143,12 +146,12 @@ class AudioPlayerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        notifySessionUpdated(AudioPlaybackRuntime.getSnapshot().state)
-        refreshCurrentMediaInfo(AudioPlaybackRuntime.getCurrentMedia())
+        notifySessionUpdated(runtime.getSnapshot().state)
+        refreshCurrentMediaInfo(runtime.getCurrentMedia())
     }
 
     override fun onDestroyView() {
-        AudioPlaybackRuntime.removeListener(sessionListener)
+        runtime.removeListener(sessionListener)
         bind.recyclerView.adapter = null
         super.onDestroyView()
     }
@@ -190,8 +193,8 @@ class AudioPlayerFragment : Fragment() {
             }
             itemBinding.mMusicTitleLabel.text = media.metadata.title
             itemBinding.mMusicAuthorLabel.text = media.metadata.artist
-            val isCurrent = AudioPlaybackRuntime.getCurrentIndex() == position
-            val state = AudioPlaybackRuntime.getSnapshot().state
+            val isCurrent = runtime.getCurrentIndex() == position
+            val state = runtime.getSnapshot().state
             itemBinding.mMusicStateImg.setIconResource(
                 if (isCurrent && (state == PlaybackState.PLAYING || state == PlaybackState.BUFFERING)) {
                     R.drawable.ic_baseline_pause_24

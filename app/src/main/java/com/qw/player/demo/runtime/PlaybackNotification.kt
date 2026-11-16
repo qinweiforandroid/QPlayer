@@ -17,12 +17,13 @@ import androidx.core.content.ContextCompat
 import com.qw.player.core.common.PlayLog
 import com.qw.player.demo.MainActivity
 import com.qw.player.demo.R
+import com.qw.player.demo.audioRuntime
 
 /**
  * 基于 V2 runtime 的通知实现。
  *
  * 当前通知只服务于音频 runtime：
- * - 状态读取来自 [AudioPlaybackRuntime]
+ * - 状态读取来自应用级 [AudioPlaybackRuntime]（经 [com.qw.player.demo.audioRuntime] 取）
  * - 控制命令发给 [AudioPlaybackService]
  */
 class PlaybackNotification(
@@ -30,6 +31,8 @@ class PlaybackNotification(
 ) : NotificationRenderer {
 
     private var play: NotificationModel? = null
+
+    private val runtime get() = context.audioRuntime
     private lateinit var receiver: NotificationReceiver
 
     override fun registerListener() {
@@ -114,7 +117,7 @@ class PlaybackNotification(
         remoteViews.setTextViewText(R.id.mNMusicPlayTitleLabel, "")
         remoteViews.setImageViewResource(
             R.id.mNMusicPlayPlayImg,
-            if (AudioPlaybackRuntime.isPlaying() || AudioPlaybackRuntime.isBuffering()) {
+            if (runtime.isPlaying() || runtime.isBuffering()) {
                 R.drawable.ic_baseline_pause_24
             } else {
                 R.drawable.ic_baseline_play_arrow_24
@@ -158,15 +161,15 @@ class PlaybackNotification(
             PlayLog.d("PlaybackNotification ${intent.action}")
             when (intent.action) {
                 ACTION_PLAY -> when {
-                    AudioPlaybackRuntime.isPaused() -> AudioPlaybackController.resume(context)
-                    AudioPlaybackRuntime.isPlaying() || AudioPlaybackRuntime.isBuffering() -> {
+                    runtime.isPaused() -> AudioPlaybackController.resume(context)
+                    runtime.isPlaying() || runtime.isBuffering() -> {
                         AudioPlaybackController.pause(context)
                     }
 
                     else -> AudioPlaybackController.play(
                         context,
-                        if (AudioPlaybackRuntime.getCurrentIndex() >= 0) {
-                            AudioPlaybackRuntime.getCurrentIndex()
+                        if (runtime.getCurrentIndex() >= 0) {
+                            runtime.getCurrentIndex()
                         } else {
                             0
                         }

@@ -14,6 +14,7 @@ import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.engine.PlaybackError
 import com.qw.player.core.session.PlaybackSessionListener
 import com.qw.player.demo.R
+import com.qw.player.demo.audioRuntime
 
 /**
  * 基于 V2 runtime 的前台播放 Service。
@@ -37,6 +38,9 @@ class AudioPlaybackService : Service() {
     }
 
     private lateinit var playNotification: NotificationRenderer
+
+    /** 与页面 / 通知共享同一条音频 session，取应用级实例。 */
+    private val runtime get() = this.audioRuntime
     private val handler = Handler(Looper.getMainLooper())
 
     private val sessionListener = object : PlaybackSessionListener {
@@ -65,23 +69,23 @@ class AudioPlaybackService : Service() {
         super.onCreate()
         playNotification = PlaybackNotification(this)
         playNotification.registerListener()
-        AudioPlaybackRuntime.addListener(sessionListener)
+        runtime.addListener(sessionListener)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.getStringExtra(KEY_ACTION)) {
             ACTION_PLAY_INDEX -> {
-                AudioPlaybackRuntime.play(intent.getIntExtra(KEY_INDEX, 0))
+                runtime.play(intent.getIntExtra(KEY_INDEX, 0))
             }
 
-            ACTION_RESUME -> AudioPlaybackRuntime.resume()
-            ACTION_PAUSE -> AudioPlaybackRuntime.pause()
+            ACTION_RESUME -> runtime.resume()
+            ACTION_PAUSE -> runtime.pause()
             ACTION_STOP -> {
-                AudioPlaybackRuntime.stop()
+                runtime.stop()
                 stopSelf()
             }
-            ACTION_NEXT -> AudioPlaybackRuntime.skipToNext()
-            ACTION_PREVIOUS -> AudioPlaybackRuntime.skipToPrevious()
+            ACTION_NEXT -> runtime.skipToNext()
+            ACTION_PREVIOUS -> runtime.skipToPrevious()
         }
         notifyNotificationUpdated()
         return START_STICKY
@@ -91,12 +95,12 @@ class AudioPlaybackService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        AudioPlaybackRuntime.removeListener(sessionListener)
+        runtime.removeListener(sessionListener)
         playNotification.unRegisterListener()
     }
 
     private fun notifyNotificationUpdated(bitmap: Bitmap? = null) {
-        val current = AudioPlaybackRuntime.getCurrentMedia() ?: return
+        val current = runtime.getCurrentMedia() ?: return
         handler.removeCallbacksAndMessages(null)
         handler.post {
             playNotification.notifyNotification(
@@ -105,7 +109,7 @@ class AudioPlaybackService : Service() {
                     icon = bitmap,
                     title = current.metadata.title,
                     subTitle = current.metadata.artist,
-                    isPlaying = AudioPlaybackRuntime.isPlaying()
+                    isPlaying = runtime.isPlaying()
                 ),
                 this
             )

@@ -1,6 +1,5 @@
 package com.qw.player.demo.runtime
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.media3.ui.PlayerView
 import com.qw.player.core.engine.PlaybackSnapshot
@@ -16,10 +15,10 @@ import com.qw.player.runtime.BasePlaybackRuntime
  * 特点：
  * - 不依赖音频前台 Service
  * - 管理音频焦点，但焦点恢复后不自动续播
- * - 生命周期由视频页面自行驱动
+ * - 生命周期由视频页面自行驱动，每个播放页持有自己的实例
  */
-@SuppressLint("StaticFieldLeak")
-object VideoPlaybackRuntime {
+class VideoPlaybackRuntime {
+
     private val engineFactory = DemoPlaybackEngineFactory()
 
     private val core = BasePlaybackRuntime(
@@ -32,7 +31,9 @@ object VideoPlaybackRuntime {
 
     fun initialize(context: Context) = core.initialize(context)
 
-    fun reset() = core.reset()
+    /** 页面销毁时彻底释放 engine / session，避免解码资源残留。 */
+    fun release() = core.reset()
+
     fun setMediaList(queue: List<PlayableMedia>, startIndex: Int = -1) =
         core.setMediaList(queue, startIndex)
 

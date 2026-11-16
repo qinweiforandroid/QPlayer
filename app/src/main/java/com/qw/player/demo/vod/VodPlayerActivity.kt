@@ -45,6 +45,9 @@ class VodPlayerActivity : AppCompatActivity() {
     private lateinit var bind: ActivityVodPlayerBinding
     private lateinit var playlist: VodPlaylist
 
+    /** 视频 runtime 随页面创建，页面销毁时释放，不跨播放页复用。 */
+    private val runtime = VideoPlaybackRuntime()
+
     private val uiHandler = Handler(Looper.getMainLooper())
 
     private var currentEpisodeIndex = 0
@@ -70,7 +73,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
     private val progressRunnable = object : Runnable {
         override fun run() {
-            val snapshot = VideoPlaybackRuntime.getSnapshot()
+            val snapshot = runtime.getSnapshot()
             bind.mPlayerControls.bindProgress(snapshot.currentPositionMs, snapshot.durationMs)
             bind.mPlayerControls.bindPlaybackState(snapshot.state)
             syncGestureContext(snapshot)
@@ -99,7 +102,7 @@ class VodPlayerActivity : AppCompatActivity() {
                 buildEpisodeViews()
                 syncCover()
             }
-            bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+            bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
             bind.mVodTitleLabel.text = current.metadata.title
         }
 
@@ -109,8 +112,8 @@ class VodPlayerActivity : AppCompatActivity() {
             }
             bind.mPlayerControls.bindPlaybackState(state)
             bind.mPlayerControls.bindProgress(
-                VideoPlaybackRuntime.getSnapshot().currentPositionMs,
-                VideoPlaybackRuntime.getSnapshot().durationMs
+                runtime.getSnapshot().currentPositionMs,
+                runtime.getSnapshot().durationMs
             )
         }
 
@@ -120,7 +123,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
         override fun onPlaybackCompleted(media: com.qw.player.core.media.PlayableMedia) {
             // 多P自动连播由 session 自行推进，这里只在最后一集结束时同步 UI。
-            bind.mPlayerControls.bindPlaybackState(VideoPlaybackRuntime.getSnapshot().state)
+            bind.mPlayerControls.bindPlaybackState(runtime.getSnapshot().state)
         }
 
         override fun onPlaybackError(media: com.qw.player.core.media.PlayableMedia?, error: PlaybackError) {
@@ -147,7 +150,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
         override fun onLongPressStart() {
             // 只在播放中才允许长按倍速快进，暂停/缓冲/加载中长按不生效。
-            if (!VideoPlaybackRuntime.isPlaying()) {
+            if (!runtime.isPlaying()) {
                 return
             }
             longPressSpeedActive = true
@@ -165,7 +168,7 @@ class VodPlayerActivity : AppCompatActivity() {
         }
 
         override fun onSeekStart() {
-            val snapshot = VideoPlaybackRuntime.getSnapshot()
+            val snapshot = runtime.getSnapshot()
             bind.mGestureHints.showSeekPreview(snapshot.currentPositionMs, snapshot.durationMs)
             bind.mPlayerControls.setControlsVisible(true)
         }
@@ -176,7 +179,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
         override fun onSeekCommit(targetMs: Long) {
             bind.mGestureHints.hideSeekPreview()
-            VideoPlaybackRuntime.seekTo(targetMs)
+            runtime.seekTo(targetMs)
             scheduleAutoHide()
         }
 
@@ -227,18 +230,18 @@ class VodPlayerActivity : AppCompatActivity() {
         }
 
         override fun onSeekCommit(positionMs: Long) {
-            VideoPlaybackRuntime.seekTo(positionMs)
+            runtime.seekTo(positionMs)
             scheduleAutoHide()
         }
 
         override fun onQualitySelected(sourceId: String) {
-            val resumedPosition = VideoPlaybackRuntime.getSnapshot().currentPositionMs
-            if (!VideoPlaybackRuntime.switchSource(sourceId)) {
+            val resumedPosition = runtime.getSnapshot().currentPositionMs
+            if (!runtime.switchSource(sourceId)) {
                 return
             }
             selectedQualityId = sourceId
-            VideoPlaybackRuntime.seekTo(resumedPosition)
-            bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+            runtime.seekTo(resumedPosition)
+            bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
         }
 
         override fun onSpeedSelected(speed: Float) {
@@ -247,14 +250,14 @@ class VodPlayerActivity : AppCompatActivity() {
 
         override fun onMuteToggled(muted: Boolean) {
             isMuted = muted
-            VideoPlaybackRuntime.setMuted(muted)
-            bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+            runtime.setMuted(muted)
+            bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
         }
 
         override fun onLoopToggled(looping: Boolean) {
             isLooping = looping
-            VideoPlaybackRuntime.setLooping(looping)
-            bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+            runtime.setLooping(looping)
+            bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
         }
     }
 
@@ -263,6 +266,7 @@ class VodPlayerActivity : AppCompatActivity() {
         bind = ActivityVodPlayerBinding.inflate(layoutInflater)
         setContentView(bind.root)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        runtime.initialize(this)
 
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
 
@@ -275,10 +279,10 @@ class VodPlayerActivity : AppCompatActivity() {
         isMuted = savedInstanceState?.getBoolean(STATE_MUTED) ?: false
         isLooping = savedInstanceState?.getBoolean(STATE_LOOPING) ?: false
 
-        VideoPlaybackRuntime.updatePlaybackMode(
+        runtime.updatePlaybackMode(
             PlaybackMode(repeatMode = RepeatMode.ALL, shuffleEnabled = false)
         )
-        VideoPlaybackRuntime.addListener(playbackListener)
+        runtime.addListener(playbackListener)
 
         initViews()
         if (hasStartedPlayback) {
@@ -293,7 +297,7 @@ class VodPlayerActivity : AppCompatActivity() {
     }
 
     private fun prepareWithoutPlay() {
-        VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
+        runtime.bindPlayerView(bind.mPlayerView)
         bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
         val queue = playlist.episodes.map { episode ->
             VodMediaMapper.toPlayableMedia(
@@ -303,16 +307,16 @@ class VodPlayerActivity : AppCompatActivity() {
                 defaultQualityId = selectedQualityId
             )
         }
-        VideoPlaybackRuntime.setMediaList(queue, currentEpisodeIndex)
-        VideoPlaybackRuntime.setMuted(isMuted)
-        VideoPlaybackRuntime.setPlaybackSpeed(currentSpeed)
-        VideoPlaybackRuntime.setLooping(isLooping)
+        runtime.setMediaList(queue, currentEpisodeIndex)
+        runtime.setMuted(isMuted)
+        runtime.setPlaybackSpeed(currentSpeed)
+        runtime.setLooping(isLooping)
         syncCover()
         renderControls()
     }
 
     private fun initViews() {
-        VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
+        runtime.bindPlayerView(bind.mPlayerView)
         bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
 
         bind.mPlayerContainer.listener = gestureListener
@@ -324,7 +328,7 @@ class VodPlayerActivity : AppCompatActivity() {
             startOrResumePlayback()
         }
 
-        bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+        bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
         bind.mPlayerControls.setControlsVisible(false)
 
         bind.mVodTitleLabel.text = playlist.title
@@ -336,7 +340,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
     private fun videoSizeListenerSetup() {
         // 竖屏视频全屏时保持竖屏并铺满，横屏视频全屏切横屏。
-        val size = VideoPlaybackRuntime.getSnapshot().videoSize
+        val size = runtime.getSnapshot().videoSize
         if (size != null && size.height > size.width) {
             bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM)
         }
@@ -382,15 +386,15 @@ class VodPlayerActivity : AppCompatActivity() {
         bind.mCoverLayer.visibility = View.GONE
         hideError()
 
-        val snapshot = VideoPlaybackRuntime.getSnapshot()
+        val snapshot = runtime.getSnapshot()
         when {
             snapshot.state == PlaybackState.PAUSED || snapshot.state == PlaybackState.READY ->
-                VideoPlaybackRuntime.resume()
+                runtime.resume()
 
-            VideoPlaybackRuntime.getCurrentIndex() == currentEpisodeIndex &&
+            runtime.getCurrentIndex() == currentEpisodeIndex &&
                 (snapshot.state == PlaybackState.PLAYING || snapshot.state == PlaybackState.BUFFERING) -> Unit
 
-            else -> VideoPlaybackRuntime.play(currentEpisodeIndex)
+            else -> runtime.play(currentEpisodeIndex)
         }
         syncCover()
         bind.mPlayerControls.setControlsVisible(true)
@@ -405,21 +409,21 @@ class VodPlayerActivity : AppCompatActivity() {
     }
 
     private fun togglePlayPause() {
-        when (VideoPlaybackRuntime.getSnapshot().state) {
+        when (runtime.getSnapshot().state) {
             PlaybackState.PLAYING,
             PlaybackState.BUFFERING,
-            PlaybackState.PREPARING -> VideoPlaybackRuntime.pause()
+            PlaybackState.PREPARING -> runtime.pause()
 
             else -> startOrResumePlayback()
         }
-        bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+        bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
         scheduleAutoHide()
     }
 
     private fun applySpeed(speed: Float) {
         currentSpeed = speed
-        VideoPlaybackRuntime.setPlaybackSpeed(speed)
-        bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+        runtime.setPlaybackSpeed(speed)
+        bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
     }
 
     private fun showError(error: PlaybackError) {
@@ -439,7 +443,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
     private fun scheduleAutoHide() {
         uiHandler.removeCallbacks(autoHideRunnable)
-        if (VideoPlaybackRuntime.isPlaying() || isFullscreen) {
+        if (runtime.isPlaying() || isFullscreen) {
             uiHandler.postDelayed(autoHideRunnable, AUTO_HIDE_DELAY_MS)
         }
     }
@@ -451,7 +455,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
     private fun buildControlState(snapshot: PlaybackSnapshot): VodPlayerControlView.State {
         val episode = playlist.episodes.getOrNull(
-            VideoPlaybackRuntime.getCurrentIndex().takeIf { it >= 0 } ?: currentEpisodeIndex
+            runtime.getCurrentIndex().takeIf { it >= 0 } ?: currentEpisodeIndex
         )
         return VodPlayerControlView.State(
             title = episode?.title ?: playlist.title,
@@ -470,7 +474,7 @@ class VodPlayerActivity : AppCompatActivity() {
     }
 
     private fun renderControls() {
-        bind.mPlayerControls.render(buildControlState(VideoPlaybackRuntime.getSnapshot()))
+        bind.mPlayerControls.render(buildControlState(runtime.getSnapshot()))
     }
 
     private fun setFullscreen(fullscreen: Boolean) {
@@ -520,7 +524,7 @@ class VodPlayerActivity : AppCompatActivity() {
 
     /** 当前视频是否竖屏。未知尺寸时按横屏处理。 */
     private fun isPortraitVideo(): Boolean {
-        val size = VideoPlaybackRuntime.getSnapshot().videoSize ?: return false
+        val size = runtime.getSnapshot().videoSize ?: return false
         return size.height > size.width
     }
 
@@ -573,10 +577,10 @@ class VodPlayerActivity : AppCompatActivity() {
         super.onStart()
         // 页面回到前台：重新把 PlayerView 绑到 engine，重建 video surface。
         if (bind.mPlayerView.player == null) {
-            VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
+            runtime.bindPlayerView(bind.mPlayerView)
         }
         startProgressLoop()
-        syncGestureContext(VideoPlaybackRuntime.getSnapshot())
+        syncGestureContext(runtime.getSnapshot())
     }
 
     private fun syncGestureContext(snapshot: PlaybackSnapshot) {
@@ -591,12 +595,12 @@ class VodPlayerActivity : AppCompatActivity() {
         uiHandler.removeCallbacks(progressRunnable)
         uiHandler.removeCallbacks(autoHideRunnable)
         // 退到后台或锁屏：暂停，返回时不自动恢复。
-        if (VideoPlaybackRuntime.isPlaying() || VideoPlaybackRuntime.isBuffering()) {
-            VideoPlaybackRuntime.pause()
+        if (runtime.isPlaying() || runtime.isBuffering()) {
+            runtime.pause()
             pendingAutoPlayOnResume = false
         }
         // 页面不可见后 Surface 可能被系统销毁，解绑避免 engine 持有悬空 surface。
-        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
+        runtime.unbindPlayerView(bind.mPlayerView)
         super.onStop()
     }
 
@@ -612,10 +616,11 @@ class VodPlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         uiHandler.removeCallbacksAndMessages(null)
-        VideoPlaybackRuntime.removeListener(playbackListener)
-        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
+        runtime.removeListener(playbackListener)
+        runtime.unbindPlayerView(bind.mPlayerView)
         // 退出播放页完全停止，避免残留声音与解码资源占用。
-        VideoPlaybackRuntime.stop()
+        runtime.stop()
+        runtime.release()
         super.onDestroy()
     }
 

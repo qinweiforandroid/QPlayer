@@ -1,6 +1,5 @@
 package com.qw.player.demo.runtime
 
-import android.annotation.SuppressLint
 import android.content.Context
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
@@ -15,9 +14,12 @@ import com.qw.player.runtime.BasePlaybackRuntime
  * - 共享前台 Service
  * - 管理音频焦点
  * - 允许后台播放
+ *
+ * 实例必须比页面活得久：音频页、前台 Service、通知读的是同一条 session，
+ * 因此由 [com.qw.player.demo.MyApplication] 持有，页面通过 [com.qw.player.demo.MyApplication.audioRuntime] 取用。
  */
-@SuppressLint("StaticFieldLeak")
-object AudioPlaybackRuntime {
+class AudioPlaybackRuntime {
+
     private val core = BasePlaybackRuntime(
         runtimeName = "AudioPlaybackRuntime",
         allowBackgroundPlayback = true,

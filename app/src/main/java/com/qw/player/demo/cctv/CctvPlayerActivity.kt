@@ -39,6 +39,9 @@ class CctvPlayerActivity : AppCompatActivity() {
     private lateinit var bind: ActivityCctvPlayerBinding
     private lateinit var coordinator: LivePlaybackCoordinator
 
+    /** 视频 runtime 随页面创建，页面销毁时释放，不跨播放页复用。 */
+    private val runtime = VideoPlaybackRuntime()
+
     private val uiHandler = Handler(Looper.getMainLooper())
 
     private var currentChannel: TvChannel? = null
@@ -123,11 +126,11 @@ class CctvPlayerActivity : AppCompatActivity() {
         }
 
         override fun onPlayPauseClicked() {
-            val state = VideoPlaybackRuntime.getSnapshot().state
+            val state = runtime.getSnapshot().state
             if (state == PlaybackState.PLAYING || state == PlaybackState.BUFFERING) {
-                VideoPlaybackRuntime.pause()
+                runtime.pause()
             } else {
-                VideoPlaybackRuntime.resume()
+                runtime.resume()
             }
             renderControls()
             scheduleAutoHide()
@@ -144,7 +147,7 @@ class CctvPlayerActivity : AppCompatActivity() {
 
         override fun onVolumeClicked() {
             isMuted = !isMuted
-            VideoPlaybackRuntime.setMuted(isMuted)
+            runtime.setMuted(isMuted)
             bind.mPlayerControls.bindVolume(isMuted)
         }
 
@@ -182,10 +185,11 @@ class CctvPlayerActivity : AppCompatActivity() {
         bind = ActivityCctvPlayerBinding.inflate(layoutInflater)
         setContentView(bind.root)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        runtime.initialize(this)
 
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
 
-        VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
+        runtime.bindPlayerView(bind.mPlayerView)
         bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
         bind.mPlayerContainer.mode = PlayerGestureLayout.Mode.LIVE
         bind.mPlayerContainer.listener = gestureListener
@@ -195,7 +199,7 @@ class CctvPlayerActivity : AppCompatActivity() {
             bind.mChannelSidebar.show(currentChannel?.id)
         }
 
-        coordinator = LivePlaybackCoordinator { state ->
+        coordinator = LivePlaybackCoordinator(runtime) { state ->
             runOnUiThread { renderLiveState(state) }
         }
 
@@ -221,7 +225,7 @@ class CctvPlayerActivity : AppCompatActivity() {
                 channelName = channel.name,
                 epgText = epgText(channel),
                 isFullscreen = isFullscreen,
-                playbackState = VideoPlaybackRuntime.getSnapshot().state,
+                playbackState = runtime.getSnapshot().state,
                 lines = channel.lines.map { LivePlayerControlView.LineOption(it.id, it.label) },
                 selectedLineId = channel.lines.firstOrNull()?.id
             )
@@ -295,7 +299,7 @@ class CctvPlayerActivity : AppCompatActivity() {
                 channelName = channel.name,
                 epgText = epgText(channel),
                 isFullscreen = isFullscreen,
-                playbackState = VideoPlaybackRuntime.getSnapshot().state,
+                playbackState = runtime.getSnapshot().state,
                 lines = channel.lines.map { LivePlayerControlView.LineOption(it.id, it.label) },
                 selectedLineId = state.lineId ?: channel.lines.firstOrNull()?.id
             )
@@ -304,7 +308,7 @@ class CctvPlayerActivity : AppCompatActivity() {
 
     private fun refreshEpg() {
         currentChannel?.let {
-            bind.mPlayerControls.bindPlaybackState(VideoPlaybackRuntime.getSnapshot().state)
+            bind.mPlayerControls.bindPlaybackState(runtime.getSnapshot().state)
             renderControls()
         }
     }
@@ -359,7 +363,7 @@ class CctvPlayerActivity : AppCompatActivity() {
         super.onStart()
         // 页面回到前台：重建被系统销毁的 Surface 绑定。
         if (bind.mPlayerView.player == null) {
-            VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
+            runtime.bindPlayerView(bind.mPlayerView)
         }
         coordinator.resumeMonitoring()
         uiHandler.post(epgRunnable)
@@ -371,18 +375,19 @@ class CctvPlayerActivity : AppCompatActivity() {
         uiHandler.removeCallbacks(autoHideRunnable)
         coordinator.suspendMonitoring()
         // 后台 / 锁屏暂停，返回不自动恢复。
-        if (VideoPlaybackRuntime.isPlaying() || VideoPlaybackRuntime.isBuffering()) {
-            VideoPlaybackRuntime.pause()
+        if (runtime.isPlaying() || runtime.isBuffering()) {
+            runtime.pause()
         }
-        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
+        runtime.unbindPlayerView(bind.mPlayerView)
         super.onStop()
     }
 
     override fun onDestroy() {
         uiHandler.removeCallbacksAndMessages(null)
         coordinator.stop()
-        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
-        VideoPlaybackRuntime.stop()
+        runtime.unbindPlayerView(bind.mPlayerView)
+        runtime.stop()
+        runtime.release()
         super.onDestroy()
     }
 

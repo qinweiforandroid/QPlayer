@@ -20,6 +20,7 @@ import com.qw.player.demo.runtime.VideoPlaybackRuntime
  * 3. 断流重连：指数退避，并轮换线路重试
  */
 class LivePlaybackCoordinator(
+    private val runtime: VideoPlaybackRuntime,
     private val onStateChanged: (LiveState) -> Unit
 ) {
 
@@ -80,8 +81,8 @@ class LivePlaybackCoordinator(
         allLinesFailed = false
         monitoring = true
 
-        VideoPlaybackRuntime.addListener(sessionListener)
-        VideoPlaybackRuntime.setMediaList(listOf(channel.toPlayableMedia()), 0)
+        runtime.addListener(sessionListener)
+        runtime.setMediaList(listOf(channel.toPlayableMedia()), 0)
         playCurrentLine()
     }
 
@@ -89,7 +90,7 @@ class LivePlaybackCoordinator(
         monitoring = false
         handler.removeCallbacks(reconnectRunnable)
         handler.removeCallbacks(reconnectWatchdog)
-        VideoPlaybackRuntime.removeListener(sessionListener)
+        runtime.removeListener(sessionListener)
         currentChannel = null
         reconnecting = false
         reconnectAttempt = 0
@@ -119,11 +120,11 @@ class LivePlaybackCoordinator(
 
     fun resumeMonitoring() {
         monitoring = true
-        publish(VideoPlaybackRuntime.getSnapshot().state)
+        publish(runtime.getSnapshot().state)
     }
 
     fun currentState(): LiveState {
-        return liveState(VideoPlaybackRuntime.getSnapshot().state)
+        return liveState(runtime.getSnapshot().state)
     }
 
     private fun playCurrentLine() {
@@ -131,8 +132,8 @@ class LivePlaybackCoordinator(
         val line = channel.lines.getOrNull(currentLineIndex) ?: return
         allLinesFailed = false
 
-        VideoPlaybackRuntime.setMediaList(listOf(channel.toPlayableMedia(line.id)), 0)
-        VideoPlaybackRuntime.play(0)
+        runtime.setMediaList(listOf(channel.toPlayableMedia(line.id)), 0)
+        runtime.play(0)
         publish(PlaybackState.PREPARING)
     }
 
@@ -165,12 +166,12 @@ class LivePlaybackCoordinator(
         if (reconnectAttempt >= MAX_RECONNECT_ATTEMPTS) {
             reconnecting = false
             allLinesFailed = true
-            publish(VideoPlaybackRuntime.getSnapshot().state)
+            publish(runtime.getSnapshot().state)
             return
         }
         reconnectAttempt++
         reconnecting = true
-        publish(VideoPlaybackRuntime.getSnapshot().state)
+        publish(runtime.getSnapshot().state)
 
         val delay = RECONNECT_BASE_DELAY_MS shl (reconnectAttempt - 1)
         handler.removeCallbacks(reconnectRunnable)
@@ -194,7 +195,7 @@ class LivePlaybackCoordinator(
     }
 
     private val reconnectWatchdog = Runnable {
-        if (reconnecting && VideoPlaybackRuntime.getSnapshot().state != PlaybackState.PLAYING) {
+        if (reconnecting && runtime.getSnapshot().state != PlaybackState.PLAYING) {
             scheduleReconnect()
         }
     }
