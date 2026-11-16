@@ -1,5 +1,6 @@
 include ':player-core'
 include ':player-media3'
 include ':player-tts'
+include ':player-runtime'
 include ':app'
 rootProject.name = "QPlayer"

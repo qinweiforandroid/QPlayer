@@ -1,6 +1,7 @@
 package com.qw.player.media3
 
 import androidx.media3.common.PlaybackException
+import com.qw.player.core.engine.PlaybackErrorCategory
 
 /**
  * 把 Media3 的原始错误码归一为内核错误分类，并给出重试策略。
@@ -47,6 +48,16 @@ internal object Media3ErrorClassifier {
      */
     fun isRecoverable(kind: String): Boolean {
         return kind == ERROR_KIND_NETWORK || kind == ERROR_KIND_SOURCE
+    }
+
+    /** 把内部字符串分类映射成 core 的类型化分类，供上层做文案决策。 */
+    fun toCategory(kind: String): PlaybackErrorCategory {
+        return when (kind) {
+            ERROR_KIND_NETWORK -> PlaybackErrorCategory.NETWORK
+            ERROR_KIND_SOURCE -> PlaybackErrorCategory.SOURCE
+            ERROR_KIND_DECODE -> PlaybackErrorCategory.DECODE
+            else -> PlaybackErrorCategory.UNKNOWN
+        }
     }
 
     /** 第 [attempt] 次重试（从 1 开始）的退避时长。 */

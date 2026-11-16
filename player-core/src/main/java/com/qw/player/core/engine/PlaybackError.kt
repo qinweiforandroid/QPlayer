@@ -10,5 +10,6 @@ data class PlaybackError(
     val message: String,
     val recoverable: Boolean = false,
     val domain: String = "player",
+    val category: PlaybackErrorCategory = PlaybackErrorCategory.UNKNOWN,
     val extras: Map<String, String> = emptyMap()
 )

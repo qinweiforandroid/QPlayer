@@ -185,7 +185,7 @@ class CctvPlayerActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
 
-        bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+        VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
         bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
         bind.mPlayerContainer.mode = PlayerGestureLayout.Mode.LIVE
         bind.mPlayerContainer.listener = gestureListener
@@ -359,7 +359,7 @@ class CctvPlayerActivity : AppCompatActivity() {
         super.onStart()
         // 页面回到前台：重建被系统销毁的 Surface 绑定。
         if (bind.mPlayerView.player == null) {
-            bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+            VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
         }
         coordinator.resumeMonitoring()
         uiHandler.post(epgRunnable)
@@ -374,14 +374,14 @@ class CctvPlayerActivity : AppCompatActivity() {
         if (VideoPlaybackRuntime.isPlaying() || VideoPlaybackRuntime.isBuffering()) {
             VideoPlaybackRuntime.pause()
         }
-        bind.mPlayerView.player = null
+        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
         super.onStop()
     }
 
     override fun onDestroy() {
         uiHandler.removeCallbacksAndMessages(null)
         coordinator.stop()
-        bind.mPlayerView.player = null
+        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
         VideoPlaybackRuntime.stop()
         super.onDestroy()
     }

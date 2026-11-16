@@ -8,7 +8,7 @@ import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
 import com.qw.player.core.telemetry.PlaybackTelemetry
-import com.qw.player.media3.Media3PlayerEngine
+import com.qw.player.runtime.BasePlaybackRuntime
 
 /**
  * 视频专用 V2 runtime。
@@ -20,11 +20,14 @@ import com.qw.player.media3.Media3PlayerEngine
  */
 @SuppressLint("StaticFieldLeak")
 object VideoPlaybackRuntime {
+    private val engineFactory = DemoPlaybackEngineFactory()
+
     private val core = BasePlaybackRuntime(
         runtimeName = "VideoPlaybackRuntime",
         allowBackgroundPlayback = false,
         manageAudioFocus = true,
-        resumeOnFocusGain = false
+        resumeOnFocusGain = false,
+        engineFactory = engineFactory
     )
 
     fun initialize(context: Context) = core.initialize(context)
@@ -54,12 +57,17 @@ object VideoPlaybackRuntime {
 
     fun addListener(listener: PlaybackSessionListener) = core.addListener(listener)
     fun removeListener(listener: PlaybackSessionListener) = core.removeListener(listener)
-    fun getEngine(): Media3PlayerEngine = core.getEngine()
     fun isPlaying() = core.isPlaying()
     fun isPaused() = core.isPaused()
     fun isBuffering() = core.isBuffering()
-    fun bindPlayerView(playerView: PlayerView): VideoPlaybackRuntime {
-        playerView.player = getEngine().getExoPlayer()
-        return this
+
+    /** 把 [PlayerView] 绑到当前 engine 的底层播放器；页面回到前台时用它重建 surface。 */
+    fun bindPlayerView(playerView: PlayerView) {
+        playerView.player = engineFactory.media3Engine.getExoPlayer()
+    }
+
+    /** 解绑 [PlayerView]，避免 Activity 销毁后仍持有 engine。 */
+    fun unbindPlayerView(playerView: PlayerView) {
+        playerView.player = null
     }
 }

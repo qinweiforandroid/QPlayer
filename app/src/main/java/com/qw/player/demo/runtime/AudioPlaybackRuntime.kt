@@ -6,7 +6,7 @@ import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
 import com.qw.player.core.engine.PlaybackSnapshot
-import com.qw.player.media3.Media3PlayerEngine
+import com.qw.player.runtime.BasePlaybackRuntime
 
 /**
  * 音频专用 V2 runtime。
@@ -21,7 +21,8 @@ object AudioPlaybackRuntime {
     private val core = BasePlaybackRuntime(
         runtimeName = "AudioPlaybackRuntime",
         allowBackgroundPlayback = true,
-        manageAudioFocus = true
+        manageAudioFocus = true,
+        engineFactory = DemoPlaybackEngineFactory()
     )
 
     fun initialize(context: Context) = core.initialize(context)
@@ -42,7 +43,6 @@ object AudioPlaybackRuntime {
     fun setTelemetry(telemetry: com.qw.player.core.telemetry.PlaybackTelemetry?) = core.setTelemetry(telemetry)
     fun addListener(listener: PlaybackSessionListener) = core.addListener(listener)
     fun removeListener(listener: PlaybackSessionListener) = core.removeListener(listener)
-    fun getEngine(): Media3PlayerEngine = core.getEngine()
     fun isPlaying() = core.isPlaying()
     fun isPaused() = core.isPaused()
     fun isBuffering() = core.isBuffering()

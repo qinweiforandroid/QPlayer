@@ -52,6 +52,7 @@ dependencies {
     implementation project(path: ':player-core')
     implementation project(path: ':player-media3')
     implementation project(path: ':player-tts')
+    implementation project(path: ':player-runtime')
     implementation "androidx.media3:media3-exoplayer-hls:1.10.1"
     implementation "androidx.media3:media3-ui:1.10.1"
     // Common functionality used across multiple media libraries

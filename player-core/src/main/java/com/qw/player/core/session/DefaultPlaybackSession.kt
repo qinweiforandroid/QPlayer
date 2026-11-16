@@ -6,7 +6,6 @@ import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.engine.PlayerEngine
 import com.qw.player.core.engine.PlayerEventListener
 import com.qw.player.core.media.PlayableMedia
-import kotlin.random.Random
 
 /**
  * V2 默认会话实现。
@@ -238,13 +237,31 @@ class DefaultPlaybackSession(
     }
 
     override fun skipToNext(auto: Boolean) {
-        val nextIndex = findNextIndex(auto) ?: return
+        val policy = playbackMode.skipPolicy()
+        val nextIndex = policy.nextIndex(curIndex, medias.size, auto) ?: return
         play(nextIndex)
     }
 
     override fun skipToPrevious(auto: Boolean) {
-        val previousIndex = findPreviousIndex(auto) ?: return
+        val policy = playbackMode.skipPolicy()
+        val previousIndex = policy.previousIndex(curIndex, medias.size, auto) ?: return
         play(previousIndex)
+    }
+
+    override fun switchSource(sourceId: String): Boolean {
+        val current = curMedia ?: return false
+        if (current.playSources.none { it.sourceId == sourceId }) {
+            return false
+        }
+        // 用 pending start position 把当前进度透传给下一次 setMedia，避免换源后回到 0。
+        pendingStartPositionMs = getSnapshot().currentPositionMs.coerceAtLeast(0L)
+        val updated = current.copy(defaultSourceId = sourceId)
+        if (curIndex in medias.indices) {
+            medias[curIndex] = updated
+        }
+        // play(media) 会走完整的 resolveAndPlay 流程，source 由 sourceSelector 按 defaultSourceId 选中。
+        play(updated)
+        return true
     }
 
     override fun getSnapshot(): PlaybackSnapshot {
@@ -370,66 +387,5 @@ class DefaultPlaybackSession(
             )
         )
         return null
-    }
-
-    /**
-     * 计算下一首索引。
-     *
-     * 约定：
-     * - 自动切歌 + RepeatMode.ONE：仍然停留在当前项
-     * - shuffle 为 true 时优先随机
-     * - RepeatMode.ALL 允许头尾循环
-     */
-    private fun findNextIndex(auto: Boolean): Int? {
-        if (medias.isEmpty()) {
-            return null
-        }
-        if (curIndex !in medias.indices) {
-            return 0
-        }
-        if (auto && playbackMode.repeatMode == RepeatMode.ONE) {
-            return curIndex
-        }
-        if (playbackMode.shuffleEnabled && medias.size > 1) {
-            return randomIndexExcluding(curIndex)
-        }
-        val next = curIndex + 1
-        return when {
-            next < medias.size -> next
-            playbackMode.repeatMode == RepeatMode.ALL -> 0
-            else -> null
-        }
-    }
-
-    /**
-     * 计算上一首索引。
-     */
-    private fun findPreviousIndex(auto: Boolean): Int? {
-        if (medias.isEmpty()) {
-            return null
-        }
-        if (curIndex !in medias.indices) {
-            return 0
-        }
-        if (auto && playbackMode.repeatMode == RepeatMode.ONE) {
-            return curIndex
-        }
-        if (playbackMode.shuffleEnabled && medias.size > 1) {
-            return randomIndexExcluding(curIndex)
-        }
-        val previous = curIndex - 1
-        return when {
-            previous >= 0 -> previous
-            playbackMode.repeatMode == RepeatMode.ALL -> medias.lastIndex
-            else -> null
-        }
-    }
-
-    private fun randomIndexExcluding(excludedIndex: Int): Int {
-        var candidate = excludedIndex
-        while (candidate == excludedIndex) {
-            candidate = Random.nextInt(medias.size)
-        }
-        return candidate
     }
 }

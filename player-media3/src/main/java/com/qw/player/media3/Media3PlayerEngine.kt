@@ -172,6 +172,7 @@ class Media3PlayerEngine(context: Context) : PlayerEngine {
                     message = error.message ?: "Unknown playback error",
                     recoverable = canRetry,
                     domain = "media3",
+                    category = Media3ErrorClassifier.toCategory(kind),
                     extras = mapOf(EXTRA_ERROR_KIND to kind)
                 )
                 lastError = playbackError

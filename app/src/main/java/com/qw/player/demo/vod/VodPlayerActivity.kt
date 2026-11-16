@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.qw.player.core.engine.PlaybackError
+import com.qw.player.core.engine.PlaybackErrorCategory
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.session.PlaybackMode
@@ -27,7 +28,6 @@ import com.qw.player.demo.databinding.ActivityVodPlayerBinding
 import com.qw.player.demo.runtime.VideoPlaybackRuntime
 import com.qw.player.demo.widget.PlayerGestureLayout
 import com.qw.player.demo.widget.VodPlayerControlView
-import com.qw.player.media3.Media3PlayerEngine
 
 /**
  * 点播播放页。
@@ -293,7 +293,7 @@ class VodPlayerActivity : AppCompatActivity() {
     }
 
     private fun prepareWithoutPlay() {
-        bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+        VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
         bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
         val queue = playlist.episodes.map { episode ->
             VodMediaMapper.toPlayableMedia(
@@ -312,7 +312,7 @@ class VodPlayerActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+        VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
         bind.mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
 
         bind.mPlayerContainer.listener = gestureListener
@@ -423,8 +423,7 @@ class VodPlayerActivity : AppCompatActivity() {
     }
 
     private fun showError(error: PlaybackError) {
-        val kind = error.extras[Media3PlayerEngine.EXTRA_ERROR_KIND]
-        val messageRes = if (kind == Media3PlayerEngine.ERROR_KIND_NETWORK) {
+        val messageRes = if (error.category == PlaybackErrorCategory.NETWORK) {
             R.string.vod_error_network
         } else {
             R.string.vod_error_load
@@ -574,7 +573,7 @@ class VodPlayerActivity : AppCompatActivity() {
         super.onStart()
         // 页面回到前台：重新把 PlayerView 绑到 engine，重建 video surface。
         if (bind.mPlayerView.player == null) {
-            bind.mPlayerView.player = VideoPlaybackRuntime.getEngine().getExoPlayer()
+            VideoPlaybackRuntime.bindPlayerView(bind.mPlayerView)
         }
         startProgressLoop()
         syncGestureContext(VideoPlaybackRuntime.getSnapshot())
@@ -597,7 +596,7 @@ class VodPlayerActivity : AppCompatActivity() {
             pendingAutoPlayOnResume = false
         }
         // 页面不可见后 Surface 可能被系统销毁，解绑避免 engine 持有悬空 surface。
-        bind.mPlayerView.player = null
+        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
         super.onStop()
     }
 
@@ -614,7 +613,7 @@ class VodPlayerActivity : AppCompatActivity() {
     override fun onDestroy() {
         uiHandler.removeCallbacksAndMessages(null)
         VideoPlaybackRuntime.removeListener(playbackListener)
-        bind.mPlayerView.player = null
+        VideoPlaybackRuntime.unbindPlayerView(bind.mPlayerView)
         // 退出播放页完全停止，避免残留声音与解码资源占用。
         VideoPlaybackRuntime.stop()
         super.onDestroy()

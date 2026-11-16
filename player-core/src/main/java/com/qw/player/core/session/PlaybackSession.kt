@@ -59,6 +59,14 @@ interface PlaybackSession {
     /** 在当前 item 内执行 seek。 */
     fun seekTo(positionMs: Long)
 
+    /**
+     * 切换当前播放项的 source（清晰度 / 线路），并从当前进度重新起播。
+     *
+     * 返回 false 表示当前媒体不包含该 sourceId，未做任何改动。
+     * 是否需要暂停 / 恢复由调用方决定，session 只负责换 source 并续播。
+     */
+    fun switchSource(sourceId: String): Boolean
+
     /** 按当前播放模式切到下一项。 */
     fun skipToNext(auto: Boolean = false)
 

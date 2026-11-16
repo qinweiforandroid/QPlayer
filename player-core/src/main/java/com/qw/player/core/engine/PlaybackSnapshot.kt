@@ -20,4 +20,16 @@ data class PlaybackSnapshot(
     val isMuted: Boolean = false,
     val videoSize: VideoSize? = null,
     val error: PlaybackError? = null
-)
+) {
+    /** 是否正在播放。 */
+    val isPlaying: Boolean
+        get() = state == PlaybackState.PLAYING
+
+    /** 是否处于暂停。 */
+    val isPaused: Boolean
+        get() = state == PlaybackState.PAUSED
+
+    /** 是否处于准备或缓冲阶段。 */
+    val isBuffering: Boolean
+        get() = state == PlaybackState.BUFFERING || state == PlaybackState.PREPARING
+}
