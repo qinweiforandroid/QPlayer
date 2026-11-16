@@ -59,5 +59,22 @@ data class PlayableMedia(
                 defaultSourceId = DEFAULT_SOURCE_ID
             )
         }
+
+        /**
+         * 用一段正文快速构造文本朗读 [PlayableMedia]。
+         *
+         * 正文通过 [PlaySource.inlineText] 内联，不需要远程 url。
+         */
+        fun fromText(text: String, mediaId: String, title: String = ""): PlayableMedia {
+            return PlayableMedia(
+                mediaId = mediaId,
+                mediaType = MediaType.TEXT,
+                metadata = PlayerMediaMetadata(title = title),
+                playSources = listOf(
+                    PlaySource(sourceId = DEFAULT_SOURCE_ID, url = "", inlineText = text)
+                ),
+                defaultSourceId = DEFAULT_SOURCE_ID
+            )
+        }
     }
 }

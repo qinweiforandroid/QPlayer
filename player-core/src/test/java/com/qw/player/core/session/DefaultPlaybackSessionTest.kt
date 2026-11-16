@@ -54,6 +54,10 @@ class DefaultPlaybackSessionTest {
             currentSnapshot = currentSnapshot.copy(state = PlaybackState.ERROR, error = error)
             eventListener?.onError(error)
         }
+
+        fun emitProgress(positionMs: Long, durationMs: Long) {
+            eventListener?.onProgress(positionMs, durationMs)
+        }
     }
 
     private fun media(
@@ -282,5 +286,37 @@ class DefaultPlaybackSessionTest {
         session.play(1)
         assertFalse(engine.setMediaCalls.isEmpty())
         assertEquals("m2" to "a", engine.setMediaCalls.last())
+    }
+
+    @Test
+    fun `stale events from a not-yet-switched engine are not attributed to curMedia`() {
+        val engine = FakeEngine()
+        val session = DefaultPlaybackSession()
+        session.bindEngine(engine)
+        session.setMediaList(listOf(media("m1", source("a"))), 0)
+        session.play(0)
+
+        // 模拟 setMediaList 只改队列指针、不碰 engine：curMedia 已经换成 m2，
+        // 但 engine 上报的 currentMediaId 仍然是上一条媒体（m1）。
+        session.setMediaList(listOf(media("m2", source("a"))), 0)
+
+        val progressEvents = mutableListOf<Pair<String, Long>>()
+        session.addListener(object : PlaybackSessionListener {
+            override fun onPlaybackProgress(media: PlayableMedia, positionMs: Long, durationMs: Long) {
+                progressEvents.add(media.mediaId to positionMs)
+            }
+        })
+
+        engine.emitProgress(positionMs = 18_000L, durationMs = 18_000L)
+
+        assertTrue(
+            "engine 还没真正切到 m2 之前，它吐出来的事件不应该被贴上 m2 的标签",
+            progressEvents.isEmpty()
+        )
+
+        // engine 真正切过去之后，事件才应该被正常转发
+        session.play(0)
+        engine.emitProgress(positionMs = 1_000L, durationMs = 2_000L)
+        assertEquals(listOf("m2" to 1_000L), progressEvents)
     }
 }

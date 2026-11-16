@@ -11,6 +11,7 @@ package com.qw.player.core.media
  */
 data class PlaySource(
     val sourceId: String,
+    /** 远程媒体地址；[MediaType.TEXT] 且正文直接内联时可以为空。 */
     val url: String,
     val mimeType: String? = null,
     val headers: Map<String, String> = emptyMap(),
@@ -23,11 +24,23 @@ data class PlaySource(
     val cacheable: Boolean = true,
     /** 标记这条 source 所属的清晰度分组；同 [qualityId] 的多条 source 视为同一清晰度的不同线路。 */
     val qualityId: String? = null,
+    /**
+     * 内联正文，仅 [MediaType.TEXT] 使用。
+     *
+     * 有这个字段时 engine 不再需要去拉 [url]；
+     * 在线朗读失败后降级到本地正文，也依赖它表达“同一媒体的另一种 source”。
+     */
+    val inlineText: String? = null,
     val tag: Any? = null
 ) {
     /** 判断这条 source 是否已过有效期；没有配置 [expiresAtMs] 时视为不过期。 */
     fun isExpired(nowMs: Long): Boolean {
         val expiresAt = expiresAtMs ?: return false
         return nowMs >= expiresAt
+    }
+
+    /** 判断这条 source 是否带有 engine 真正可用的内容（远程地址或内联正文）。 */
+    fun isUsable(): Boolean {
+        return url.isNotBlank() || !inlineText.isNullOrBlank()
     }
 }

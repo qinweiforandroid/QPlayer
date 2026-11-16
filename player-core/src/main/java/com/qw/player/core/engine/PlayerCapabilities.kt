@@ -15,6 +15,8 @@ data class PlayerCapabilities(
     val supportsDrm: Boolean = false,
     val supportsSubtitles: Boolean = false,
     val supportsClipping: Boolean = false,
+    /** 是否能在播放过程中逐句上报文本朗读位置，用于高亮跟随。 */
+    val supportsTextHighlight: Boolean = false,
     val minSpeed: Float = 1f,
     val maxSpeed: Float = 1f
 )

@@ -45,24 +45,28 @@ class DefaultPlaybackSession(
 
     private val engineListener = object : PlayerEventListener {
         override fun onStateChanged(state: PlaybackState) {
+            if (!isEventFromCurrentMedia()) return
             curMedia?.let { media ->
                 listeners.forEach { it.onPlaybackStateChanged(media, state) }
             }
         }
 
         override fun onProgress(positionMs: Long, durationMs: Long) {
+            if (!isEventFromCurrentMedia()) return
             curMedia?.let { media ->
                 listeners.forEach { it.onPlaybackProgress(media, positionMs, durationMs) }
             }
         }
 
         override fun onBufferingProgress(bufferedPositionMs: Long, durationMs: Long) {
+            if (!isEventFromCurrentMedia()) return
             curMedia?.let { media ->
                 listeners.forEach { it.onPlaybackBufferingProgress(media, bufferedPositionMs) }
             }
         }
 
         override fun onCompleted() {
+            if (!isEventFromCurrentMedia()) return
             curMedia?.let { media ->
                 listeners.forEach { it.onPlaybackCompleted(media) }
             }
@@ -71,11 +75,28 @@ class DefaultPlaybackSession(
 
         override fun onError(error: PlaybackError) {
             pullSnapshot()
+            if (!isEventFromCurrentMedia()) return
             if (!error.recoverable && tryFallbackToNextSource()) {
                 return
             }
             notifyPlaybackError(curMedia, error)
         }
+    }
+
+    /**
+     * 校验 engine 当前快照里的 currentMediaId 是否真的指向 [curMedia]。
+     *
+     * `curMedia`/`curIndex` 可以在不触碰 engine 的情况下被改变（例如 [setMediaList]），
+     * 也可能在多 engine 路由场景下出现“旧 engine 还没真正切换走”的窗口期；
+     * 这种情况下旧 engine 吐出来的事件不应该被当成当前媒体的事件转发出去。
+     *
+     * engine 还没上报过任何 currentMediaId（比如尚未 setMedia 过）时，放行，
+     * 避免破坏 engine 实现里“快照字段不全”的既有行为。
+     */
+    private fun isEventFromCurrentMedia(): Boolean {
+        val media = curMedia ?: return false
+        val activeMediaId = engine?.getSnapshot()?.currentMediaId ?: return true
+        return activeMediaId == media.mediaId
     }
 
     override fun bindEngine(engine: PlayerEngine) {

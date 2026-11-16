@@ -118,20 +118,27 @@ class AudioPlayerFragment : Fragment() {
         bind.mPlayCountdownBtn.visibility = View.GONE
         bind.mPlayCountdownInfoLabel.text = "V2 Session"
 
-        AudioPlaybackRuntime.setQueue(createDemoQueue(), 0)
-        AudioPlaybackRuntime.updatePlaybackMode(
-            PlaybackMode(
-                repeatMode = RepeatMode.ALL,
-                shuffleEnabled = false
+        // 队列和播放状态挂在全局单例 AudioPlaybackRuntime 上，
+        // Fragment 重建（切 tab / 返回栈）时如果已经有队列在播，不应该重新灌队列、从头播放。
+        val isFirstLoad = AudioPlaybackRuntime.getQueue().isEmpty()
+        if (isFirstLoad) {
+            AudioPlaybackRuntime.setQueue(createDemoQueue(), 0)
+            AudioPlaybackRuntime.updatePlaybackMode(
+                PlaybackMode(
+                    repeatMode = RepeatMode.ALL,
+                    shuffleEnabled = false
+                )
             )
-        )
+        }
         AudioPlaybackRuntime.addListener(sessionListener)
 
         modules.clear()
         modules.addAll(AudioPlaybackRuntime.getQueue())
         playListAdapter.notifyDataSetChanged()
-        bind.mMusicPlayModeRG.check(R.id.mMusicPlayModeListLoopRB)
-        AudioPlaybackController.play(requireContext(), 0)
+        if (isFirstLoad) {
+            bind.mMusicPlayModeRG.check(R.id.mMusicPlayModeListLoopRB)
+            AudioPlaybackController.play(requireContext(), 0)
+        }
     }
 
     override fun onResume() {
@@ -300,6 +307,12 @@ class AudioPlayerFragment : Fragment() {
                     )
                 ),
                 defaultSourceId = "default"
+            ),
+            PlayableMedia.fromText(
+                text = "这是 QPlayer 的文本朗读示例。列表里的音频和文本可以混合播放，" +
+                        "切换媒体类型时会由 RoutingPlayerEngine 自动把任务交给对应的 engine。",
+                mediaId = "v2-list-text-1",
+                title = "文本朗读示例"
             )
         )
     }

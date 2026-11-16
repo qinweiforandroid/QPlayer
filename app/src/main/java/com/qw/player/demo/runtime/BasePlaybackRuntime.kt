@@ -11,13 +11,17 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.qw.player.core.session.DefaultPlaybackSession
 import com.qw.player.core.telemetry.PlaybackTelemetry
+import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.session.PlaybackMode
 import com.qw.player.core.session.PlaybackSessionListener
 import com.qw.player.core.engine.PlaybackSnapshot
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.engine.PlayerConfig
+import com.qw.player.core.engine.RoutingPlayerEngine
 import com.qw.player.media3.Media3PlayerEngine
+import com.qw.player.tts.AndroidTtsSynthesizer
+import com.qw.player.tts.TextPlayerEngine
 
 internal class BasePlaybackRuntime(
     private val runtimeName: String,
@@ -28,6 +32,7 @@ internal class BasePlaybackRuntime(
 
     private var appContext: Context? = null
     private var engine: Media3PlayerEngine? = null
+    private var routerEngine: RoutingPlayerEngine? = null
     private var session: DefaultPlaybackSession? = null
     private var audioFocusRequest: AudioFocusRequestCompat? = null
     private var wifiLock: android.net.wifi.WifiManager.WifiLock? = null
@@ -104,20 +109,29 @@ internal class BasePlaybackRuntime(
             return
         }
         appContext = context.applicationContext
-        val createdEngine = Media3PlayerEngine(context).apply {
-            initialize(
-                PlayerConfig(
-                    autoPlayWhenReady = true,
-                    allowBackgroundPlayback = allowBackgroundPlayback,
-                    respectAudioFocus = manageAudioFocus
-                )
-            )
+        val playbackConfig = PlayerConfig(
+            autoPlayWhenReady = true,
+            allowBackgroundPlayback = allowBackgroundPlayback,
+            respectAudioFocus = manageAudioFocus
+        )
+        val createdEngine = Media3PlayerEngine(context)
+        // 音视频走 Media3，文本朗读走 TTS；session 只认识这一个路由 engine。
+        val createdRouter = RoutingPlayerEngine(
+            engines = mapOf(
+                MediaType.AUDIO to createdEngine,
+                MediaType.VIDEO to createdEngine,
+                MediaType.TEXT to TextPlayerEngine(AndroidTtsSynthesizer(context))
+            ),
+            defaultType = MediaType.VIDEO
+        ).apply {
+            initialize(playbackConfig)
         }
         val createdSession = DefaultPlaybackSession().apply {
-            bindEngine(createdEngine)
+            bindEngine(createdRouter)
             addListener(internalSessionListener)
         }
         engine = createdEngine
+        routerEngine = createdRouter
         session = createdSession
         registerNoisyReceiver()
     }
@@ -128,10 +142,12 @@ internal class BasePlaybackRuntime(
      * 下次调用 [initialize] 会重建完整的 engine / session。
      */
     fun reset() {
-        engine?.setListener(null)
-        engine?.release()
+        routerEngine?.setListener(null)
+        // router 负责释放它持有的所有子 engine（含 media3 engine）
+        routerEngine?.release()
         session?.release()
         engine = null
+        routerEngine = null
         session = null
         unregisterNoisyReceiver()
         releaseWifiLock()
@@ -237,19 +253,19 @@ internal class BasePlaybackRuntime(
     }
 
     fun setPlaybackSpeed(speed: Float) {
-        engineOrThrow().setSpeed(speed)
+        routerOrThrow().setSpeed(speed)
     }
 
     fun setVolume(volume: Float) {
-        engineOrThrow().setVolume(volume)
+        routerOrThrow().setVolume(volume)
     }
 
     fun setMuted(muted: Boolean) {
-        engineOrThrow().setMuted(muted)
+        routerOrThrow().setMuted(muted)
     }
 
     fun setLooping(looping: Boolean) {
-        engineOrThrow().setLooping(looping)
+        routerOrThrow().setLooping(looping)
     }
 
     /**
@@ -318,7 +334,7 @@ internal class BasePlaybackRuntime(
      * 具体后端（友盟 / 自建）由业务层实现 [PlaybackTelemetry]，runtime 只负责转交。
      */
     fun setTelemetry(telemetry: PlaybackTelemetry?) {
-        engine?.setTelemetry(telemetry)
+        routerEngine?.setTelemetry(telemetry)
     }
 
     fun removeListener(listener: PlaybackSessionListener) {
@@ -369,6 +385,10 @@ internal class BasePlaybackRuntime(
 
     private fun engineOrThrow(): Media3PlayerEngine {
         return requireNotNull(engine) { "$runtimeName 尚未初始化 engine" }
+    }
+
+    private fun routerOrThrow(): RoutingPlayerEngine {
+        return requireNotNull(routerEngine) { "$runtimeName 尚未初始化 engine" }
     }
 
     private fun sessionOrThrow(): DefaultPlaybackSession {
