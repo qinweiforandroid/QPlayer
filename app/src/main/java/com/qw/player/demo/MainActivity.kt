@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.qw.player.demo.audio.AudioPlayerFragment
 import com.qw.player.demo.cctv.CctvChannelListActivity
 import com.qw.player.demo.databinding.ActivityMainBinding
-import com.qw.player.demo.video.VideoPlayerFragment
 import com.qw.player.demo.vod.VodPlayerActivity
 
 class MainActivity : AppCompatActivity() {
@@ -17,9 +16,6 @@ class MainActivity : AppCompatActivity() {
 
         bind.audioCard.setOnClickListener {
             openDemo("AudioPlayer", AudioPlayerFragment::class.java.name)
-        }
-        bind.videoCard.setOnClickListener {
-            openDemo("VideoPlayer", VideoPlayerFragment::class.java.name)
         }
         bind.cctvCard.setOnClickListener {
             startActivity(CctvChannelListActivity.intent(this))
