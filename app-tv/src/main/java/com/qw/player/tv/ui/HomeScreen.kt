@@ -22,10 +22,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,9 +35,10 @@ import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.qw.player.tv.data.ChannelCategory
-import com.qw.player.tv.data.TvChannel
-import com.qw.player.tv.data.TvChannelRepository
+import coil.compose.AsyncImage
+import com.qw.player.core.live.ChannelCategory
+import com.qw.player.core.live.TvChannel
+import com.qw.player.core.live.LiveChannelRepository
 import com.qw.player.tv.data.VodRepository
 
 /** 行首尾的横向安全区，对齐官方 TV 指南的 48dp。 */
@@ -58,7 +61,7 @@ fun HomeScreen(
     onChannelSelected: (String) -> Unit,
     onEpisodeSelected: (String) -> Unit
 ) {
-    val channels = remember { TvChannelRepository.loadChannels() }
+    val channels = remember { LiveChannelRepository.loadChannels() }
     val playlist = remember { VodRepository.loadPlaylist() }
     val firstFocus = remember { FocusRequester() }
 
@@ -209,27 +212,55 @@ private fun ChannelCard(channel: TvChannel, onClick: () -> Unit) {
         ))
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp, 42.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                        shape = RoundedCornerShape(8.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = channel.badgeText,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            ChannelLogo(
+                channel = channel,
+                modifier = Modifier.size(width = 90.dp, height = 56.dp)
+            )
             Spacer(Modifier.height(10.dp))
             Text(
                 text = channel.name,
                 style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+/**
+ * 频道 logo。首字徽标始终画在底层，logo 成功加载后才叠上去，
+ * 这样弱网、图片挂掉或 JSON 里没有 logoUrl 时都能自然回退到首字。
+ */
+@Composable
+private fun ChannelLogo(
+    channel: TvChannel,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit
+) {
+    val shape = RoundedCornerShape(8.dp)
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                shape = shape
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = channel.badgeText,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        if (channel.logoUrl.isNotBlank()) {
+            AsyncImage(
+                model = channel.logoUrl,
+                contentDescription = channel.name,
+                contentScale = contentScale,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(6.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             )
         }
     }

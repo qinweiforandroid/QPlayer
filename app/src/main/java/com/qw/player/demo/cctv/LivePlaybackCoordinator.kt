@@ -3,6 +3,7 @@ package com.qw.player.demo.cctv
 import android.os.Handler
 import android.os.Looper
 import com.qw.player.core.engine.PlaybackError
+import com.qw.player.core.live.TvChannel
 import com.qw.player.core.engine.PlaybackState
 import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlaySource

@@ -328,6 +328,12 @@ CctvPlayerActivity
 
 直播的线路切换复用 `switchSource` 的思路，但降级链和指数退避重连由 `LivePlaybackCoordinator` 自己编排，不进入 core。
 
+直播频道数据是 JSON（`data/live/channels.json`，唯一可编辑副本），两个 app 启动时从各自
+`assets/live/channels.json` 读入，由 `player-core` 的 `com.qw.player.core.live.LiveChannelRepository`
+统一解析和持有。更新频道清单用 `python3 tools/update_live_channels.py`：抓取候选线路、逐条实测
+能否出流，再把通过自检的结果（每台最多 2 条线路）同步写回三个文件。详见
+[docs/ai/module-index.md](docs/ai/module-index.md#player-core--comqwplayercorelive)。
+
 ## 关键入口
 
 | 位置 | 说明 |

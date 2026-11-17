@@ -1,0 +1,763 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-17T15:36:01+08:00",
+  "note": "直播频道源。由 tools/update_live_channels.py 抓取并自检后生成；每个频道最多保留 2 条已验证可出流的线路。",
+  "channels": [
+    {
+      "id": "cctv1",
+      "name": "CCTV-1 综合",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-1.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://101.66.194.88:9901/tsfile/live/0001_1.m3u8?key=txiptv&playlive=0&authid=0"
+        },
+        {
+          "label": "线路2",
+          "url": "http://74.91.26.218:82/live/cctv1hd.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv2",
+      "name": "CCTV-2 财经",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-2.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.40.39.246:352/newlive/live/hls/2/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv3",
+      "name": "CCTV-3 综艺",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-3.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://74.91.26.218:82/live/cctv3hd.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv4",
+      "name": "CCTV-4 中文国际",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-4.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://124.90.45.52:9901/tsfile/live/0004_1.m3u8?key=txiptv&playlive=1&authid=0"
+        },
+        {
+          "label": "线路2",
+          "url": "http://173.208.212.130:8181/1080p/cctv4.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv5",
+      "name": "CCTV-5 体育",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-5.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://1.24.39.180:9003/hls/5/index.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://173.208.212.130:8181/720p/cctv5.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv5p",
+      "name": "CCTV-5+ 体育赛事",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-5+.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000246.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://219.147.245.238:25480/newlive/live/hls/6/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv6",
+      "name": "CCTV-6 电影",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-6.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.40.39.246:352/newlive/live/hls/7/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv7",
+      "name": "CCTV-7 国防军事",
+      "category": "CCTV",
+      "logoUrl": "https://i.imgur.com/CKcPMQC.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://124.90.45.52:9901/tsfile/live/0007_1.m3u8?key=txiptv&playlive=1&authid=0"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.40.39.246:352/newlive/live/hls/8/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv8",
+      "name": "CCTV-8 电视剧",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-8.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://222.223.41.27:8888/hls/8/index.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv9",
+      "name": "CCTV-9 纪录",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-9.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://153.0.171.163:9901/tsfile/live/1008_1.m3u8?key=txiptv&playlive=1&authid=0"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.40.39.246:352/newlive/live/hls/10/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv10",
+      "name": "CCTV-10 科教",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-10.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://222.223.41.27:8888/hls/10/index.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv11",
+      "name": "CCTV-11 戏曲",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-11.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://1.24.39.180:9003/hls/11/index.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.40.39.246:352/newlive/live/hls/12/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv12",
+      "name": "CCTV-12 社会与法",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-12.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://124.165.251.82:85/tsfile/live/0012_1.m3u8?key=txiptv&playlive=1&authid=0"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.40.39.246:352/newlive/live/hls/13/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv13",
+      "name": "CCTV-13 新闻",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-13.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://183.129.255.66:8480/hls/14/index.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.76.248.139/live/bfgd/4200000067.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv14",
+      "name": "CCTV-14 少儿",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-14.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://1.24.39.180:9003/hls/14/index.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv15",
+      "name": "CCTV-15 音乐",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-15.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://1.24.39.180:9003/hls/15/index.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv16",
+      "name": "CCTV-16 奥林匹克",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-16.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://1.24.39.180:9003/hls/60/index.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://219.147.245.238:25480/newlive/live/hls/17/live.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "cctv17",
+      "name": "CCTV-17 农业农村",
+      "category": "CCTV",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/CCTV-17.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://1.24.39.180:9003/hls/61/index.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "dfl",
+      "name": "东方卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/东方卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://bp-resource-dfl.bestv.cn/148/3/video.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj",
+      "name": "浙江卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/浙江卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel01/1080p.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "https://ali-m-l.cztv.com/channels/lantian/channel001/1080p.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "hlj",
+      "name": "黑龙江卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/黑龙江卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000095.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "nmg",
+      "name": "内蒙古卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/内蒙古卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://play1-qk.nmtv.cn/live/1769652018126032.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "https://cdn4.skygo.mn/live/disk1/NeigMGL/HLSv3-FTA/NeigMGL.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "sx",
+      "name": "山西卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/山西卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://m3u8.channel.wsrtv.com.cn/cms/videos/nmip-media/channellive/channel7/playlist.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "jx",
+      "name": "江西卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/江西卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://112.27.5.218:9901/tsfile/live/faacts/0138_1.m3u8?key=txiptv&playlive=1&authid=0"
+        }
+      ]
+    },
+    {
+      "id": "xz",
+      "name": "西藏卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/西藏卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000121.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://112.27.5.218:9901/tsfile/live/0111_1.m3u8?key=txiptv&playlive=1&authid=0"
+        }
+      ]
+    },
+    {
+      "id": "ln",
+      "name": "辽宁卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/辽宁卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://61.136.172.236:9901/tsfile/live/0121_1.m3u8?key=txiptv&playlive=1&authid=0"
+        }
+      ]
+    },
+    {
+      "id": "gs",
+      "name": "甘肃卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/甘肃卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000119.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://218.13.170.98:9901/tsfile/live/0141_1.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "xj",
+      "name": "新疆卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/新疆卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://218.84.12.186:8001/hls/main/playlist.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "dn",
+      "name": "东南卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/东南卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000483.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://live.zohi.tv/video/s10001-fztv-3/index.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "yb",
+      "name": "延边卫视",
+      "category": "SATELLITE",
+      "logoUrl": "",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "https://srs.iyb983.cn:443/video/CYS/index.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "ad",
+      "name": "安多卫视",
+      "category": "SATELLITE",
+      "logoUrl": "",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "https://liveout.xntv.tv/a65jur/96iln2.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "ah",
+      "name": "安徽卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/安徽卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://gmxw.7766.org:808/hls/40/index.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "https://restream.pdtvhd.com/memfs/c1cd2ed0-3b2b-4c25-af98-a7fb0b1eb130.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "sz",
+      "name": "深圳卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/深圳卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://gmxw.7766.org:808/hls/45/index.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.76.248.139/live/bfgd/4200000100.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_news",
+      "name": "浙江新闻",
+      "category": "LOCAL",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/浙江新闻.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel002/1080p.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel007/720p.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_qianjiang",
+      "name": "浙江钱江",
+      "category": "LOCAL",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/浙江钱江.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "https://ali-m-l.cztv.com/channels/lantian/channel002/1080p.m3u8?"
+        },
+        {
+          "label": "线路2",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel003/1080p.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_jingshi",
+      "name": "浙江经视",
+      "category": "LOCAL",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/浙江经视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel003/720p.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel004/1080p.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_edu",
+      "name": "浙江教育",
+      "category": "LOCAL",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/浙江教育.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel04/720p.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel005/1080p.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_kids",
+      "name": "浙江少儿",
+      "category": "LOCAL",
+      "logoUrl": "https://gitee.com/suxuang/TVlogo/raw/main/img/Zhejiang6.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel006/1080p.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "https://ali-m-l.cztv.com/channels/lantian/channel008/1080p.m3u8?"
+        }
+      ]
+    },
+    {
+      "id": "js_city",
+      "name": "江苏城市",
+      "category": "LOCAL",
+      "logoUrl": "https://gitee.com/suxuang/TVlogo/raw/main/img/Jiangsu2.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "https://tylive.kan0512.com/norecord/csztv4k_4k.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "gd",
+      "name": "广东卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/广东卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000092.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "hn",
+      "name": "湖南卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/湖南卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "https://txmov2.a.kwimgs.com/bs3/video-hls/5199687338554291078_hlsb.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://hlsal-ldvt.qing.mgtv.com/nn_live/nn_x64/dWlwPTEyNy4wLjAuMSZ1aWQ9cWluZy1jbXMmbm5fdGltZXpvbmU9OCZjZG5leF9pZD1hbF9obHNfbGR2dCZ1dWlkPTliODY4NmU5ZTM2YzYwMmMmZT02OTE0NjA0JnY9MSZpZD1ITldTWkdTVCZzPTcwN2RiYTc2YzJjNmJmMTQ4MmUyZGYzOWU2NWM3YWFi/HNWSZGST.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "bj",
+      "name": "北京卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/北京卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000083.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "hub",
+      "name": "湖北卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/湖北卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000102.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "gx",
+      "name": "广西卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/广西卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000116.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "ha",
+      "name": "海南卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://gitee.com/suxuang/logo/raw/master/mylogo/海南卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000473.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "heb",
+      "name": "河北卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/河北卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "https://event.pull.hebtv.com/live/live101.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.76.248.139/live/bfgd/4200000108.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "hen",
+      "name": "河南卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/河南卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://173.208.212.130:8181/720p/haws.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "jl",
+      "name": "吉林卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/吉林卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://221.7.175.154:8445/tsfile/live/1014_1.m3u8?key=txiptv&playlive=1&authid=0"
+        }
+      ]
+    },
+    {
+      "id": "qh",
+      "name": "青海卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/青海卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "https://hls-qhmh.lanzhousobey.cn/qhmh/mhds.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://120.76.248.139/live/bfgd/4200000111.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "sd",
+      "name": "山东卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/山东卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000099.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "yn",
+      "name": "云南卫视",
+      "category": "SATELLITE",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/云南卫视.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://120.76.248.139/live/bfgd/4200000482.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_record",
+      "name": "之江纪录",
+      "category": "LOCAL",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/之江纪录.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel012/1080p.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "https://ali-m-l.cztv.com/channels/lantian/channel12/720p.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_public",
+      "name": "浙江公共新闻",
+      "category": "LOCAL",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/浙江公共新闻.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel007/1080p.m3u8"
+        },
+        {
+          "label": "线路2",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel07/1080p.m3u8"
+        }
+      ]
+    },
+    {
+      "id": "zj_zgl",
+      "name": "中国蓝新闻",
+      "category": "LOCAL",
+      "logoUrl": "https://www.xn--rgv465a.top/tvlogo/中国蓝新闻.png",
+      "lines": [
+        {
+          "label": "线路1",
+          "url": "http://ali-m-l.cztv.com/channels/lantian/channel009/1080p.m3u8"
+        }
+      ]
+    }
+  ]
+}

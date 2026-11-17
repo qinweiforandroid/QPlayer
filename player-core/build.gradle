@@ -23,6 +23,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    testOptions {
+        unitTests {
+            // android.util.Log 在 JVM 单测里默认抛异常，PlayLog 用到它，这里改成返回默认值
+            returnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -30,6 +36,8 @@ dependencies {
     implementation "androidx.core:core-ktx:1.19.0"
     implementation 'com.google.android.material:material:1.14.0'
     testImplementation 'junit:junit:4.13.2'
+    // android.jar 里的 org.json 只是空桩，JVM 单测需要真实实现
+    testImplementation 'org.json:json:20231013'
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 }

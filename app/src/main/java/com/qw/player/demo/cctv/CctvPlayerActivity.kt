@@ -17,6 +17,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.qw.player.core.engine.PlaybackState
+import com.qw.player.core.live.LiveChannelRepository
+import com.qw.player.core.live.TvChannel
 import com.qw.player.demo.R
 import com.qw.player.demo.databinding.ActivityCctvPlayerBinding
 import com.qw.player.demo.runtime.VideoPlaybackRuntime
@@ -204,8 +206,8 @@ class CctvPlayerActivity : AppCompatActivity() {
         }
 
         val channelId = intent.getStringExtra(EXTRA_CHANNEL_ID)
-        val channel = channelId?.let { TvChannelRepository.findById(it) }
-            ?: TvChannelRepository.loadChannels().firstOrNull()
+        val channel = channelId?.let { LiveChannelRepository.findById(it) }
+            ?: LiveChannelRepository.loadChannels().firstOrNull()
 
         // 竖屏进入时保留频道信息区，横屏直接全屏。
         setFullscreen(resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -235,9 +237,9 @@ class CctvPlayerActivity : AppCompatActivity() {
     }
 
     private fun switchChannelBySwipe(next: Boolean) {
-        val channels = TvChannelRepository.loadChannels()
+        val channels = LiveChannelRepository.loadChannels()
         val currentId = currentChannel?.id ?: return
-        val index = TvChannelRepository.indexOf(currentId)
+        val index = LiveChannelRepository.indexOf(currentId)
         if (index < 0) {
             return
         }

@@ -1,4 +1,4 @@
-package com.qw.player.demo.cctv
+package com.qw.player.core.live
 
 /** 频道分类。 */
 enum class ChannelCategory(val displayName: String) {

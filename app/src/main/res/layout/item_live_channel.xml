@@ -12,15 +12,29 @@
     android:paddingEnd="12dp"
     android:paddingBottom="12dp">
 
-    <TextView
-        android:id="@+id/mChannelBadgeLabel"
+    <FrameLayout
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:background="@drawable/bg_avatar_circle"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        android:textSize="17sp"
-        android:textStyle="bold" />
+        android:background="@drawable/bg_avatar_circle">
+
+        <ImageView
+            android:id="@+id/mChannelLogoImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/mChannelBadgeLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"

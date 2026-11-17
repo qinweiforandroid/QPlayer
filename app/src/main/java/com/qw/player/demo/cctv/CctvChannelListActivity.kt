@@ -6,11 +6,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.qw.player.core.live.ChannelCategory
+import com.qw.player.core.live.LiveChannelRepository
+import com.qw.player.core.live.TvChannel
 import com.qw.player.demo.R
 import com.qw.player.demo.databinding.ActivityLiveChannelListBinding
 
@@ -30,7 +34,7 @@ class CctvChannelListActivity : AppCompatActivity() {
 
         bind.mChannelCountLabel.text = getString(
             R.string.live_channel_count,
-            TvChannelRepository.loadChannels().size
+            LiveChannelRepository.loadChannels().size
         )
         bind.mChannelRecyclerView.layoutManager = LinearLayoutManager(this)
         bind.mChannelRecyclerView.adapter = adapter
@@ -74,7 +78,7 @@ class CctvChannelListActivity : AppCompatActivity() {
     }
 
     private fun refreshList() {
-        adapter.submit(TvChannelRepository.byCategory(currentCategory))
+        adapter.submit(LiveChannelRepository.byCategory(currentCategory))
     }
 
     private fun openChannel(channel: TvChannel) {
@@ -106,11 +110,12 @@ class CctvChannelListActivity : AppCompatActivity() {
 
     private inner class ChannelHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val badge: TextView = itemView.findViewById(R.id.mChannelBadgeLabel)
+        private val logoImage: ImageView = itemView.findViewById(R.id.mChannelLogoImage)
         private val name: TextView = itemView.findViewById(R.id.mChannelNameLabel)
         private val meta: TextView = itemView.findViewById(R.id.mChannelMetaLabel)
 
         fun bind(channel: TvChannel) {
-            badge.text = channel.badgeText
+            bindChannelLogo(badge, logoImage, channel)
             name.text = channel.name
             meta.text = getString(R.string.live_channel_meta, channel.lines.size)
             itemView.setOnClickListener { openChannel(channel) }

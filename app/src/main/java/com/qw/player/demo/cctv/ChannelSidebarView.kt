@@ -7,9 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.graphics.drawable.Drawable
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.qw.player.core.live.ChannelCategory
+import com.qw.player.core.live.LiveChannelRepository
+import com.qw.player.core.live.TvChannel
 import com.qw.player.demo.R
 
 /**
@@ -54,7 +64,7 @@ class ChannelSidebarView @JvmOverloads constructor(
 
     fun show(channelId: String?) {
         selectedChannelId = channelId
-        val channel = channelId?.let { TvChannelRepository.findById(it) }
+        val channel = channelId?.let { LiveChannelRepository.findById(it) }
         if (channel != null) {
             currentCategory = channel.category
             buildTabs()
@@ -108,7 +118,7 @@ class ChannelSidebarView @JvmOverloads constructor(
     }
 
     private fun refreshList() {
-        adapter.submit(TvChannelRepository.byCategory(currentCategory), selectedChannelId)
+        adapter.submit(LiveChannelRepository.byCategory(currentCategory), selectedChannelId)
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
@@ -139,10 +149,11 @@ class ChannelSidebarView @JvmOverloads constructor(
     private inner class ChannelHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameLabel: TextView = itemView.findViewById(R.id.mSidebarNameLabel)
         private val badge: TextView = itemView.findViewById(R.id.mSidebarBadgeLabel)
+        private val logoImage: ImageView = itemView.findViewById(R.id.mSidebarLogoImage)
 
         fun bind(channel: TvChannel, selected: Boolean) {
             nameLabel.text = channel.name
-            badge.text = channel.badgeText
+            bindChannelLogo(badge, logoImage, channel)
             nameLabel.setTextColor(
                 context.getColor(if (selected) R.color.qp_accent else R.color.white)
             )
@@ -152,4 +163,49 @@ class ChannelSidebarView @JvmOverloads constructor(
             itemView.setOnClickListener { listener?.onChannelSelected(channel) }
         }
     }
+}
+
+/**
+ * 把频道 logo 画进圆角徽标：[TextView] 放名称首字，[ImageView] 叠在上面放 logo。
+ *
+ * 有 logo 且加载成功时隐藏文字、显示图片；没有 logo 或加载失败时反过来。
+ * 必须显式清除上一个频道的图片，否则复用 holder 时会串图。
+ */
+internal fun bindChannelLogo(badge: TextView, logoImage: ImageView, channel: TvChannel) {
+    val logo = channel.logoUrl
+    if (logo.isBlank()) {
+        Glide.with(logoImage).clear(logoImage)
+        logoImage.visibility = View.GONE
+        badge.visibility = View.VISIBLE
+        badge.text = channel.badgeText
+        return
+    }
+    Glide.with(logoImage)
+        .load(logo)
+        .listener(object : RequestListener<Drawable> {
+            override fun onLoadFailed(
+                e: GlideException?,
+                model: Any?,
+                target: Target<Drawable>,
+                isFirstResource: Boolean
+            ): Boolean {
+                logoImage.visibility = View.GONE
+                badge.visibility = View.VISIBLE
+                badge.text = channel.badgeText
+                return false
+            }
+
+            override fun onResourceReady(
+                resource: Drawable,
+                model: Any,
+                target: Target<Drawable>?,
+                dataSource: DataSource,
+                isFirstResource: Boolean
+            ): Boolean {
+                logoImage.visibility = View.VISIBLE
+                badge.visibility = View.GONE
+                return false
+            }
+        })
+        .into(logoImage)
 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -57,11 +58,10 @@ import com.qw.player.core.media.MediaType
 import com.qw.player.core.media.PlaySource
 import com.qw.player.core.media.PlayableMedia
 import com.qw.player.core.media.PlayerMediaMetadata
-import com.qw.player.tv.data.TvChannel
-import com.qw.player.tv.data.TvChannelRepository
+import com.qw.player.core.live.TvChannel
+import com.qw.player.core.live.LiveChannelRepository
 import com.qw.player.tv.playback.TvPlaybackRuntime
 import com.qw.player.tv.ui.playback.AutoHideControls
-import com.qw.player.tv.ui.playback.LiveBadge
 import com.qw.player.tv.ui.playback.OverscanHorizontal
 import com.qw.player.tv.ui.playback.OverscanVertical
 import com.qw.player.tv.ui.playback.RequestFocusWhenReady
@@ -98,7 +98,7 @@ fun LivePlayerScreen(
     onBack: () -> Unit
 ) {
     val channel = remember(channelId) {
-        TvChannelRepository.findById(channelId) ?: TvChannelRepository.loadChannels().first()
+        LiveChannelRepository.findById(channelId) ?: LiveChannelRepository.loadChannels().first()
     }
     var lineIndex by remember(channelId) { mutableIntStateOf(0) }
     var sheet by remember { mutableStateOf(LiveSheet.None) }
@@ -357,8 +357,6 @@ private fun ControlsLayer(
                 onClick = onBack
             )
             Spacer(Modifier.width(20.dp))
-            LiveBadge()
-            Spacer(Modifier.width(10.dp))
             Text(
                 text = channel.name,
                 style = MaterialTheme.typography.headlineSmall,
@@ -452,7 +450,7 @@ private fun ChannelsSheet(
     onSelect: (String) -> Unit
 ) {
     val channels = remember(current.category) {
-        TvChannelRepository.byCategory(current.category).ifEmpty { TvChannelRepository.loadChannels() }
+        LiveChannelRepository.byCategory(current.category).ifEmpty { LiveChannelRepository.loadChannels() }
     }
     TvSideSheet(title = "切换频道") { focus ->
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -482,7 +480,7 @@ private fun KeepScreenOn() {
 
 private const val RECONNECT_BASE_DELAY_MS = 2_000L
 
-private fun TvChannel.toPlayableMedia(line: com.qw.player.tv.data.TvLine): PlayableMedia {
+private fun TvChannel.toPlayableMedia(line: com.qw.player.core.live.TvLine): PlayableMedia {
     val sources = lines.map {
         PlaySource(
             sourceId = it.id,

@@ -104,6 +104,48 @@
 
 `TextSpeechConfig`：`charsPerSecond = 4.5f`，`maxSegmentChars = 120`，`progressIntervalMs = 500`。错误域 `"tts"`，错误码 3001（合成引擎不可用）/ 3002（合成失败）/ 3003（无正文）。
 
+## player-core · `com.qw.player.core.live`
+
+直播频道数据层。数据源是 JSON，两个 app 共用这一份模型与解析代码。
+
+| 文件 | 说明 |
+| --- | --- |
+| `LiveChannel.kt` | `ChannelCategory` / `TvLine` / `EpgEntry` / `TvChannel`；含 `currentEpg()` |
+| `LiveChannelJson.kt` | JSON → 频道列表。解析严格：`schemaVersion` 越界、id 重复、无线路、非 http 线路、未知分类都抛 `JSONException` |
+| `LiveChannelRepository.kt` | 内存仓库。启动时 `initialize(context)` 读 assets，失败时保留上一份数据；提供 `byCategory` / `findById` / `indexOf` |
+
+数据契约见 `data/live/channels.json`（`schemaVersion = 1`）。仓库里的这份是**唯一可编辑副本**，
+`tools/update_live_channels.py` 会把它同步到两个 app 的 `src/main/assets/live/channels.json`。
+
+```text
+data/live/channels.json                     ← 唯一的源，改这个
+  → app/src/main/assets/live/channels.json
+  → app-tv/src/main/assets/live/channels.json
+```
+
+更新脚本：
+
+```bash
+python3 tools/update_live_channels.py --dry-run    # 抓取 + 自检，不写文件
+python3 tools/update_live_channels.py              # 写回上述三个文件
+python3 tools/update_live_channels.py --check FILE # 只做结构自检，可进 CI
+```
+
+自检口径是「能出流」而非「能解码」：主清单 2xx 且是 m3u8 → 有则取第一个 variant →
+分片列表非空 → 首个分片 2xx 且非空。首轮失败的线路会用双倍超时重试一轮，
+避免网络抖动误删；仍失败的才剔除，整台无可用线路的频道一并从 JSON 里移除。
+
+选线按实测延迟升序，只留最快的 `--max-lines` 条（默认 2），不是「旧线路优先」——
+这样源失效时旧线路会被自然淘汰，源变快时也能及时替换。
+
+候选线路来自 [guovin/iptv-api](https://github.com/guovin/iptv-api) 每日构建的
+`output/result.m3u`（`gd` 分支）。它对中国大陆台的覆盖明显好于 iptv-org：每个台通常 5 条
+线路，且带 `tvg-name` / `tvg-logo`。抓取超时放宽到 30s 并重试 3 次，因为该文件约 400KB
+且托管在 raw.githubusercontent。
+
+新增频道只需在脚本的 `CHANNEL_MAP` 里加一行 `"源里的台名": (频道 id, 显示名, 分类)`；
+`WANTED_GROUP_KEYWORDS` 是分组预筛，避免把付费包和剧场并进正牌频道。
+
 ## app
 
 demo 应用。包名 `com.qw.player.demo`。
@@ -112,7 +154,7 @@ demo 应用。包名 `com.qw.player.demo`。
 
 | 文件 | 说明 |
 | --- | --- |
-| `MyApplication.kt` | 持有应用级 `audioRuntime`；初始化并注入 `LogcatPlaybackTelemetry`；提供 `Context.audioRuntime` 扩展属性 |
+| `MyApplication.kt` | 持有应用级 `audioRuntime`；启动时载入直播频道 JSON；初始化并注入 `LogcatPlaybackTelemetry`；提供 `Context.audioRuntime` 扩展属性 |
 | `MainActivity.kt` | demo 首页，三个入口卡片 |
 | `FragmentHostActivity.kt` | 按类名装载 Fragment 的通用宿主 |
 | `Constants.kt` | demo 用的示例媒体地址 |

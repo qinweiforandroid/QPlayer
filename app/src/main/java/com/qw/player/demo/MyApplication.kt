@@ -2,6 +2,7 @@ package com.qw.player.demo
 
 import android.app.Application
 import android.content.Context
+import com.qw.player.core.live.LiveChannelRepository
 import com.qw.player.demo.runtime.AudioPlaybackRuntime
 import com.qw.player.demo.runtime.LogcatPlaybackTelemetry
 
@@ -15,6 +16,8 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // 直播频道清单来自 assets/live/channels.json，启动时载入一次，页面同步读取。
+        LiveChannelRepository.initialize(this)
         audioRuntime.initialize(this)
         // 默认把内核指标打到 Logcat；接入真实上报平台时替换成对应实现即可。
         audioRuntime.setTelemetry(LogcatPlaybackTelemetry())

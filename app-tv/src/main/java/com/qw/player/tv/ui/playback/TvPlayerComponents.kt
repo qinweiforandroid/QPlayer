@@ -64,6 +64,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
@@ -351,7 +352,7 @@ fun TvPlayerIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = Color.Unspecified,
+            tint = LocalContentColor.current,
             modifier = Modifier.size(28.dp)
         )
     }
@@ -379,7 +380,7 @@ fun TvPlayerTextButton(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = LocalContentColor.current,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(Modifier.width(8.dp))

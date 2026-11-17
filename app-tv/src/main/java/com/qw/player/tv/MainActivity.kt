@@ -3,6 +3,7 @@ package com.qw.player.tv
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.qw.player.core.live.LiveChannelRepository
 import com.qw.player.tv.playback.TvPlaybackRuntime
 import com.qw.player.tv.ui.QPlayerTvApp
 import com.qw.player.tv.ui.theme.QPlayerTvTheme
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LiveChannelRepository.initialize(this)
         runtime.initialize(this)
 
         setContent {
