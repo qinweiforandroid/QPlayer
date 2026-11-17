@@ -1,0 +1,64 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.plugin.compose'
+}
+
+android {
+    compileSdk 37
+
+    defaultConfig {
+        applicationId "com.qw.player.tv"
+        minSdk 23
+        targetSdk 37
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    namespace 'com.qw.player.tv'
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.19.0'
+    implementation 'androidx.activity:activity-compose:1.13.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.11.0'
+
+    implementation platform('androidx.compose:compose-bom:2026.02.01')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.compose.material:material-icons-extended'
+
+    // Compose for TV：官方 TV 设计规范组件（焦点缩放、发丝边框、Pill Tab）
+    implementation 'androidx.tv:tv-material:1.1.0'
+
+    implementation project(':player-core')
+    implementation project(':player-media3')
+    implementation project(':player-runtime')
+
+    implementation "androidx.media3:media3-exoplayer:1.10.1"
+    implementation "androidx.media3:media3-exoplayer-hls:1.10.1"
+    implementation "androidx.media3:media3-ui:1.10.1"
+    implementation "androidx.media3:media3-ui-compose:1.10.1"
+    implementation "androidx.media3:media3-common:1.10.1"
+
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+}

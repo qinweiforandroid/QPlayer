@@ -138,6 +138,15 @@ runtime.unbindPlayerView(bind.playerView)   // onStop 里解绑，避免 engine 
 
 demo 首页三个入口分别进入音频页、直播页、点播页。
 
+### 8. 运行 TV 应用
+
+```bash
+./gradlew :app-tv:assembleDebug
+./gradlew :app-tv:installDebug
+```
+
+装到电视或 TV 模拟器后，从 Android TV 桌面（`LEANBACK_LAUNCHER`）启动。
+
 ## 运行环境
 
 | 项 | 版本 |
@@ -155,6 +164,7 @@ demo 首页三个入口分别进入音频页、直播页、点播页。
 ```text
 QPlayer/
 ├── app/                    # demo 应用、前台 Service、通知、页面接线
+├── app-tv/                 # Android TV 应用（Compose for TV）
 ├── player-core/            # 播放协议（无 Android 播放器依赖）
 ├── player-runtime/         # 运行时门面与平台策略
 ├── player-media3/          # Media3 内核实现
@@ -201,6 +211,21 @@ QPlayer/
 ### `app` — demo
 
 音频页、点播页、直播频道列表 / 播放页，外加音频前台 Service 与通知。
+
+### `app-tv` — TV
+
+同一套播放内核的 Android TV 接入示例，界面全部用 **Compose for TV**（`androidx.tv:tv-material`）实现，遵循官方 TV 设计指南：48dp 横向安全区、卡片聚焦放大 1.1 倍 + 发丝边框、暗底高对比配色、遥控器 D-Pad 全程可操作。
+
+| 目录 | 内容 |
+| --- | --- |
+| `tv.MainActivity` | 单 Activity 入口，持有一个 `TvPlaybackRuntime` |
+| `tv.playback` | `TvPlaybackRuntime`（只路由视频）、`TvPlaybackEngineFactory` |
+| `tv.ui` | `QPlayerTvApp` 路由、`PlayerStateHolder`（runtime 事件 → Compose 状态）、首页 |
+| `tv.ui.live` | 直播页：频道 / 线路切换控件铺在画面底部渐变层上，不弹全屏列表 |
+| `tv.ui.vod` | 点播页：播放控制、清晰度、选集 |
+| `tv.ui.theme` | 暗色 TV 配色，强调色沿用 demo 的靛蓝 |
+
+接入层的差异只有两处：engine 只注册 `MediaType.VIDEO`；视频画面直接挂给 `media3-ui-compose` 的 `PlayerSurface`，不经过 `PlayerView`。
 
 ## 核心概念
 

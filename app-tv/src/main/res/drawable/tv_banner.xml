@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TV 桌面横幅：320x180dp，集中放品牌名，避免文字落到系统安全区外被裁 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path
+        android:fillColor="#FF15161F"
+        android:pathData="M0,0h320v180h-320z" />
+    <path
+        android:fillColor="#FF2B3487"
+        android:pathData="M0,0h320v180h-320z"
+        android:fillAlpha="0.55" />
+    <path
+        android:fillColor="#FF8E9BFF"
+        android:pathData="M136,74l40,24 -40,24z" />
+</vector>

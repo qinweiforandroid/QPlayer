@@ -165,3 +165,23 @@ demo 应用。包名 `com.qw.player.demo`。
 | `LivePlayerControlView.kt` | 直播控制栏 |
 | `PlayerGestureLayout.kt` | 手势层：单击、双击、水平拖动 seek、垂直调亮度 / 音量、频道滑动 |
 | `PlayerGestureHints.kt` | 手势反馈浮层 |
+
+## app-tv
+
+Android TV 接入示例。包名 `com.qw.player.tv`，界面全部用 Compose for TV（`androidx.tv:tv-material:1.1.0`）。
+
+| 文件 | 说明 |
+| --- | --- |
+| `MainActivity.kt` | 单 Activity 入口，创建并在销毁时释放 `TvPlaybackRuntime` |
+| `playback/TvPlaybackRuntime.kt` | TV 视频 runtime。不开后台播放；`getExoPlayer()` 供 `PlayerSurface` 使用 |
+| `playback/TvPlaybackEngineFactory.kt` | 只注册 `MediaType.VIDEO`，没有 TTS 路由 |
+| `ui/QPlayerTvApp.kt` | 页面路由（Home / Live / Vod），`BackHandler` 逐级返回；路由状态可跨进程重建 |
+| `ui/PlayerStateHolder.kt` | 把 `PlaybackSessionListener` 事件转成 Compose 状态；`rememberPlayerState()` 自动注册 / 注销监听 |
+| `ui/HomeScreen.kt` | 首页：按分类的频道卡片行 + 点播入口；首项自动请求焦点 |
+| `ui/live/LivePlayerScreen.kt` | 直播页：`PlayerSurface` 全屏画面，底部渐变层内嵌播放 / 返回、线路、频道切换 |
+| `ui/vod/VodPlayerScreen.kt` | 点播页：播放控制、前后 15 秒、清晰度、选集 |
+| `ui/theme/Theme.kt` | `QPlayerTvTheme`：暗色 TV 配色，强调色沿用 demo 靛蓝 |
+| `data/TvChannel.kt` / `TvChannelRepository.kt` | 频道模型与内置清单（40 个频道，多条线路） |
+| `data/VodModels.kt` / `VodRepository.kt` | 点播模型与演示数据 |
+
+接入差异只有两处：engine 只映射 `MediaType.VIDEO`；视频输出走 `media3-ui-compose` 的 `PlayerSurface` 而不是 `PlayerView`。

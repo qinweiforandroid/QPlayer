@@ -4,7 +4,7 @@
 
 ```text
 ┌──────────────────────────────────────────────┐
-│ app                                          │  页面 / Service / 通知 / demo 装配
+│ app / app-tv                                 │  页面 / Service / 通知 / 装配
 ├──────────────────────────────────────────────┤
 │ player-runtime                               │  BasePlaybackRuntime + 平台策略
 ├───────────────────────┬──────────────────────┤
@@ -14,7 +14,9 @@
 └──────────────────────────────────────────────┘
 ```
 
-依赖严格单向：`player-core` 不依赖其他任何模块；`player-media3` / `player-tts` / `player-runtime` 只依赖 `player-core`；`app` 依赖全部。
+依赖严格单向：`player-core` 不依赖其他任何模块；`player-media3` / `player-tts` / `player-runtime` 只依赖 `player-core`；`app` / `app-tv` 依赖全部。
+
+`app` 与 `app-tv` 是两个并列的接入方，互不依赖：前者用 View 体系做手机端 demo，后者用 Compose for TV 做 TV 端示例，共用同一套协议与内核。
 
 ## 为什么这么分
 

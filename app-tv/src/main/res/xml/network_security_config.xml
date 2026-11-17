@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- demo 频道源大量使用 http，接入真实服务时应改为仅 https -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
